@@ -107,7 +107,7 @@ export default function AboutPage() {
         <h2 className="font-display text-[40px] font-bold text-rayo-green tracking-tight mb-8">
           Start building smarter financial habits.
         </h2>
-        <a href="/dashboard" className="btn-accent text-base px-9 py-4">
+        <a href="/auth/signup" className="btn-accent text-base px-9 py-4">
           Get Started with Rayo 
           <ArrowRight className="w-4 h-4" />
         </a>

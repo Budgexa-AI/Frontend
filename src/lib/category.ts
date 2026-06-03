@@ -1,4 +1,4 @@
-import type { CategoryMeta, TransactionCategory } from "types";
+import type { CategoryMeta, TransactionCategory } from "@/lib/types/src";
 
 export const CATEGORIES: CategoryMeta[] = [
   { label: "Food & Dining", emoji: "🍽️", value: "food_dining" },

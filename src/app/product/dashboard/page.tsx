@@ -182,7 +182,7 @@ export default function DashboardPage() {
 
         {/* ── AI HERO ── */}
         <section className="relative overflow-hidden rounded-[32px] bg-rayo-green p-6 text-white md:p-8">
-          <div className="absolute right-0 top-0 h-60 w-60 rounded-full bg-rayo-orange/20 blur-3xl" />
+          <div className="absolute right-0 top-0 h-60 w-60 rounded-full bg-rayo-orange blur-3xl" />
 
           <div className="relative">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur-sm">

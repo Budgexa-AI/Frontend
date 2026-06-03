@@ -18,7 +18,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "types": ["../../packages/types/src/index.ts"],
-      "@rayo/types": ["../../packages/types/src/index.ts"],
+      "@lib/types": ["../../packages/types/src/index.ts"],
       "@/types/database": ["../../packages/types/src/types/database.ts"]
     }
   },

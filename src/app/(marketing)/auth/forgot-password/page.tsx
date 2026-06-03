@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
-import { requestPasswordReset, resendResetPassword } from "@rayo/api-client";
+import { requestPasswordReset, resendResetPassword } from "@/lib/api-client";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");

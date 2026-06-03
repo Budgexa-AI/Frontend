@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Bell, Menu, Plus, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import DateRange from "../ui/DateRange";
-import type { UserProfile } from "@rayo/api-client";
+import type { UserProfile } from "@/lib/api-client";
 
 function getGreeting() {
   const h = new Date().getHours();

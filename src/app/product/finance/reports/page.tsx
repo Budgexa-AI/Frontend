@@ -1,8 +1,8 @@
 import Link from "next/link";
 
-import { getCurrentUser, getDashboardData } from "@rayo/api-client";
+import { getCurrentUser, getDashboardData } from "@/lib/api-client";
 import { formatNaira, formatNairaCompact, relativeTime } from "@/lib/utils";
-import type { Transaction } from "@rayo/types";
+import type { Transaction } from "@/lib/types/src/index";
 
 function sectionTitle(title: string, subtitle: string) {
   return (

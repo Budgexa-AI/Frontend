@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Loader2, Check, X } from "lucide-react";
-import { signUp, signInWithGoogle } from "@rayo/api-client";
+import { signUp, signInWithGoogle } from "@/lib/api-client";
 import { signUpSchema } from "@/lib/validations";
 import { cn } from "@/lib/utils";
 import type { ZodError } from "zod";

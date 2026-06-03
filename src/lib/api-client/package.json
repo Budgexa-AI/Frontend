@@ -1,5 +1,5 @@
 {
-  "name": "@rayo/api-client",
+  "name": "@lib/api-client",
   "version": "0.1.0",
   "private": true,
   "description": "API client and backend integration helpers",
@@ -8,7 +8,7 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@rayo/types": "*"
+    "@lib/types": "*"
   },
   "devDependencies": {
     "typescript": "^5.5.3"

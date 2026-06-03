@@ -18,7 +18,7 @@ import {
   type ResetPasswordRequest,
   type AuthResponse,
   type VerificationResponse,
-} from '@rayo/api-client';
+} from '@/lib/api-client';
 import {
   isAuthenticated,
   getAuthToken,
@@ -32,7 +32,7 @@ import {
   type LoginInput,
   type VerifyOtpInput,
   type ResetPasswordInput,
-} from '@rayo/auth-client';
+} from '@/lib/auth-client';
 
 export interface UseAuthReturn {
   // State

@@ -1,5 +1,5 @@
 {
-  "name": "@rayo/auth-client",
+  "name": "@lib/auth-client",
   "version": "0.1.0",
   "private": true,
   "description": "Authentication helpers and utilities",

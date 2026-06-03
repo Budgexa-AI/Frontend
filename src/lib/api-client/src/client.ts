@@ -23,7 +23,7 @@ import type {
   Transaction as DBTransaction,
   Savings as DBSavings,
   AiInsight as DBAiInsight,
-} from "@rayo/types";
+} from "@/lib/types/src";
 
 export interface UserProfile {
   id: string;

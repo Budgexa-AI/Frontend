@@ -13,7 +13,7 @@ import { detectCategory, CATEGORIES } from "@/lib/category";
 import { createTransactionAction } from "@/actions/transactions";
 import { AIInsightPanel } from "@/components/ai/InsightPanel";
 import { ReceiptUpload } from "./receipt-upload";
-import type { PaymentMethod } from "types";
+import type { PaymentMethod } from "@/lib/types/src";
 import { Sparkle, Sparkles } from "lucide-react";
 
 const PAYMENT_METHODS: { value: PaymentMethod; label: string; icon: string }[] =

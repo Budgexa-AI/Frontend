@@ -14,8 +14,8 @@ export const CtaSection: FC = () => (
 
     <div className="flex items-center justify-center gap-4 flex-wrap">
       <Link
-        href="/dashboard"
-        className="btn-secondary text-base px-9 py-4 text-rayo-green hover:text-white no-underline"
+        href="/auth/signup"
+        className="btn-secondary text-base px-9 py-4 text-rayo-green hover:text-rayo-sage-dark hover:bg-rayo-beige-dark no-underline"
         target="_blank"
       >
         Start Rayo Free

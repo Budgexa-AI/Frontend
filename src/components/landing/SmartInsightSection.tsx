@@ -85,7 +85,7 @@ export default function SmartInsightsSection() {
             </ul>
 
             <a
-              href="/dashboard"
+              href="/auth/signup"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center rounded-full bg-white px-7 py-3.5 font-semibold text-rayo-green transition-all hover:bg-rayo-beige-light"

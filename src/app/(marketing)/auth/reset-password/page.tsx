@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
-import { resetPassword } from "@rayo/api-client";
+import { resetPassword } from "@/lib/api-client";
 
 export default function ResetPasswordPage() {
   const router = useRouter();

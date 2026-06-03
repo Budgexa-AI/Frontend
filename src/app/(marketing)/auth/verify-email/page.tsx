@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Loader2, RefreshCw, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { resendVerificationOtp, verifyEmailOtp } from "@rayo/api-client";
+import { resendVerificationOtp, verifyEmailOtp } from "@/lib/api-client";
 
 type FieldErrors = Partial<Record<string, string>>;
 
