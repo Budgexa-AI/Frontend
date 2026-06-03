@@ -1,0 +1,321 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ArrowLeft, Loader2, RefreshCw, Check } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { resendVerificationOtp, verifyEmailOtp } from "@rayo/api-client";
+
+type FieldErrors = Partial<Record<string, string>>;
+
+export default function VerifyEmailPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const email = searchParams.get("email") || "";
+
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [errors, setErrors] = useState<FieldErrors>({});
+  const [serverError, setServerError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+
+  const [timer, setTimer] = useState(60);
+
+  const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+
+  // Show success message on initial load
+  useEffect(() => {
+    setSuccessMessage("Verification code sent to your email!");
+    const timeout = setTimeout(() => setSuccessMessage(""), 5000);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  // Countdown timer
+  useEffect(() => {
+    if (timer <= 0) return;
+
+    const interval = setInterval(() => {
+      setTimer((t) => t - 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [timer]);
+
+  function updateOtp(index: number, value: string) {
+    if (!/^\d?$/.test(value)) return;
+
+    const next = [...otp];
+    next[index] = value;
+    setOtp(next);
+
+    // Move forward
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  }
+
+  function handleKeyDown(
+    e: React.KeyboardEvent<HTMLInputElement>,
+    index: number
+  ) {
+    // Move backwards on delete
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  }
+
+  function handlePaste(e: React.ClipboardEvent<HTMLInputElement>) {
+    e.preventDefault();
+
+    const pasted = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 6);
+
+    if (!pasted) return;
+
+    const next = pasted.split("");
+
+    while (next.length < 6) next.push("");
+
+    setOtp(next);
+
+    const lastIndex = Math.min(pasted.length - 1, 5);
+    inputRefs.current[lastIndex]?.focus();
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+
+    setErrors({});
+    setServerError("");
+
+    const code = otp.join("");
+
+    if (code.length !== 6) {
+      setErrors({
+        otp: "Please enter the 6-digit verification code.",
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      console.log("[verify-email] verifying otp", {
+        email,
+        code,
+      });
+
+      const response = await verifyEmailOtp({
+        email,
+        otp: code,
+      });
+
+      if (response.success) {
+        router.push("/product/onboarding/welcome");
+      } else {
+        setServerError(response.error || "Invalid verification code.");
+      }
+    } catch (err: any) {
+      console.error("[verify-email] verification failed", err);
+
+      setServerError(
+        err.message || "Something went wrong. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleResendCode() {
+    if (timer > 0) return;
+
+    setResending(true);
+    setServerError("");
+    setSuccessMessage("");
+
+    try {
+      console.log("[verify-email] resending otp", { email });
+
+      const response = await resendVerificationOtp(email);
+
+      if (!response.success) {
+        throw new Error(response.error || "Could not resend verification code.");
+      }
+
+      setSuccessMessage("Verification code sent to your email!");
+      setTimer(60);
+      
+      // Auto-hide success message after 5 seconds
+      const timeout = setTimeout(() => setSuccessMessage(""), 5000);
+      return () => clearTimeout(timeout);
+    } catch (err: any) {
+      console.error("[verify-email] resend failed", err);
+
+      setServerError(
+        err.message || "Could not resend verification code."
+      );
+    } finally {
+      setResending(false);
+    }
+  }
+
+  return (
+    <div className="w-full max-w-md">
+      <div className="rounded-3xl border border-rayo-beige-dark bg-white shadow-card-lg p-8">
+        {/* Back */}
+        <Link
+          href="/auth/signup"
+          className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-rayo-green/60 transition-colors hover:text-rayo-green"
+        >
+          <ArrowLeft size={16} />
+          Back
+        </Link>
+
+        {/* Header */}
+        <div className="mb-8">
+          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-rayo-orange/10">
+            <div className="h-3 w-3 rounded-full bg-rayo-orange animate-pulse" />
+          </div>
+
+          <h1 className="font-display text-3xl font-bold text-rayo-green mb-2">
+            Verify your email
+          </h1>
+
+          <p className="text-sm leading-relaxed text-rayo-green/60">
+            We sent a 6-digit verification code to{" "}
+            <span className="font-semibold text-rayo-green">
+              {email || "your email"}
+            </span>
+          </p>
+        </div>
+
+        {/* Error */}
+        {serverError && (
+          <div className="mb-5 rounded-xl border border-rayo-alert/20 bg-rayo-alert/10 px-4 py-3 text-sm text-rayo-alert">
+            {serverError}
+          </div>
+        )}
+
+        {/* Success */}
+        {successMessage && (
+          <div className="mb-5 rounded-xl border border-rayo-green/20 bg-rayo-green/5 px-4 py-3 text-sm text-rayo-green flex items-center gap-2">
+            <Check size={16} className="flex-shrink-0" />
+            {successMessage}
+          </div>
+        )}
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} noValidate>
+          {/* OTP Inputs */}
+          <div className="mb-3">
+            <label className="mb-3 block text-sm font-semibold text-rayo-green">
+              Verification code
+            </label>
+
+            <div className="flex items-center justify-between gap-2">
+              {otp.map((digit, index) => (
+                <input
+                  key={index}
+                  ref={(el) => {
+                    inputRefs.current[index] = el;
+                  }}
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => updateOtp(index, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(e, index)}
+                  onPaste={handlePaste}
+                  className={cn(
+                    "h-14 w-12 rounded-2xl border bg-white text-center text-lg font-semibold text-rayo-green outline-none transition-all",
+                    "focus:ring-2 focus:ring-rayo-green/20",
+                    errors.otp
+                      ? "border-rayo-alert"
+                      : "border-rayo-beige-dark focus:border-rayo-green"
+                  )}
+                />
+              ))}
+            </div>
+
+            {errors.otp && (
+              <p className="mt-2 text-xs text-rayo-alert">
+                {errors.otp}
+              </p>
+            )}
+          </div>
+
+          {/* Verify Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-primary mt-6 w-full py-3.5 text-base disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {loading ? (
+              <>
+                <Loader2 size={16} className="animate-spin" />
+                Verifying…
+              </>
+            ) : (
+              "Verify email →"
+            )}
+          </button>
+        </form>
+
+        {/* Resend */}
+        <div className="mt-6 rounded-2xl border border-rayo-beige-dark bg-rayo-beige-light/40 p-4">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-sm font-medium text-rayo-green">
+                Didn’t receive the code?
+              </p>
+
+              <p className="mt-1 text-xs leading-relaxed text-rayo-green/60">
+                Check your spam folder or resend the verification code.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleResendCode}
+              disabled={timer > 0 || resending}
+              className={cn(
+                "inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-all",
+                timer > 0 || resending
+                  ? "cursor-not-allowed bg-rayo-beige-dark/50 text-rayo-green/40"
+                  : "bg-rayo-green text-white hover:opacity-90"
+              )}
+            >
+              {resending ? (
+                <>
+                  <Loader2 size={14} className="animate-spin" />
+                  Sending
+                </>
+              ) : (
+                <>
+                  <RefreshCw size={14} />
+                  {timer > 0 ? `${timer}s` : "Resend"}
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <p className="mt-6 text-center text-sm text-rayo-green/60">
+          Wrong email?{" "}
+          <Link
+            href="/auth/signup"
+            className="font-semibold text-rayo-green transition-colors hover:text-rayo-orange"
+          >
+            Go back
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}
