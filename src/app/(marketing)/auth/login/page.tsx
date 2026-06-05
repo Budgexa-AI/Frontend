@@ -37,14 +37,7 @@ export default function LoginPage() {
 
   // Handle OAuth callback: token or error returned via URL params
   useEffect(() => {
-    const token = searchParams.get("token");
     const oauthError = searchParams.get("error");
-
-    if (token) {
-      // TODO: Store the token however your app requires
-      // localStorage.setItem("authToken", token);
-      router.replace("/product/dashboard");
-    }
 
     if (oauthError) {
       const messages: Record<string, string> = {
@@ -140,16 +133,16 @@ export default function LoginPage() {
         password: parsed.data.password,
       });
 
+      console.log("[login] response:", JSON.stringify(response));
+
       if (isEmailUnverified(response) || extractLoginEmailUnverifiedMessage(response)) {
         await redirectToVerifyEmail(parsed.data.email);
         return;
       }
 
       if (response.success && response.data) {
-        // TODO: Store authentication token
-        // localStorage.setItem("authToken", response.data.token);
-        const dashboardUrl = "/product/dashboard";
-        router.push(dashboardUrl);
+        document.cookie = `authToken=${response.data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
+        router.push(searchParams.get("redirect") || "/product/dashboard");
       } else {
         if (extractLoginEmailUnverifiedMessage(response)) {
           await redirectToVerifyEmail(parsed.data.email);

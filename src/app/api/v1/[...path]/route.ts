@@ -1,19 +1,15 @@
+// app/api/v1/[...path]/route.ts
 import { NextResponse } from "next/server";
 
-// Server-side only — never exposed to the browser.
-// Set BACKEND_URL=https://rayotypebackend-production.up.railway.app in your env.
-const BACKEND_BASE_URL =
-  process.env.BACKEND_URL || "http://localhost:3001";
+const BACKEND_BASE_URL = process.env.BACKEND_URL || "http://localhost:3001";
 
 function extractErrorMessage(payload: unknown, fallback: string): string {
-  if (!payload) {
-    return fallback;
-  } 
+  if (!payload) return fallback;
 
   if (typeof payload === "string") {
     return payload.trim() || fallback;
   }
-  
+
   if (Array.isArray(payload)) {
     const first = payload.find((item) => typeof item === "string");
     return typeof first === "string" && first.trim().length > 0
@@ -30,16 +26,12 @@ function extractErrorMessage(payload: unknown, fallback: string): string {
       record.reason,
     ]) {
       const extracted = extractErrorMessage(candidate, "");
-      if (extracted) {
-        return extracted;
-      }
+      if (extracted) return extracted;
     }
 
     if (Array.isArray(record.errors) && record.errors.length > 0) {
       const extracted = extractErrorMessage(record.errors[0], "");
-      if (extracted) {
-        return extracted;
-      }
+      if (extracted) return extracted;
     }
   }
 
@@ -50,29 +42,23 @@ async function proxyRequest(
   request: Request,
   pathSegments: string[]
 ): Promise<Response> {
-  // pathSegments comes in without the /api/v1 prefix (Next.js strips the
-  // route folder path). We re-add /api/v1 when forwarding to Railway.
   const path = pathSegments.join("/");
   const base = BACKEND_BASE_URL.replace(/\/$/, "");
-  const targetUrl = new URL(`${base}/api/v1/${path}`);
+  const pathUrl = `/api/v1/${path}`;
+  const targetUrl = new URL(`${base}${pathUrl}`);
 
-  console.log("BACKEND_BASE_URL =", BACKEND_BASE_URL);
-  console.log("TARGET_URL =", targetUrl.toString());
-
-  // Forward query string from the incoming request
   const incomingUrl = new URL(request.url);
   targetUrl.search = incomingUrl.search;
 
   const headers = new Headers(request.headers);
-  headers.delete("host");
-  headers.delete("content-length");
+  headers.delete("accept-encoding");
 
   const hasBody = !["GET", "HEAD"].includes(request.method.toUpperCase());
   const body = hasBody ? await request.text() : undefined;
 
   console.info("[proxy] forwarding request", {
     method: request.method,
-    target: targetUrl.toString(),
+    target: pathUrl.toString(),
   });
 
   try {
@@ -95,26 +81,37 @@ async function proxyRequest(
 
       console.error("[proxy] backend rejected request", {
         method: request.method,
-        target: targetUrl.toString(),
+        target: pathUrl.toString(),
         status: response.status,
         statusText: response.statusText,
         body: responseBody,
       });
 
       return NextResponse.json(
-        {
-          success: false,
-          error: errorMessage,
-          details: responseBody,
-        },
+        { success: false, error: errorMessage, details: responseBody },
         { status: response.status }
       );
     }
 
-    return response;
+    // Forward the response back to the browser, preserving all headers
+    // including Set-Cookie so auth cookies reach the browser correctly.
+    const proxiedResponse = new NextResponse(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: response.headers,
+    });
+
+    // Explicitly re-set Set-Cookie — some runtimes strip it from the
+    // headers copy above. This ensures the auth cookie always lands.
+    const setCookie = response.headers.get("set-cookie");
+    if (setCookie) {
+      proxiedResponse.headers.set("set-cookie", setCookie);
+    }
+
+    return proxiedResponse;
   } catch (error) {
     console.error("[proxy] fetch failed", {
-      target: targetUrl.toString(),
+      target: pathUrl.toString(),
       error,
     });
     return NextResponse.json(

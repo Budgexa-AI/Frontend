@@ -530,7 +530,7 @@ export async function signOut(): Promise<{ success: boolean }> {
 
 // The Railway backend URL used only for Google OAuth (direct browser redirect).
 // All other API calls go through the Next.js proxy at /api/v1/*.
-const BACKEND_URL = "https://rayotypebackend-production.up.railway.app";
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 /**
  * Redirects the browser to the backend Google OAuth endpoint.
@@ -543,7 +543,7 @@ const BACKEND_URL = "https://rayotypebackend-production.up.railway.app";
  */
 export function signInWithGoogle(redirectUrl: string, errorUrl: string): void {
   const googleOAuthUrl =
-    `${BACKEND_URL}/auth/google` +
+    `${BACKEND_URL}/api/v1/auth/google` +
     `?redirectUrl=${encodeURIComponent(redirectUrl)}` +
     `&errorUrl=${encodeURIComponent(errorUrl)}`;
 

@@ -104,10 +104,6 @@ export default function WelcomeSetupPage() {
                   className="transition-transform group-hover:translate-x-1"
                 />
               </Link>
-
-              <button className="h-14 rounded-2xl px-6 text-sm font-medium text-[#254F22]/60 transition-colors hover:text-[#254F22]">
-                Skip for now
-              </button>
             </div>
           </div>
         </div>
