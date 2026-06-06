@@ -660,7 +660,7 @@ export default function DashboardPage() {
                 <p className="text-sm text-rayo-green/50">No savings goals yet.</p>
               ) : (
                 <div className="space-y-5">
-                  {goals.map((goal) => (
+                  {goals.map((goal: any) => (
                     <div key={goal.title}>
                       <div className="mb-2 flex items-start justify-between">
                         <div>
