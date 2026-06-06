@@ -217,7 +217,7 @@ export default function VerifyEmailPage() {
               Verification code
             </label>
 
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center justify-between gap-1.5 w-full">
               {otp.map((digit, index) => (
                 <input
                   key={index}
@@ -232,7 +232,7 @@ export default function VerifyEmailPage() {
                   onKeyDown={(e) => handleKeyDown(e, index)}
                   onPaste={handlePaste}
                   className={cn(
-                    "h-14 w-12 rounded-2xl border bg-white text-center text-lg font-semibold text-rayo-green outline-none transition-all",
+                    "h-12 w-full min-w-0 rounded-2xl border bg-white text-center text-lg font-semibold text-rayo-green outline-none transition-all",
                     "focus:ring-2 focus:ring-rayo-green/20",
                     errors.otp
                       ? "border-rayo-alert"

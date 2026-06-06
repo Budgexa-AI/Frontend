@@ -660,6 +660,31 @@ export async function uploadProfileImage(
   return response;
 }
 
+export async function completeOnboarding(data: {
+  level: string;
+  method: string;
+  income: string;
+  goals: string[];
+  categories: string[];
+}): Promise<{ success: boolean; error?: string }> {
+  const res = await fetch(proxyPath("/onboarding/complete"), {
+    method: "POST",
+    headers: createHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data), // arrays serialize fine as JSON
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    return {
+      success: false,
+      error: extractErrorMessage(body, "Failed to save onboarding data"),
+    };
+  }
+
+  return readJsonResponse(res);
+}
+
 // ============================================================
 // Dashboard API
 // ============================================================
