@@ -1,3 +1,6 @@
+// Replace the top of the file — remove the inline TRANSACTIONS and CATEGORY_SPENDING arrays
+// and replace the imports section with:
+
 "use client";
 
 import { useState } from "react";
@@ -11,182 +14,15 @@ import {
   TrendingUp,
   ChevronLeft,
   ChevronRight,
-  Receipt,
+  ArrowLeft,
 } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { mockTransactions, mockCategorySpending } from "@/lib/mock-data";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Types
-// ─────────────────────────────────────────────────────────────────────────────
-
-interface Transaction {
-  id: string;
-  date: string;
-  time: string;
-  description: string;
-  subtitle: string;
-  category: string;
-  type: "Income" | "Expense";
-  amount: number;
-  paymentMethod: string;
-  icon: string;
-  color: string;
-}
-
-interface CategorySpending {
-  name: string;
-  value: number;
-  color: string;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Mock Data (Tailored for Nigerian Gen Z, Freelancers, & Students)
-// ─────────────────────────────────────────────────────────────────────────────
-
-const TRANSACTIONS: Transaction[] = [
-  {
-    id: "1",
-    date: "May 18, 2026",
-    time: "10:42 AM",
-    description: "Lunch at Chicken Republic",
-    subtitle: "Ate with Tobi after class",
-    category: "Food & Dining",
-    type: "Expense",
-    amount: -4500,
-    paymentMethod: "Access Bank",
-    icon: "🍔",
-    color: "#F59E0B",
-  },
-  {
-    id: "2",
-    date: "May 18, 2026",
-    time: "09:15 AM",
-    description: "MTN Data Bundle",
-    subtitle: "150GB Monthly Plan",
-    category: "Data & Internet",
-    type: "Expense",
-    amount: -20000,
-    paymentMethod: "Access Bank",
-    icon: "📶",
-    color: "#8B5CF6",
-  },
-  {
-    id: "3",
-    date: "May 17, 2026",
-    time: "08:22 PM",
-    description: "Transfer to Tobi",
-    subtitle: "Rent contribution",
-    category: "Transfers",
-    type: "Expense",
-    amount: -25000,
-    paymentMethod: "GTBank",
-    icon: "🔄",
-    color: "#3B82F6",
-  },
-  {
-    id: "4",
-    date: "May 17, 2026",
-    time: "02:10 PM",
-    description: "KFC Victoria Island",
-    subtitle: "Lunch",
-    category: "Food & Dining",
-    type: "Expense",
-    amount: -3800,
-    paymentMethod: "Moniepoint",
-    icon: "🍗",
-    color: "#F59E0B",
-  },
-  {
-    id: "5",
-    date: "May 16, 2026",
-    time: "11:30 AM",
-    description: "Netflix Subscription",
-    subtitle: "Monthly subscription",
-    category: "Entertainment",
-    type: "Expense",
-    amount: -2900,
-    paymentMethod: "Access Bank",
-    icon: "🎬",
-    color: "#EF4444",
-  },
-  {
-    id: "6",
-    date: "May 16, 2026",
-    time: "09:05 AM",
-    description: "Airtime Top Up",
-    subtitle: "MTN Airtime",
-    category: "Airtime",
-    type: "Expense",
-    amount: -1000,
-    paymentMethod: "Access Bank",
-    icon: "📱",
-    color: "#10B981",
-  },
-  {
-    id: "7",
-    date: "May 15, 2026",
-    time: "06:45 PM",
-    description: "Freelance Payment",
-    subtitle: "UI/UX Design Project",
-    category: "Freelance",
-    type: "Income",
-    amount: 120000,
-    paymentMethod: "GTBank",
-    icon: "💻",
-    color: "#8B5CF6",
-  },
-  {
-    id: "8",
-    date: "May 15, 2026",
-    time: "01:20 PM",
-    description: "Paid by Mom",
-    subtitle: "Upkeep stipend",
-    category: "Family Support",
-    type: "Income",
-    amount: 50000,
-    paymentMethod: "Zenith Bank",
-    icon: "💜",
-    color: "#A855F7",
-  },
-  {
-    id: "9",
-    date: "May 14, 2026",
-    time: "07:50 PM",
-    description: "Bolt Ride",
-    subtitle: "From school to home",
-    category: "Transport",
-    type: "Expense",
-    amount: -1700,
-    paymentMethod: "Moniepoint",
-    icon: "🚕",
-    color: "#F97316",
-  },
-  {
-    id: "10",
-    date: "May 14, 2026",
-    time: "12:18 PM",
-    description: "Groceries at Shoprite",
-    subtitle: "Weekly restocking",
-    category: "Groceries",
-    type: "Expense",
-    amount: -7450,
-    paymentMethod: "Access Bank",
-    icon: "🛒",
-    color: "#2563EB",
-  },
-];
-
-const CATEGORY_SPENDING: CategorySpending[] = [
-  { name: "Food & Dining", value: 55600, color: "#F59E0B" },
-  { name: "Transfers", value: 43500, color: "#3B82F6" },
-  { name: "Data & Internet", value: 23700, color: "#8B5CF6" },
-  { name: "Transport", value: 19800, color: "#F97316" },
-  { name: "Groceries", value: 15300, color: "#2563EB" },
-  { name: "Others", value: 40450, color: "#CBD5E1" },
-];
-
+const TRANSACTIONS = mockTransactions;
+const CATEGORY_SPENDING = mockCategorySpending;
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────────────────────────────────────
@@ -210,10 +46,19 @@ const balance = totalIncome - totalExpenses;
 
 export default function TransactionsPage() {
   const [activeTab, setActiveTab] = useState<"all" | "recurring">("all");
+  const router = useRouter();
 
   return (
     <div className="min-h-screen">
       <div className="max-w-full mx-auto px-4 md:px-6 py-6">
+        {/* ── BACK BUTTON ── */}
+        <button
+          onClick={() => router.back()}
+          className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-rayo-green/60 transition-colors hover:text-rayo-green"
+        >
+          <ArrowLeft size={16} />
+          Back
+        </button>
         
         {/* ───────────────── HEADER ───────────────── */}
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">

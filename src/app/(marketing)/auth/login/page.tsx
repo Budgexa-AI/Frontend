@@ -140,9 +140,20 @@ export default function LoginPage() {
         return;
       }
 
-      if (response.success && response.data) {
-        document.cookie = `authToken=${response.data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
-        router.push(searchParams.get("redirect") || "/product/dashboard");
+      // Wherever you handle successful login (your login page's submit handler)
+      if (response.success && response.data?.token) {
+        const token = response.data.token;
+
+        // For API calls via createHeaders()
+        localStorage.setItem("authToken", token);
+
+        // For middleware route protection (cookies are readable in Edge runtime)
+        document.cookie = `authToken=${token}; path=/; max-age=${
+          60 * 60 * 24 * 7  // 7 days
+        }; SameSite=Lax`;
+
+        const redirect = searchParams.get("redirect") ?? "/product/dashboard";
+        router.push(redirect);
       } else {
         if (extractLoginEmailUnverifiedMessage(response)) {
           await redirectToVerifyEmail(parsed.data.email);

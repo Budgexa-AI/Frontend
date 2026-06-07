@@ -24,7 +24,7 @@ import { useRouter } from "next/navigation";
 import type {
   Account as DBAccount,
   Transaction as DBTransaction,
-  Savings as DBSavings,
+  SavingsGoal as DBSavings,
   AiInsight as DBAiInsight,
 } from "@/lib/types/src";
 import { fetchCurrentUser, fetchDashboardData } from "@/lib/data-service";
@@ -36,43 +36,60 @@ import { fetchCurrentUser, fetchDashboardData } from "@/lib/data-service";
 interface DashboardState {
   accounts: DBAccount[];
   transactions: DBTransaction[];
-  savings: DBSavings | null;
+  savingsGoals: DBSavings[];
   insights: DBAiInsight[];
 }
 
+interface DerivedGoal {
+  title: string;
+  current: number;
+  target: number;
+  pct: number;
+}
+
 // ─────────────────────────────────────────────────────────────
-// HELPERS — derive display data from real API shape
+// HELPERS
 // ─────────────────────────────────────────────────────────────
 
 function deriveMetrics(data: DashboardState) {
-  const totalBalance = data.accounts.reduce((sum, a) => sum + (a.balance ?? 0), 0);
+  const totalBalance = data.accounts.reduce(
+    (sum, a) => sum + parseFloat(a.balance ?? "0"),
+    0
+  );
 
   const income = data.transactions
-    .filter((t) => t.amount > 0)
-    .reduce((sum, t) => sum + t.amount, 0);
+    .filter((t) => t.type === "income")
+    .reduce((sum, t) => sum + Number(t.amount), 0);
 
   const expenses = data.transactions
-    .filter((t) => t.amount < 0)
-    .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+    .filter((t) => t.type === "expense")
+    .reduce((sum, t) => sum + Number(t.amount), 0);
 
-  const savingsRate = income > 0 ? Math.round(((income - expenses) / income) * 100) : 0;
+  const savingsRate =
+    income > 0 ? Math.round(((income - expenses) / income) * 100) : 0;
 
   return [
-    { title: "Total Balance", value: totalBalance,       change: "+2.5%", positive: true,  icon: Wallet      },
-    { title: "Income",        value: income,             change: "+12%",  positive: true,  icon: ArrowUpRight },
-    { title: "Expenses",      value: expenses,           change: "-8%",   positive: false, icon: ArrowDownLeft },
-    { title: "Savings Rate",  value: `${savingsRate}%`,  change: "+5%",   positive: true,  icon: PiggyBank   },
-  ];
+    { title: "Total Balance", value: totalBalance,      change: "+2.5%", positive: true,  icon: Wallet       },
+    { title: "Income",        value: income,            change: "+12%",  positive: true,  icon: ArrowUpRight },
+    { title: "Expenses",      value: expenses,          change: "-8%",   positive: false, icon: ArrowDownLeft },
+    { title: "Savings Rate",  value: `${savingsRate}%`, change: "+5%",   positive: true,  icon: PiggyBank    },
+  ] as {
+    title: string;
+    value: number | string;
+    change: string;
+    positive: boolean;
+    icon: React.ElementType;
+  }[];
 }
 
 function deriveSpending(transactions: DBTransaction[]) {
   const categoryTotals: Record<string, number> = {};
   const totalExpenses = transactions
-    .filter((t) => t.amount < 0)
+    .filter((t) => t.type === "expense")
     .reduce((sum, t) => {
       const cat = t.category ?? "Other";
-      categoryTotals[cat] = (categoryTotals[cat] ?? 0) + Math.abs(t.amount);
-      return sum + Math.abs(t.amount);
+      categoryTotals[cat] = (categoryTotals[cat] ?? 0) + Number(t.amount);
+      return sum + Number(t.amount);
     }, 0);
 
   return Object.entries(categoryTotals)
@@ -86,18 +103,17 @@ function deriveSpending(transactions: DBTransaction[]) {
     }));
 }
 
-function deriveSavingsGoals(savings: DBSavings | null) {
-  if (!savings) return [];
-
-  // Adjust to your actual DBSavings shape
-  const goals = (savings as any).goals ?? [];
-  return goals.map((g: any) => ({
-    title: g.name ?? g.title,
-    current: g.currentAmount ?? g.current ?? 0,
-    target: g.targetAmount ?? g.target ?? 0,
-    pct: g.targetAmount > 0
-      ? Math.round(((g.currentAmount ?? 0) / g.targetAmount) * 100)
-      : 0,
+function deriveSavingsGoals(goals: DBSavings[]): DerivedGoal[] {
+  return goals.map((g) => ({
+    title:   g.name,
+    current: parseFloat(g.currentAmount),
+    target:  parseFloat(g.targetAmount),
+    pct:
+      parseFloat(g.targetAmount) > 0
+        ? Math.round(
+            (parseFloat(g.currentAmount) / parseFloat(g.targetAmount)) * 100
+          )
+        : 0,
   }));
 }
 
@@ -105,8 +121,8 @@ function deriveLatestInsight(insights: DBAiInsight[]) {
   if (!insights.length) return null;
   const latest = insights[0];
   return {
-    title: (latest as any).title ?? "Smart Insight",
-    body: (latest as any).content ?? (latest as any).message ?? "",
+    title: latest.title   ?? "Smart Insight",
+    body:  latest.content ?? latest.content ?? "",
   };
 }
 
@@ -114,12 +130,15 @@ function deriveLatestInsight(insights: DBAiInsight[]) {
 // DONUT
 // ─────────────────────────────────────────────────────────────
 
-const RADIUS = 40;
+const RADIUS       = 40;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
-function DonutChart({ spending }: { spending: ReturnType<typeof deriveSpending> }) {
+function DonutChart({
+  spending,
+}: {
+  spending: ReturnType<typeof deriveSpending>;
+}) {
   let cumulative = 0;
-
   const totalExpenses = spending.reduce((sum, s) => sum + s.amount, 0);
 
   return (
@@ -166,7 +185,7 @@ function DonutChart({ spending }: { spending: ReturnType<typeof deriveSpending> 
 
 function SkeletonCard() {
   return (
-    <div className="rounded-[28px] border border-rayo-green/5 bg-white p-5 shadow-sm animate-pulse">
+    <div className="animate-pulse rounded-[28px] border border-rayo-green/5 bg-white p-5 shadow-sm">
       <div className="h-11 w-11 rounded-2xl bg-rayo-beige" />
       <div className="mt-5 h-3 w-24 rounded bg-rayo-beige" />
       <div className="mt-2 h-8 w-32 rounded bg-rayo-beige" />
@@ -181,29 +200,31 @@ function SkeletonCard() {
 
 export default function DashboardPage() {
   const [showBalance, setShowBalance] = useState(true);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<DashboardState>({
-    accounts: [],
+  const [loading, setLoading]         = useState(true);
+  const [error, setError]             = useState<string | null>(null);
+  const [userId, setUserId]           = useState<string | null>(null);
+  const [data, setData]               = useState<DashboardState>({
+    accounts:     [],
     transactions: [],
-    savings: null,
-    insights: [],
+    savingsGoals: [],
+    insights:     [],
   });
-  const [userId, setUserId] = useState<string | null>(null);
 
   const router = useRouter();
 
-  // Fetch current user, then dashboard data
   useEffect(() => {
     async function load() {
       try {
         setLoading(true);
-        const user = await fetchCurrentUser();       // was getCurrentUser()
+        setError(null);
+        const user = await fetchCurrentUser();
         setUserId(user.id);
-        const data = await fetchDashboardData(user.id); // was getDashboardData()
-        setData(data);
-      } catch (err: any) {
-        setError(err?.message ?? "Failed to load dashboard data");
+        const dashboardData = await fetchDashboardData(user.id);
+        setData(dashboardData);
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error ? err.message : "Failed to load dashboard data";
+        setError(message);
       } finally {
         setLoading(false);
       }
@@ -211,11 +232,11 @@ export default function DashboardPage() {
     load();
   }, []);
 
-  const metrics       = useMemo(() => deriveMetrics(data),             [data]);
+  const metrics       = useMemo(() => deriveMetrics(data),              [data]);
   const spending      = useMemo(() => deriveSpending(data.transactions), [data.transactions]);
-  const goals         = useMemo(() => deriveSavingsGoals(data.savings),  [data.savings]);
+  const goals         = useMemo(() => deriveSavingsGoals(data.savingsGoals), [data.savingsGoals]);
   const latestInsight = useMemo(() => deriveLatestInsight(data.insights), [data.insights]);
-  const recentTxs     = useMemo(() => data.transactions.slice(0, 5),     [data.transactions]);
+  const recentTxs     = useMemo(() => data.transactions.slice(0, 5),    [data.transactions]);
 
   const highestSpendingCategory = spending[0]?.label ?? "N/A";
 
@@ -240,13 +261,6 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-3 overflow-x-auto pb-1">
-            <Link
-              href="/product/finance/transactions/new"
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-rayo-green px-5 text-sm font-medium text-white transition-all hover:bg-rayo-green-dark"
-            >
-              <Plus size={16} />
-              Add Transaction
-            </Link>
 
             <Link
               href="/product/finance/ai"
@@ -450,7 +464,10 @@ export default function DashboardPage() {
                     <p className="mt-1 text-sm text-rayo-green/60">Monthly category tracking</p>
                   </div>
 
-                  <Link href="/product/finance/budget" className="text-sm font-semibold text-rayo-green">
+                  <Link
+                    href="/product/finance/budget"
+                    className="text-sm font-semibold text-rayo-green"
+                  >
                     View all
                   </Link>
                 </div>
@@ -458,7 +475,7 @@ export default function DashboardPage() {
                 {loading ? (
                   <div className="space-y-6">
                     {Array.from({ length: 4 }).map((_, i) => (
-                      <div key={i} className="space-y-2 animate-pulse">
+                      <div key={i} className="animate-pulse space-y-2">
                         <div className="h-3 w-32 rounded bg-rayo-beige" />
                         <div className="h-2 w-full rounded-full bg-rayo-beige" />
                       </div>
@@ -471,16 +488,20 @@ export default function DashboardPage() {
                     {spending.map((item) => {
                       const remaining = 100000 - item.amount;
                       const status =
-                        item.pct >= 80 ? "Near limit" :
-                        item.pct >= 60 ? "Watch spending" :
-                        "Healthy";
+                        item.pct >= 80
+                          ? "Near limit"
+                          : item.pct >= 60
+                          ? "Watch spending"
+                          : "Healthy";
 
                       return (
                         <div key={item.label}>
                           <div className="mb-3 flex items-start justify-between gap-4">
                             <div>
                               <div className="flex items-center gap-2">
-                                <p className="text-sm font-semibold text-rayo-green">{item.label}</p>
+                                <p className="text-sm font-semibold text-rayo-green">
+                                  {item.label}
+                                </p>
                                 <span
                                   className={`rounded-full px-2 py-1 text-[10px] font-semibold ${
                                     status === "Healthy"
@@ -495,13 +516,18 @@ export default function DashboardPage() {
                                 {formatNaira(remaining)} remaining
                               </p>
                             </div>
-                            <p className="text-sm font-semibold text-rayo-green/60">{item.pct}%</p>
+                            <p className="text-sm font-semibold text-rayo-green/60">
+                              {item.pct}%
+                            </p>
                           </div>
 
                           <div className="h-2 overflow-hidden rounded-full bg-rayo-beige-dark">
                             <div
                               className="h-full rounded-full transition-all"
-                              style={{ width: `${item.pct}%`, backgroundColor: item.color }}
+                              style={{
+                                width: `${item.pct}%`,
+                                backgroundColor: item.color,
+                              }}
                             />
                           </div>
                         </div>
@@ -532,7 +558,10 @@ export default function DashboardPage() {
             <section className="rounded-[28px] border border-rayo-green/5 bg-white p-5 shadow-sm md:hidden">
               <div className="mb-5 flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-rayo-green">Recent Transactions</h3>
-                <Link href="/product/finance/transactions" className="text-sm font-medium text-rayo-green">
+                <Link
+                  href="/product/finance/transactions"
+                  className="text-sm font-medium text-rayo-green"
+                >
                   View all
                 </Link>
               </div>
@@ -548,17 +577,24 @@ export default function DashboardPage() {
               ) : (
                 <div className="space-y-3">
                   {recentTxs.map((tx) => (
-                    <div key={(tx as any).id} className="rounded-2xl border border-rayo-green/5 bg-rayo-ash p-4">
+                    <div
+                      key={tx.id}
+                      className="rounded-2xl border border-rayo-green/5 bg-rayo-ash p-4"
+                    >
                       <div className="flex items-start justify-between">
                         <div>
-                          <p className="font-medium text-rayo-green">{(tx as any).description ?? (tx as any).title}</p>
+                          <p className="font-medium text-rayo-green">{tx.description}</p>
                           <p className="mt-1 text-xs text-rayo-green/60">
-                            {(tx as any).category} • {(tx as any).date ?? (tx as any).createdAt}
+                            {tx.category} • {tx.date}
                           </p>
                         </div>
-                        <p className={`text-sm font-semibold ${tx.amount > 0 ? "text-rayo-green" : "text-rayo-orange"}`}>
-                          {tx.amount > 0 ? "+" : "-"}
-                          {formatNaira(Math.abs(tx.amount))}
+                        <p
+                          className={`text-sm font-semibold ${
+                            tx.type === "income" ? "text-rayo-green" : "text-rayo-orange"
+                          }`}
+                        >
+                          {tx.type === "income" ? "+" : "-"}
+                          {formatNaira(Number(tx.amount))}
                         </p>
                       </div>
                     </div>
@@ -571,13 +607,16 @@ export default function DashboardPage() {
             <section className="hidden rounded-[28px] border border-rayo-green/5 bg-white p-5 shadow-sm md:block">
               <div className="mb-5 flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-rayo-green">Recent Transactions</h3>
-                <Link href="/product/finance/transactions" className="text-sm font-medium text-rayo-green">
+                <Link
+                  href="/product/finance/transactions"
+                  className="text-sm font-medium text-rayo-green"
+                >
                   View all
                 </Link>
               </div>
 
               {loading ? (
-                <div className="space-y-4 animate-pulse">
+                <div className="animate-pulse space-y-4">
                   {Array.from({ length: 3 }).map((_, i) => (
                     <div key={i} className="h-10 rounded-xl bg-rayo-beige" />
                   ))}
@@ -604,24 +643,33 @@ export default function DashboardPage() {
 
                     <tbody>
                       {recentTxs.map((tx) => (
-                        <tr key={(tx as any).id} className="border-b border-rayo-beige/60 last:border-0">
+                        <tr
+                          key={tx.id}
+                          className="border-b border-rayo-beige/60 last:border-0"
+                        >
                           <td className="py-4 text-sm font-medium text-rayo-green">
-                            {(tx as any).description ?? (tx as any).title}
+                            {tx.description}
                           </td>
                           <td className="py-4">
                             <span className="rounded-full bg-rayo-ash px-3 py-1 text-xs font-medium text-rayo-green">
-                              {(tx as any).category}
+                              {tx.category}
                             </span>
                           </td>
                           <td className="py-4 text-sm text-rayo-green/60">
-                            {(tx as any).date ?? new Date((tx as any).createdAt).toLocaleDateString("en-NG")}
+                            {tx.date
+                              ? new Date(tx.date).toLocaleDateString("en-NG")
+                              : new Date(tx.createdAt).toLocaleDateString("en-NG")}
                           </td>
-                          <td className={`py-4 text-right text-sm font-semibold ${tx.amount > 0 ? "text-rayo-green" : "text-rayo-orange"}`}>
-                            {tx.amount > 0 ? "+" : "-"}
-                            {formatNaira(Math.abs(tx.amount))}
+                          <td
+                            className={`py-4 text-right text-sm font-semibold ${
+                              tx.type === "income" ? "text-rayo-green" : "text-rayo-orange"
+                            }`}
+                          >
+                            {tx.type === "income" ? "+" : "-"}
+                            {formatNaira(Number(tx.amount))}
                           </td>
                           <td className="py-4 text-right">
-                            <button className="text-rayo-green/50 hover:text-rayo-green transition-colors">
+                            <button className="text-rayo-green/50 transition-colors hover:text-rayo-green">
                               <MoreHorizontal size={18} />
                             </button>
                           </td>
@@ -648,7 +696,7 @@ export default function DashboardPage() {
               </div>
 
               {loading ? (
-                <div className="space-y-5 animate-pulse">
+                <div className="animate-pulse space-y-5">
                   {Array.from({ length: 2 }).map((_, i) => (
                     <div key={i} className="space-y-2">
                       <div className="h-3 w-32 rounded bg-rayo-beige" />
@@ -660,7 +708,7 @@ export default function DashboardPage() {
                 <p className="text-sm text-rayo-green/50">No savings goals yet.</p>
               ) : (
                 <div className="space-y-5">
-                  {goals.map((goal: any) => (
+                  {goals.map((goal) => (
                     <div key={goal.title}>
                       <div className="mb-2 flex items-start justify-between">
                         <div>
@@ -685,7 +733,7 @@ export default function DashboardPage() {
 
               <Link
                 href="/product/finance/savings"
-                className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-rayo-green hover:gap-3 transition-all"
+                className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-rayo-green transition-all hover:gap-3"
               >
                 Reach goals faster
                 <ChevronRight size={16} />
@@ -716,7 +764,7 @@ export default function DashboardPage() {
               </div>
 
               {loading ? (
-                <div className="mt-5 space-y-2 animate-pulse">
+                <div className="mt-5 animate-pulse space-y-2">
                   <div className="h-6 w-full rounded bg-white/20" />
                   <div className="h-6 w-3/4 rounded bg-white/20" />
                 </div>
@@ -725,9 +773,7 @@ export default function DashboardPage() {
                   <h3 className="mt-5 text-2xl font-semibold leading-tight">
                     {latestInsight.title}
                   </h3>
-                  <p className="mt-4 text-sm leading-7 text-white/80">
-                    {latestInsight.body}
-                  </p>
+                  <p className="mt-4 text-sm leading-7 text-white/80">{latestInsight.body}</p>
                 </>
               ) : (
                 <h3 className="mt-5 text-2xl font-semibold leading-tight">

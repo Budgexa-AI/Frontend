@@ -1,28 +1,9 @@
-/**
- * API Client - Backend Integration
- *
- * This module handles all communication with your backend API.
- *
- * Proxy flow (all API calls except Google OAuth):
- *   Browser/Server → /api/v1/{route} (Next.js proxy) 
- * Google OAuth flow (direct — cannot go through proxy)
- *
- * Required environment variables:
- *   BACKEND_URL (server-only, not exposed to browser)
- *     → Used by your Next.js proxy route to forward requests to Railway
- *
- *   NEXT_PUBLIC_APP_URL (public, exposed to browser)
- *     → https://rayo.vercel.app
- *     → Used server-side to build absolute URLs during SSR/prerender
- *
- * No other env vars needed. NEXT_PUBLIC_API_URL is no longer used.
- */
-
 import type {
-  Account as DBAccount,
-  Transaction as DBTransaction,
-  Savings as DBSavings,
-  AiInsight as DBAiInsight,
+  Account,
+  Transaction,
+  SavingsGoal,
+  AiInsight,
+  AiMessage,
 } from "@/lib/types/src";
 
 export interface UserProfile {
@@ -97,8 +78,14 @@ function normalizeProfile(payload: any): UserProfile {
 }
 
 function createHeaders(extraHeaders?: HeadersInit): HeadersInit {
+  const token =
+    typeof window !== "undefined"
+      ? localStorage.getItem("authToken")
+      : null;
+
   return {
     "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...extraHeaders,
   };
 }
@@ -660,6 +647,7 @@ export async function uploadProfileImage(
   return response;
 }
 
+// lib/api-client.ts
 export async function completeOnboarding(data: {
   level: string;
   method: string;
@@ -667,7 +655,7 @@ export async function completeOnboarding(data: {
   goals: string[];
   categories: string[];
 }): Promise<{ success: boolean; error?: string }> {
-  const res = await fetch(proxyPath("/onboarding/complete"), {
+  const res = await fetch(proxyPath("/onboarding"), {
     method: "POST",
     headers: createHeaders(),
     credentials: "include",
@@ -685,45 +673,65 @@ export async function completeOnboarding(data: {
   return readJsonResponse(res);
 }
 
-// ============================================================
 // Dashboard API
-// ============================================================
 
 export async function getDashboardData(userId: string): Promise<{
-  accounts: DBAccount[];
-  transactions: DBTransaction[];
-  savings: DBSavings | null;
-  insights: DBAiInsight[];
+  accounts: Account[];
+  transactions: Transaction[];
+  savingsGoals: SavingsGoal[]; 
+  insights: AiInsight[];
 }> {
   const res = await fetch(
     proxyPath(`/dashboard/${encodeURIComponent(userId)}`),
     { credentials: "include" }
   );
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch dashboard data");
-  }
+  if (!res.ok) throw new Error("Failed to fetch dashboard data");
 
-  const data = await readJsonResponse<
-    Partial<{
-      accounts: DBAccount[];
-      transactions: DBTransaction[];
-      savings: DBSavings | null;
-      insights: DBAiInsight[];
-    }>
-  >(res);
+  const data = await readJsonResponse<any>(res);
 
   return {
-    accounts: data.accounts ?? [],
+    accounts:     data.accounts     ?? [],
     transactions: data.transactions ?? [],
-    savings: data.savings ?? null,
-    insights: data.insights ?? [],
+    savingsGoals: data.savingsGoals ?? data.savings ?? [], 
+    insights:     data.insights     ?? [],
   };
 }
 
-// ============================================================
+// AI API
+
+export async function getAiInsights(): Promise<AiInsight[]> {
+  const res = await fetch(proxyPath("/ai/insights"), {
+    credentials: "include",
+  });
+
+  if (!res.ok) throw new Error("Failed to fetch AI insights");
+
+  const data = await readJsonResponse<{ insights?: AiInsight[]; data?: AiInsight[] }>(res);
+  return data.insights ?? data.data ?? [];
+}
+
+export async function askAi(payload: {
+  message: string;
+  conversationId?: string;
+  history?: AiMessage[];
+}): Promise<{ reply: string; conversationId: string }> {
+  const res = await fetch(proxyPath("/ai/ask"), {
+    method: "POST",
+    headers: createHeaders(),
+    credentials: "include",
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(extractErrorMessage(body, "Failed to get AI response"));
+  }
+
+  return readJsonResponse(res);
+}
+
 // Error Handling Helper
-// ============================================================
 
 export function handleApiError(error: any): string {
   if (error.response?.data?.message) return error.response.data.message;

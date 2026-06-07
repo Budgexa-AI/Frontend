@@ -13,32 +13,8 @@ import { detectCategory, CATEGORIES } from "@/lib/category";
 import { createTransactionAction } from "@/actions/transactions";
 import { AIInsightPanel } from "@/components/ai/InsightPanel";
 import { ReceiptUpload } from "./receipt-upload";
-import type { PaymentMethod } from "@/lib/types/src";
 import { Sparkle, Sparkles } from "lucide-react";
-
-const PAYMENT_METHODS: { value: PaymentMethod; label: string; icon: string }[] =
-  [
-    { value: "transfer", label: "Transfer", icon: "↔" },
-    { value: "airtime_data", label: "Airtime / Data", icon: "📶" },
-    { value: "bill_payment", label: "Bill Payment", icon: "🧾" },
-    { value: "shopping", label: "Shopping", icon: "🛍️" },
-    { value: "other", label: "Other", icon: "•••" },
-  ];
-
-const BANKS = [
-  "Access Bank",
-  "First Bank",
-  "GTBank",
-  "Kuda Bank",
-  "OPay",
-  "PalmPay",
-  "Polaris Bank",
-  "Sterling Bank",
-  "UBA",
-  "Union Bank",
-  "Zenith Bank",
-];
-
+import { PAYMENT_METHODS, BANKS } from "@/lib/mock-data";
 
 export default function AddTransactionPage() {
   const router = useRouter();
@@ -108,22 +84,6 @@ export default function AddTransactionPage() {
   return (
     <div className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
-        {/* Back link */}
-        <Link
-          href="/product/finance/transactions"
-          className="mb-5 inline-flex items-center gap-1.5 text-sm text-rayo-grey transition hover:text-gray-800"
-        >
-          <svg
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-          </svg>
-          Back to Transactions
-        </Link>
 
         {/* Header */}
         <div className="mb-6">
@@ -140,7 +100,7 @@ export default function AddTransactionPage() {
       className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]"
     >
       {/* ── Left column: form ─────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-rayo-ash bg-white p-6 shadow-sm">
+      <div className="order-1 rounded-2xl border border-rayo-ash bg-white p-6 shadow-sm">
 
         {/* Direction tabs */}
         <div className="mb-6 flex rounded-xl bg-rayo-ash p-1 gap-1">
@@ -180,7 +140,7 @@ export default function AddTransactionPage() {
         </div>
 
         {/* Amount + Date */}
-        <div className="mb-5 grid grid-cols-2 gap-4">
+        <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-medium text-rayo-green">
               Amount <span className="text-red-500">*</span>
@@ -266,7 +226,7 @@ export default function AddTransactionPage() {
         </div>
 
         {/* Merchant + Transaction type */}
-        <div className="mb-5 grid grid-cols-2 gap-4">
+        <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-medium text-rayo-green">
               Who was involved? (Merchant / Recipient)
@@ -450,7 +410,9 @@ export default function AddTransactionPage() {
       </div>
 
       {/* ── Right column: AI panel ────────────────────────────────────── */}
-      <AIInsightPanel values={watched} />
+      <div className="order-2">
+        <AIInsightPanel values={watched} />
+      </div>
     </form>
       </div>
     </div>

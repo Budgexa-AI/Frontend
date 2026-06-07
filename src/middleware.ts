@@ -7,16 +7,21 @@ const AUTH_ROUTES = ["/auth/login", "/auth/signup"];
 const IS_DEV = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
 
 export async function middleware(request: NextRequest) {
-  // In development with mock data, skip all auth checks
   if (IS_DEV) return NextResponse.next({ request });
 
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get("authToken")?.value;
+
+  // Check both cookie and Authorization header
+  const tokenFromCookie = request.cookies.get("authToken")?.value;
+  const tokenFromHeader = request.headers.get("authorization")?.replace("Bearer ", "");
+  const token = tokenFromCookie ?? tokenFromHeader;
 
   const isProtectedRoute = PROTECTED_ROUTES.some((route) =>
     pathname.startsWith(route)
   );
-  const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route));
+  const isAuthRoute = AUTH_ROUTES.some((route) =>
+    pathname.startsWith(route)
+  );
 
   if (isProtectedRoute && !token) {
     const loginUrl = new URL("/auth/login", request.url);

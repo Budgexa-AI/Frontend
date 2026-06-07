@@ -59,7 +59,8 @@ export default function DashboardSidebar({ profile }: Props) {
     profile?.plan?.toLowerCase?.() === "premium";
 
   function handleLogOut() {
-    document.cookie = "authToken=; path=/; max-age=0; SameSite=Lax";
+    localStorage.removeItem("authToken");
+    document.cookie = "authToken=; path=/; max-age=0";
     router.push("/auth/login");
   }
 

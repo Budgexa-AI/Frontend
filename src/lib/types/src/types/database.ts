@@ -1,190 +1,70 @@
-// types/database.ts
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[];
+// lib/types/src/index.ts — keep only what matches your actual backend
 
-export interface Database {
-  public: {
-    Tables: {
-      profiles: {
-        Row: {
-          id: string;
-          user_id: string;
-          full_name: string | null;
-          avatar_url: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          user_id: string;
-          full_name?: string | null;
-          avatar_url?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          user_id?: string;
-          full_name?: string | null;
-          avatar_url?: string | null;
-          updated_at?: string;
-        };
-      };
-      accounts: {
-        Row: {
-          id: string;
-          user_id: string;
-          type: "income" | "expense";
-          balance: number;
-          currency: string;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          user_id: string;
-          type: "income" | "expense";
-          balance?: number;
-          currency?: string;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          balance?: number;
-          updated_at?: string;
-        };
-      };
-      transactions: {
-        Row: {
-          id: string;
-          user_id: string;
-          account_id: string;
-          amount: number;
-          category: string;
-          description: string | null;
-          type: "credit" | "debit";
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          user_id: string;
-          account_id: string;
-          amount: number;
-          category: string;
-          description?: string | null;
-          type: "credit" | "debit";
-          created_at?: string;
-        };
-        Update: never;
-      };
-      savings: {
-        Row: {
-          id: string;
-          user_id: string;
-          auto_saved_amount: number;
-          target_amount: number | null;
-          label: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          user_id: string;
-          auto_saved_amount?: number;
-          target_amount?: number | null;
-          label?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          auto_saved_amount?: number;
-          target_amount?: number | null;
-          label?: string | null;
-          updated_at?: string;
-        };
-      };
-      ai_insights: {
-        Row: {
-          id: string;
-          user_id: string;
-          message: string;
-          type: "tip" | "alert" | "achievement";
-          read: boolean;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          user_id: string;
-          message: string;
-          type: "tip" | "alert" | "achievement";
-          read?: boolean;
-          created_at?: string;
-        };
-        Update: {
-          read?: boolean;
-        };
-      };
-      waitlist: {
-        Row: {
-          id: string;
-          full_name: string;
-          email: string;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          full_name: string;
-          email: string;
-          created_at?: string;
-        };
-        Update: never;
-      };
-    };
-    Views: Record<string, never>;
-    Functions: Record<string, never>;
-    Enums: {
-      account_type: "income" | "expense";
-      transaction_type: "credit" | "debit";
-      insight_type: "tip" | "alert" | "achievement";
-    };
-  };
+export interface Account {
+  id: number;
+  userId: number;
+  balance: string;
+  name: string;
 }
 
-// Convenience row types
-export type Profile     = Database["public"]["Tables"]["profiles"]["Row"];
-export type Account     = Database["public"]["Tables"]["accounts"]["Row"];
-export type Transaction = Database["public"]["Tables"]["transactions"]["Row"];
-export type Savings     = Database["public"]["Tables"]["savings"]["Row"];
-export type AiInsight   = Database["public"]["Tables"]["ai_insights"]["Row"];
-export type Waitlist = Database["public"]["Tables"]["waitlist"]["Row"];
+export interface Transaction {
+  id: number;
+  userId: number;
+  type: "income" | "expense";
+  amount: number;
+  category: string;
+  description: string;
+  date: string;
+  createdAt: string;
+}
 
-// Transaction types
-export type TransactionCategory =
-  | "food_dining"
-  | "transport"
-  | "shopping"
-  | "bills_utilities"
-  | "health"
-  | "entertainment"
-  | "education"
-  | "savings_investment"
-  | "airtime_data"
-  | "other";
+export interface SavingsGoal {
+  id: number;
+  userId: number;
+  name: string;
+  targetAmount: string;
+  currentAmount: string;
+  deadline: string;
+}
 
-export type PaymentMethod =
-  | "transfer"
-  | "airtime_data"
-  | "bill_payment"
-  | "shopping"
-  | "other";
+export interface AiInsight {
+  id: number;
+  userId: number;
+  title: string;
+  content: string;
+  createdAt: string;
+}
 
-export interface CategoryMeta {
-  label: string;
+export interface AiMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  createdAt?: string;
+}
+
+export interface AiConversation {
+  id: string;
+  title: string;
+  messages: AiMessage[];
+  createdAt: string;
+}
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  name: string;
+  profileImage?: string;
+  envelopeBased: boolean;
+  incomeSource?: string;
+  onboardingComplete: boolean;
+}
+
+export interface BudgetCategory {
+  id: string;
+  name: string;
+  subtitle: string;
+  budget: number;
+  spent: number;
+  color: string;
   emoji: string;
-  value: TransactionCategory;
 }

@@ -52,6 +52,8 @@ async function proxyRequest(
 
   const headers = new Headers(request.headers);
   headers.delete("accept-encoding");
+  headers.delete("host");
+  headers.delete("content-length");
 
   const hasBody = !["GET", "HEAD"].includes(request.method.toUpperCase());
   const body = hasBody ? await request.text() : undefined;
@@ -60,6 +62,7 @@ async function proxyRequest(
     method: request.method,
     target: pathUrl.toString(),
   });
+  
 
   try {
     const response = await fetch(targetUrl, {

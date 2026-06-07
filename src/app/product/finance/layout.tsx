@@ -13,11 +13,7 @@ export default async function FinanceLayout({
 
   return (
     <div className="min-h-screen bg-rayo-beige flex">
-
-      {/* ───────────────── SIDEBAR (DESKTOP ONLY RESPONSIBILITY) ───────────────── */}
-      <div className="hidden lg:flex">
-        <DashboardSidebar profile={profile} />
-      </div>
+      <DashboardSidebar profile={profile} />
 
       {/* ───────────────── MAIN CONTENT ───────────────── */}
       <div className="flex-1 flex flex-col min-w-0">
