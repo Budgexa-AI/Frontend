@@ -69,11 +69,11 @@ export default function DashboardSidebar({ profile }: Props) {
       {/* LOGO */}
       <div className="px-6 pt-6">
         <Link href="/product/dashboard" className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary">
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary">
             <RayoLogo size={24} className="text-primary-foreground" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-foreground">Rayo AI</h2>
+            <h2 className="text-lg font-bold text-foreground text-rayo-green">Rayo AI</h2>
             <p className="text-xs text-muted-foreground">
               Your Path to Financial Freedom
             </p>
@@ -105,7 +105,7 @@ export default function DashboardSidebar({ profile }: Props) {
                 <div className="flex items-center gap-3">
                   <div
                     className={cn(
-                      "flex h-10 w-10 items-center justify-center rounded-xl transition-all",
+                      "flex h-10 w-10 items-center justify-center rounded-lg transition-all",
                       active
                         ? "bg-primary text-primary-foreground"
                         : "bg-primary/10 text-primary group-hover:bg-primary/20"

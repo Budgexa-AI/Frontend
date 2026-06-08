@@ -263,7 +263,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-3 overflow-x-auto pb-1">
 
             <Link
-              href="/product/finance/ai"
+              href="/product/finance/ai?q=Why+am+I+spending+so+much+this+month%3F"
               className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-rayo-green/10 bg-white px-5 text-sm font-medium text-rayo-green"
             >
               <Sparkles size={16} />

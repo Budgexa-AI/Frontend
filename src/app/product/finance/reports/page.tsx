@@ -15,15 +15,15 @@ function sectionTitle(title: string, subtitle: string) {
 
 function summarizeTransactions(transactions: Transaction[]) {
   const income = transactions
-    .filter((transaction) => transaction.type === "credit")
+    .filter((transaction) => transaction.type === "income")
     .reduce((sum, transaction) => sum + transaction.amount, 0);
 
   const expenses = transactions
-    .filter((transaction) => transaction.type === "debit")
+    .filter((transaction) => transaction.type === "expense")
     .reduce((sum, transaction) => sum + transaction.amount, 0);
 
   const byCategory = transactions
-    .filter((transaction) => transaction.type === "debit")
+    .filter((transaction) => transaction.type === "expense")
     .reduce<Record<string, number>>((accumulator, transaction) => {
       accumulator[transaction.category] =
         (accumulator[transaction.category] ?? 0) + transaction.amount;
@@ -39,13 +39,11 @@ function summarizeTransactions(transactions: Transaction[]) {
 
 export default async function ReportsPage() {
   const currentUser = await getCurrentUser();
-  const { accounts, transactions, savings, insights } = await getDashboardData(currentUser.id);
+  const { accounts, transactions, savingsGoals, insights } = await getDashboardData(currentUser.id);
   const totals = summarizeTransactions(transactions);
 
   const totalBalance = accounts.reduce((sum: number, account: any) => sum + account.balance, 0);
-  const savingsProgress = savings && savings.target_amount
-    ? Math.round((savings.auto_saved_amount / savings.target_amount) * 100)
-    : 0;
+  const savingsProgress = savingsGoals;;
 
   return (
     <div className="max-w-7xl mx-auto py-6 space-y-6">
@@ -86,10 +84,10 @@ export default async function ReportsPage() {
 
         <div className="rounded-2xl border border-rayo-beige-dark bg-white p-5">
           <p className="text-[11px] uppercase tracking-[0.18em] text-rayo-green/35">Savings Progress</p>
-          <p className="mt-2 text-3xl font-bold text-rayo-green">{savingsProgress}%</p>
+          {/* <p className="mt-2 text-3xl font-bold text-rayo-green">{sa}%</p>
           <p className="mt-2 text-sm text-rayo-green/45">
-            {savings ? `${formatNairaCompact(savings.auto_saved_amount)} of ${formatNairaCompact(savings.target_amount ?? 0)}` : "No savings goal found"}
-          </p>
+            {savingsGoals ? `${formatNairaCompact(savingsGoals.auto_saved_amount)} of ${formatNairaCompact(savingsGoals.target_amount ?? 0)}` : "No savings goal found"}
+          </p> */}
         </div>
       </div>
 
@@ -154,7 +152,7 @@ export default async function ReportsPage() {
           <div className="mt-6 rounded-2xl bg-rayo-green p-4 text-white">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/55">AI Insight</p>
             <p className="mt-2 text-sm leading-relaxed text-white/85">
-              {insights[0]?.message ?? "Connect more activity to unlock richer insights and smarter recommendations."}
+              {insights[0]?.content ?? "Connect more activity to unlock richer insights and smarter recommendations."}
             </p>
           </div>
         </section>

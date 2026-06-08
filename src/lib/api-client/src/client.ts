@@ -502,19 +502,6 @@ export async function resendResetPassword(
   };
 }
 
-export async function signOut(): Promise<{ success: boolean }> {
-  const res = await fetch(proxyPath("/auth/logout"), {
-    method: "POST",
-    credentials: "include",
-  });
-
-  if (!res.ok) {
-    throw new Error(`Sign out failed (${res.status})`);
-  }
-
-  return readJsonResponse<{ success: boolean }>(res);
-}
-
 // The Railway backend URL used only for Google OAuth (direct browser redirect).
 // All other API calls go through the Next.js proxy at /api/v1/*.
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -647,7 +634,6 @@ export async function uploadProfileImage(
   return response;
 }
 
-// lib/api-client.ts
 export async function completeOnboarding(data: {
   level: string;
   method: string;
@@ -708,19 +694,19 @@ export async function getAiInsights(): Promise<AiInsight[]> {
   if (!res.ok) throw new Error("Failed to fetch AI insights");
 
   const data = await readJsonResponse<{ insights?: AiInsight[]; data?: AiInsight[] }>(res);
+
+  console.log("[api-client] getAiInsights response", { data });
   return data.insights ?? data.data ?? [];
 }
 
 export async function askAi(payload: {
-  message: string;
-  conversationId?: string;
-  history?: AiMessage[];
+  question: string;
 }): Promise<{ reply: string; conversationId: string }> {
   const res = await fetch(proxyPath("/ai/ask"), {
     method: "POST",
     headers: createHeaders(),
     credentials: "include",
-    body: JSON.stringify(payload),
+    body: JSON.stringify({ question: payload.question }),
   });
 
   if (!res.ok) {
@@ -728,7 +714,23 @@ export async function askAi(payload: {
     throw new Error(extractErrorMessage(body, "Failed to get AI response"));
   }
 
-  return readJsonResponse(res);
+  const data = await readJsonResponse<any>(res);
+  const inner = data.data ?? data;
+
+  // Backend returns answer when it has data, or falls back to insights array
+  const answer = inner.answer && inner.answer.trim() !== ""
+    ? inner.answer
+    : inner.insights?.[0]?.detail
+      ?? inner.insights?.[0]?.message
+      ?? inner.response
+      ?? inner.reply
+      ?? inner.content
+      ?? "";
+
+  return {
+    reply: answer,
+    conversationId: inner.conversationId ?? inner.id ?? "",
+  };
 }
 
 // Error Handling Helper

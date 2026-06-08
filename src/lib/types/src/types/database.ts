@@ -1,4 +1,4 @@
-// lib/types/src/index.ts — keep only what matches your actual backend
+// lib/types/src/index.ts
 
 export interface Account {
   id: number;
@@ -35,18 +35,41 @@ export interface AiInsight {
   createdAt: string;
 }
 
-export interface AiMessage {
+export interface Attachment {
+  name: string;
+  size: string;
+  url?: string;
+}
+
+// Single message type used everywhere — replaces both Message and AiMessage
+export interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
-  createdAt?: string;
+  createdAt: string;
+  attachment?: Attachment;
 }
 
-export interface AiConversation {
+// Alias so existing imports of AiMessage don't break immediately
+export type AiMessage = Message;
+
+export interface Conversation {
   id: string;
   title: string;
-  messages: AiMessage[];
+  question: Message[];
   createdAt: string;
+  // optional fields from the old Conversation type
+  preview?: string;
+  updatedAt?: string;
+  category?: "budget" | "savings" | "spending" | "goals" | "debt" | "general";
+}
+
+// Alias so existing imports of AiConversation don't break
+export type AiConversation = Conversation;
+
+export interface ChatResponse {
+  message: Message;
+  conversationId: string;
 }
 
 export interface UserProfile {

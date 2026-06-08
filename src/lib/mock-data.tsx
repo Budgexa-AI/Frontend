@@ -236,7 +236,7 @@ export const mockAiConversations: AiConversation[] = [
     id: "conv-1",
     title: "Spending this month",
     createdAt: new Date().toISOString(),
-    messages: [
+    question: [
       { id: "1", role: "user",      content: "Why am I overspending this month?", createdAt: new Date().toISOString() },
       { id: "1", role: "assistant", content: "Based on your transactions, Food & Dining accounts for 28% of your outflow this month — higher than your usual 18%. Three restaurant visits in 4 days drove most of that spike.", createdAt: new Date().toISOString() },
     ],

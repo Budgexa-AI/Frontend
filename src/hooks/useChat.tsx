@@ -21,14 +21,14 @@ export function useChat() {
 
   // Messages for the active conversation
   const messages: AiMessage[] =
-    conversations.find((c) => c.id === activeConversationId)?.messages ?? [];
+    conversations.find((c) => c.id === activeConversationId)?.question ?? [];
 
   const createConversation = useCallback(() => {
     const id = generateId();
     const newConv: AiConversation = {
       id,
       title: "New conversation",
-      messages: [],
+      question: [],
       createdAt: new Date().toISOString(),
     };
     setConversations((prev) => [newConv, ...prev]);
@@ -59,8 +59,8 @@ export function useChat() {
           c.id === convId
             ? {
                 ...c,
-                title: c.messages.length === 0 ? titleFromMessage(content) : c.title,
-                messages: [...c.messages, userMessage],
+                title: c.question.length === 0 ? titleFromMessage(content) : c.title,
+                question: [...c.question, userMessage],
               }
             : c
         )
@@ -70,14 +70,14 @@ export function useChat() {
 
       try {
         const currentMessages = [
-          ...(conversations.find((c) => c.id === convId)?.messages ?? []),
+          ...(conversations.find((c) => c.id === convId)?.question ?? []),
           userMessage,
         ];
 
         const { reply, conversationId } = await sendAiMessage({
-          message: content,
-          conversationId: convId,
-          history: currentMessages,
+          question: content,
+          // conversationId: convId,
+          // history: currentMessages,
         });
 
         const assistantMessage: AiMessage = {
@@ -90,7 +90,7 @@ export function useChat() {
         setConversations((prev) =>
           prev.map((c) =>
             c.id === convId
-              ? { ...c, messages: [...c.messages, assistantMessage] }
+              ? { ...c, question: [...c.question, assistantMessage] }
               : c
           )
         );
@@ -113,7 +113,7 @@ export function useChat() {
         setConversations((prev) =>
           prev.map((c) =>
             c.id === convId
-              ? { ...c, messages: [...c.messages, errorMessage] }
+              ? { ...c, question: [...c.question, errorMessage] }
               : c
           )
         );

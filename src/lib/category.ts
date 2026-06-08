@@ -1,6 +1,4 @@
-import type { CategoryMeta, TransactionCategory } from "@/lib/types/src";
-
-export const CATEGORIES: CategoryMeta[] = [
+export const CATEGORIES = [
   { label: "Food & Dining", emoji: "🍽️", value: "food_dining" },
   { label: "Transport", emoji: "🚗", value: "transport" },
   { label: "Shopping", emoji: "🛍️", value: "shopping" },
@@ -15,7 +13,7 @@ export const CATEGORIES: CategoryMeta[] = [
 
 interface CategoryRule {
   keywords: string[];
-  category: TransactionCategory;
+  category: string;
 }
 
 const RULES: CategoryRule[] = [
@@ -86,7 +84,7 @@ const RULES: CategoryRule[] = [
 ];
 
 export interface CategorySuggestion {
-  meta: CategoryMeta;
+  meta: typeof CATEGORIES[number];
   confidence: "High" | "Medium" | "Low";
 }
 
@@ -118,7 +116,7 @@ export function detectCategory(
   };
 }
 
-export function getCategoryMeta(value: string): CategoryMeta {
+export function getCategoryMeta(value: string): typeof CATEGORIES[number] {
   return (
     CATEGORIES.find((c) => c.value === value) ??
     CATEGORIES.find((c) => c.value === "other")!

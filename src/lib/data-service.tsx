@@ -20,23 +20,16 @@ export async function fetchAiInsights() {
   return getAiInsights();
 }
 
-export async function sendAiMessage(payload: {
-  message: string;
-  conversationId?: string;
-  history?: AiMessage[];
-}) {
+export async function sendAiMessage(payload: { question: string }) {
   if (USE_MOCK) {
-    // Simulate a short delay in dev
     await new Promise((r) => setTimeout(r, 800));
     return {
-      reply: "This is a mock AI response. Connect to the backend to get real insights.",
-      conversationId: payload.conversationId ?? "mock-conv-1",
+      reply: "Omo, this is mock mode o. Connect to backend to get the real gist.",
+      conversationId: "mock-conv-1",
     };
   }
 
-  console.log("Sending AI message with payload:", payload);
-  const result = await askAi(payload);
-  console.log("AI message response:", result);
+  const result = await askAi({ question: payload.question });
   return result;
 }
 
