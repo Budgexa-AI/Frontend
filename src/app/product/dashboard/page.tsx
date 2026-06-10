@@ -219,7 +219,7 @@ export default function DashboardPage() {
         setError(null);
         const user = await fetchCurrentUser();
         setUserId(user.id);
-        const dashboardData = await fetchDashboardData(user.id);
+        const dashboardData = await fetchDashboardData();
         setData(dashboardData);
       } catch (err: unknown) {
         const message =

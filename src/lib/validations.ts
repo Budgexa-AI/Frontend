@@ -41,8 +41,8 @@ export const addTransactionSchema = z.object({
   merchant: z.string().optional(),
   direction: z.enum(["Income", "Expense"]),
   category: z.string().min(1, "Category is required"),
-  paymentMethod: z.string().optional(),
   institution: z.string().optional(),
+  billType: z.string().optional(),
 });
 
 export type AddTransactionFormValues = z.infer<typeof addTransactionSchema>;

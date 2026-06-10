@@ -4,12 +4,14 @@ import type {
   SavingsGoal,
   AiInsight,
   AiMessage,
+  TransactionFilters,
+  TransactionListResponse,
 } from "@/lib/types/src";
 
 export interface UserProfile {
   id: string;
   email?: string;
-  fullName?: string;
+  name?: string;
   avatarUrl?: string;
   plan?: string;
 }
@@ -70,8 +72,8 @@ function normalizeProfile(payload: any): UserProfile {
   return {
     id: source.id ?? source.userId ?? source.user_id ?? "",
     email: source.email ?? undefined,
-    fullName:
-      source.fullName ?? source.full_name ?? source.name ?? undefined,
+    name:
+      source.name ?? source.fullName ?? source.full_name ?? undefined,
     avatarUrl: source.profileImage ?? undefined,
     plan: source.plan ?? undefined,
   };
@@ -576,8 +578,16 @@ export async function handleGoogleCallback(params: {
  * Safe to call server-side — uses absolute URL during SSR/prerender.
  */
 export async function getCurrentUser(): Promise<UserProfile> {
+  const token = typeof window !== "undefined"
+    ? localStorage.getItem("authToken")
+    : null;
+
+  if (!token) throw new Error("No auth token found");
+
   const res = await fetch(proxyPath("/auth/me"), {
-    credentials: "include",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
 
   if (!res.ok) {
@@ -661,15 +671,21 @@ export async function completeOnboarding(data: {
 
 // Dashboard API
 
-export async function getDashboardData(userId: string): Promise<{
+export async function getDashboardData(): Promise<{
   accounts: Account[];
   transactions: Transaction[];
   savingsGoals: SavingsGoal[]; 
   insights: AiInsight[];
 }> {
+  const token = typeof window !== "undefined"
+    ? localStorage.getItem("authToken")
+    : null;
+
+  if (!token) throw new Error("No auth token found");
+
   const res = await fetch(
-    proxyPath(`/dashboard/${encodeURIComponent(userId)}`),
-    { credentials: "include" }
+    proxyPath(`/dashboard/summary`),
+    { headers: { Authorization: `Bearer ${token}` }, credentials: "include" }
   );
 
   if (!res.ok) throw new Error("Failed to fetch dashboard data");
@@ -731,6 +747,107 @@ export async function askAi(payload: {
     reply: answer,
     conversationId: inner.conversationId ?? inner.id ?? "",
   };
+}
+
+// Transactions API
+
+export async function listTransactions(
+  filters?: TransactionFilters
+): Promise<TransactionListResponse> {
+  const params = new URLSearchParams();
+  if (filters?.type)      params.set("type",      filters.type);
+  if (filters?.category)  params.set("category",  filters.category);
+  if (filters?.startDate) params.set("startDate", filters.startDate);
+  if (filters?.endDate)   params.set("endDate",   filters.endDate);
+  if (filters?.page)      params.set("page",      String(filters.page));
+  if (filters?.limit)     params.set("limit",     String(filters.limit));
+
+  const url = `${proxyPath("/transactions")}${params.size ? `?${params}` : ""}`;
+
+  const res = await fetch(url, {
+    headers: createHeaders(),
+    credentials: "include",
+  });
+
+  if (!res.ok) throw new Error("Failed to fetch transactions");
+
+  const data = await readJsonResponse<any>(res);
+  return {
+    transactions: data.transactions ?? data.data?.transactions ?? data.data ?? [],
+    total:        data.total        ?? data.data?.total        ?? data.count ?? data.data?.count ?? 0,
+    page:         data.page         ?? data.data?.page         ?? 1,
+    limit:        data.limit        ?? data.data?.limit        ?? 10,
+  };
+}
+
+export async function createTransaction(
+  payload: Omit<Transaction, "id" | "userId" | "createdAt">
+): Promise<Transaction> {
+  console.log("[createTransaction] sending:", payload); // ← add this
+
+  const res = await fetch(proxyPath("/transactions"), {
+    method: "POST",
+    headers: createHeaders(),
+    credentials: "include",
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    console.error("[createTransaction] failed:", body); // ← and this
+    throw new Error(extractErrorMessage(body, "Failed to create transaction"));
+  }
+
+  const data = await readJsonResponse<any>(res);
+  console.log("[createTransaction] response:", data); // ← and this
+  return data.transaction ?? data.data ?? data;
+}
+
+export async function updateTransaction(
+  id: number,
+  payload: Partial<Omit<Transaction, "id" | "userId" | "createdAt">>
+): Promise<Transaction> {
+  const res = await fetch(proxyPath(`/transactions/${id}`), {
+    method: "PATCH",
+    headers: createHeaders(),
+    credentials: "include",
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(extractErrorMessage(body, "Failed to update transaction"));
+  }
+
+  const data = await readJsonResponse<any>(res);
+  return data.transaction ?? data.data ?? data;
+}
+
+export async function deleteTransaction(id: number): Promise<void> {
+  const res = await fetch(proxyPath(`/transactions/${id}`), {
+    method: "DELETE",
+    headers: createHeaders(),
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(extractErrorMessage(body, "Failed to delete transaction"));
+  }
+}
+
+export async function deleteMultipleTransactions(ids: number[]): Promise<void> {
+  const res = await fetch(proxyPath("/transactions"), {
+    method: "DELETE",
+    headers: createHeaders(),
+    credentials: "include",
+    body: JSON.stringify({ ids }),
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(extractErrorMessage(body, "Failed to delete transactions"));
+  }
 }
 
 // Error Handling Helper

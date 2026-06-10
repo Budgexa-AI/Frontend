@@ -32,7 +32,7 @@ const NAV = [
 
 interface Props {
   profile?: {
-    fullName?: string;
+    name?: string;
     email?: string;
     plan?: string;
     avatarUrl?: string;
@@ -44,7 +44,7 @@ export default function DashboardSidebar({ profile }: Props) {
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const name = profile?.fullName ?? profile?.email ?? "Test User";
+  const name = profile?.name ?? profile?.email ?? "Test User";
   const email = profile?.email ?? "user@example.com";
 
   const initials = name

@@ -39,7 +39,7 @@ function summarizeTransactions(transactions: Transaction[]) {
 
 export default async function ReportsPage() {
   const currentUser = await getCurrentUser();
-  const { accounts, transactions, savingsGoals, insights } = await getDashboardData(currentUser.id);
+  const { accounts, transactions, savingsGoals, insights } = await getDashboardData();
   const totals = summarizeTransactions(transactions);
 
   const totalBalance = accounts.reduce((sum: number, account: any) => sum + account.balance, 0);

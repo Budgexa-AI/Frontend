@@ -14,6 +14,9 @@ export interface Transaction {
   amount: number;
   category: string;
   description: string;
+  merchant?: string;
+  bill_type?: string;
+  institution?: string;
   date: string;
   createdAt: string;
 }
@@ -90,4 +93,20 @@ export interface BudgetCategory {
   spent: number;
   color: string;
   emoji: string;
+}
+
+export interface TransactionFilters {
+  type?: "income" | "expense";
+  category?: string;
+  startDate?: string;
+  endDate?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface TransactionListResponse {
+  transactions: Transaction[];
+  total: number;
+  page: number;
+  limit: number;
 }

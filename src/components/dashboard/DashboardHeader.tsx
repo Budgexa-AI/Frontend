@@ -30,7 +30,7 @@ export default function DashboardHeader({
   const router = useRouter();
   const [offset, setOffset] = useState(0);
 
-  const name = profile?.fullName ?? profile?.email ?? "User";
+  const name = profile?.name ?? profile?.email ?? "User";
   const firstName = name.split(" ")[0];
 
   const initials = useMemo(
