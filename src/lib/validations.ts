@@ -46,3 +46,41 @@ export const addTransactionSchema = z.object({
 });
 
 export type AddTransactionFormValues = z.infer<typeof addTransactionSchema>;
+
+const BudgetRowSchema = z.object({
+  id:           z.number(),
+  category:     z.string(),
+  monthlyLimit: z.number(),
+  spent:        z.number(),
+  percentUsed:  z.number(),
+});
+
+const SpendingByCategorySchema = z.object({
+  category:   z.string(),
+  amount:     z.number(),
+  percentage: z.number(),
+});
+
+const RecentTransactionSchema = z.object({
+  id:          z.number(),
+  userId:      z.string(),
+  type:        z.enum(["income", "expense"]),
+  amount:      z.number(),
+  category:    z.string().nullable(),
+  description: z.string().nullable(),
+  date:        z.string().nullable(),
+  createdAt:   z.string(),
+});
+
+export const GetDashboardSummaryResponse = z.object({
+  totalBalance:       z.number(),
+  monthlyIncome:      z.number(),
+  monthlyExpenses:    z.number(),
+  monthlySavings:     z.number(),
+  savingsRate:        z.number(),
+  budgetMonthlyLimit: z.number().optional(),
+  budgetPercentUsed:  z.number().optional(),
+  budgets:            z.array(BudgetRowSchema),
+  spendingByCategory: z.array(SpendingByCategorySchema),
+  recentTransactions: z.array(RecentTransactionSchema),
+});

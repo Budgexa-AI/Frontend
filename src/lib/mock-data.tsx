@@ -14,80 +14,22 @@ export const mockUser: UserProfile = {
 const now = new Date().toISOString();
 
 export const mockDashboardData = {
-  accounts: [
-    {
-      id: 1,
-      userId: 1,
-      name: "Main Account",
-      balance: "575000.00",
-    },
-  ] satisfies Account[],
-
-  transactions: [
-    {
-      id: 1,
-      userId: 1,
-      type: "expense",
-      amount: 5200,
-      category: "Food",
-      description: "Grocery Store",
-      date: "2026-06-06",
-      createdAt: now,
-    },
-    {
-      id: 2,
-      userId: 1,
-      type: "income",
-      amount: 200000,
-      category: "Salary",
-      description: "Salary Deposit",
-      date: "2026-06-05",
-      createdAt: now,
-    },
-    {
-      id: 3,
-      userId: 1,
-      type: "expense",
-      amount: 3800,
-      category: "Transport",
-      description: "Uber Ride",
-      date: "2026-06-04",
-      createdAt: now,
-    },
-  ] satisfies Transaction[],
-
-  savingsGoals: [
-    {
-      id: 1,
-      userId: 1,
-      name: "Emergency Fund",
-      currentAmount: "120000.00",
-      targetAmount: "300000.00",
-      deadline: "2026-12-31",
-    },
-    {
-      id: 2,
-      userId: 1,
-      name: "Car Savings",
-      currentAmount: "2600000.00",
-      targetAmount: "4000000.00",
-      deadline: "2027-06-30",
-    },
-  ] satisfies SavingsGoal[],
-
-  insights: [
-    {
-      id: 1,
-      userId: 1,
-      title: "Food spending increased",
-      content:
-        "You spent 25% more on food this month. Meal planning could help save approximately ₦15,000 monthly.",
-      createdAt: now,
-    },
-  ] satisfies AiInsight[],
+  totalBalance:       45000,
+  totalIncome:        50000,
+  totalExpenses:      5000,
+  monthlyIncome:      0,
+  monthlyExpenses:    0,
+  monthlySavings:     0,
+  savingsRate:        0,
+  budgetMonthlyLimit: 30000,
+  budgetPercentUsed:  0,
+  accounts:           [],
+  transactions:       [],
+  budgets:            [],
+  spendingByCategory: [],
+  savingsGoals:       [],
+  insights:           [],
 };
-
-// lib/mock-data.ts — add these exports
 
 export const mockTransactions = [
   {

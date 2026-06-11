@@ -369,7 +369,7 @@ export function useAuth(): UseAuthReturn {
       const userData: AuthUser = {
         id: profile.id,
         email: profile.email || '',
-        fullName: profile.fullName,
+        fullName: profile.name || '',
         avatarUrl: profile.avatarUrl,
       };
 

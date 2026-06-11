@@ -16,6 +16,20 @@ export interface UserProfile {
   plan?: string;
 }
 
+export interface BudgetRow {
+  id: number;
+  category: string;
+  monthlyLimit: number;
+  spent: number;
+  percentUsed: number;
+}
+
+export interface SpendingCategory {
+  category: string;
+  amount: number;
+  percentage: number;
+}
+
 // ============================================================
 // Internal helpers
 // ============================================================
@@ -90,6 +104,19 @@ function createHeaders(extraHeaders?: HeadersInit): HeadersInit {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...extraHeaders,
   };
+}
+
+async function apiFetch(
+  path: string,
+  init: RequestInit = {}
+): Promise<Response> {
+  const { headers: extraHeaders, ...restInit } = init;
+
+  return fetch(proxyPath(path), {
+    credentials: "include",          // matches your existing calls
+    ...restInit,
+    headers: createHeaders(extraHeaders as HeadersInit),  // your existing createHeaders
+  });
 }
 
 function logApiEvent(message: string, payload?: unknown) {
@@ -670,49 +697,54 @@ export async function completeOnboarding(data: {
 }
 
 // Dashboard API
+export async function getDashboardData() {
+  const [summaryRes, insightsRes] = await Promise.allSettled([
+    apiFetch("/dashboard/summary"),
+    apiFetch("/ai/insights"),
+  ]);
 
-export async function getDashboardData(): Promise<{
-  accounts: Account[];
-  transactions: Transaction[];
-  savingsGoals: SavingsGoal[]; 
-  insights: AiInsight[];
-}> {
-  const token = typeof window !== "undefined"
-    ? localStorage.getItem("authToken")
-    : null;
+  // ── Summary ───────────────────────────────────────────────
+  let d: any = {};
+  if (summaryRes.status === "fulfilled" && summaryRes.value.ok) {
+    const json = await readJsonResponse<any>(summaryRes.value);
+    d = json.data ?? json;
+  }
 
-  if (!token) throw new Error("No auth token found");
-
-  const res = await fetch(
-    proxyPath(`/dashboard/summary`),
-    { headers: { Authorization: `Bearer ${token}` }, credentials: "include" }
-  );
-
-  if (!res.ok) throw new Error("Failed to fetch dashboard data");
-
-  const data = await readJsonResponse<any>(res);
+  // ── Insights ──────────────────────────────────────────────
+  let insights: AiInsight[] = [];
+  if (insightsRes.status === "fulfilled" && insightsRes.value.ok) {
+    const json = await readJsonResponse<any>(insightsRes.value);
+    const inner = json.data ?? json;
+    insights = Array.isArray(inner) ? inner : (inner.insights ?? []);
+  }
 
   return {
-    accounts:     data.accounts     ?? [],
-    transactions: data.transactions ?? [],
-    savingsGoals: data.savingsGoals ?? data.savings ?? [], 
-    insights:     data.insights     ?? [],
+    totalBalance:       d.totalBalance       ?? 0,
+    totalIncome:        d.totalIncome        ?? 0,
+    totalExpenses:      d.totalExpenses      ?? 0,
+    monthlyIncome:      d.monthlyIncome      ?? 0,
+    monthlyExpenses:    d.monthlyExpenses    ?? 0,
+    monthlySavings:     d.monthlySavings     ?? 0,
+    savingsRate:        d.savingsRate        ?? 0,
+    budgetMonthlyLimit: d.budgetMonthlyLimit ?? 0,
+    budgetPercentUsed:  d.budgetPercentUsed  ?? 0,
+    budgets:            d.budgets            ?? [],
+    spendingByCategory: d.spendingByCategory ?? [],
+    recentTransactions: d.recentTransactions ?? [],
+    savingsGoals:       d.savingsGoals       ?? [],
+    insights,
   };
 }
 
 // AI API
 
 export async function getAiInsights(): Promise<AiInsight[]> {
-  const res = await fetch(proxyPath("/ai/insights"), {
-    credentials: "include",
-  });
-
+  const res = await apiFetch("/ai/insights");
   if (!res.ok) throw new Error("Failed to fetch AI insights");
 
-  const data = await readJsonResponse<{ insights?: AiInsight[]; data?: AiInsight[] }>(res);
-
-  console.log("[api-client] getAiInsights response", { data });
-  return data.insights ?? data.data ?? [];
+  const json = await readJsonResponse<any>(res);
+  const inner = json.data ?? json;
+  return Array.isArray(inner) ? inner : (inner.insights ?? []);
 }
 
 export async function askAi(payload: {

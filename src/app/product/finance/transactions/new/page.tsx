@@ -334,7 +334,7 @@ export default function AddTransactionPage() {
         </div>
 
         {/* Receipt upload */}
-        <div className="mb-6 flex flex-col gap-1.5">
+        {/* <div className="mb-6 flex flex-col gap-1.5">
           <label className="text-xs font-medium text-rayo-green">
             Upload Receipt{" "}
             <span className="font-normal text-gray-400">(Optional)</span>
@@ -343,7 +343,7 @@ export default function AddTransactionPage() {
             onUpload={() => {}}
             isUploading={false}
           />
-        </div>
+        </div> */}
 
         {/* Server error */}
         {serverError && (

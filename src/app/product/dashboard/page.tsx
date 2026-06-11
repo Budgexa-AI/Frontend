@@ -21,12 +21,7 @@ import {
 import { formatNaira } from "@/lib/utils";
 import { getCategoryColor } from "@/lib/chart-colors";
 import { useRouter } from "next/navigation";
-import type {
-  Account as DBAccount,
-  Transaction as DBTransaction,
-  SavingsGoal as DBSavings,
-  AiInsight as DBAiInsight,
-} from "@/lib/types/src";
+import type { AiInsight as DBAiInsight } from "@/lib/types/src";
 import { fetchCurrentUser, fetchDashboardData } from "@/lib/data-service";
 
 // ─────────────────────────────────────────────────────────────
@@ -34,122 +29,87 @@ import { fetchCurrentUser, fetchDashboardData } from "@/lib/data-service";
 // ─────────────────────────────────────────────────────────────
 
 interface DashboardState {
-  accounts: DBAccount[];
-  transactions: DBTransaction[];
-  savingsGoals: DBSavings[];
-  insights: DBAiInsight[];
-}
-
-interface DerivedGoal {
-  title: string;
-  current: number;
-  target: number;
-  pct: number;
+  totalBalance: number;
+  totalIncome: number;
+  totalExpenses: number;
+  monthlyIncome: number;
+  monthlyExpenses: number;
+  monthlySavings: number;
+  budgetMonthlyLimit: number;
+  budgetPercentUsed: number;
+  budgets: Array<{
+    id: number;
+    category: string;
+    monthlyLimit: number;
+    totalSpent: number;
+    remaining: number;
+    percentUsed: number;
+    rollover: boolean;
+  }>;
+  spendingByCategory: Array<{
+    category: string;
+    amount: number;
+    percentage: number;
+  }>;
+  recentTransactions: Array<{
+    id: number | string;
+    type: "income" | "expense";
+    amount: number;
+    category: string;
+    description: string;
+    date: string;
+    createdAt: string;
+  }>;
+  savingsRate: number;
+  savingsGoals: Array<{
+    id: number;
+    name: string;
+    targetAmount: number;
+    currentAmount: number;
+    deadline: string;
+    percentComplete: number;
+  }>;
+  insights?: DBAiInsight[]; // Kept optional for the AI Hero section
 }
 
 // ─────────────────────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────────────────────
 
-function deriveMetrics(data: DashboardState) {
-  const totalBalance = data.accounts.reduce(
-    (sum, a) => sum + parseFloat(a.balance ?? "0"),
-    0
-  );
-
-  const income = data.transactions
-    .filter((t) => t.type === "income")
-    .reduce((sum, t) => sum + Number(t.amount), 0);
-
-  const expenses = data.transactions
-    .filter((t) => t.type === "expense")
-    .reduce((sum, t) => sum + Number(t.amount), 0);
-
-  const savingsRate =
-    income > 0 ? Math.round(((income - expenses) / income) * 100) : 0;
-
-  return [
-    { title: "Total Balance", value: totalBalance,      change: "+2.5%", positive: true,  icon: Wallet       },
-    { title: "Income",        value: income,            change: "+12%",  positive: true,  icon: ArrowUpRight },
-    { title: "Expenses",      value: expenses,          change: "-8%",   positive: false, icon: ArrowDownLeft },
-    { title: "Savings Rate",  value: `${savingsRate}%`, change: "+5%",   positive: true,  icon: PiggyBank    },
-  ] as {
-    title: string;
-    value: number | string;
-    change: string;
-    positive: boolean;
-    icon: React.ElementType;
-  }[];
-}
-
-function deriveSpending(transactions: DBTransaction[]) {
-  const categoryTotals: Record<string, number> = {};
-  const totalExpenses = transactions
-    .filter((t) => t.type === "expense")
-    .reduce((sum, t) => {
-      const cat = t.category ?? "Other";
-      categoryTotals[cat] = (categoryTotals[cat] ?? 0) + Number(t.amount);
-      return sum + Number(t.amount);
-    }, 0);
-
-  return Object.entries(categoryTotals)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 4)
-    .map(([label, amount]) => ({
-      label,
-      amount,
-      pct: totalExpenses > 0 ? Math.round((amount / totalExpenses) * 100) : 0,
-      color: getCategoryColor(label),
-    }));
-}
-
-function deriveSavingsGoals(goals: DBSavings[]): DerivedGoal[] {
-  return goals.map((g) => ({
-    title:   g.name,
-    current: parseFloat(g.currentAmount),
-    target:  parseFloat(g.targetAmount),
-    pct:
-      parseFloat(g.targetAmount) > 0
-        ? Math.round(
-            (parseFloat(g.currentAmount) / parseFloat(g.targetAmount)) * 100
-          )
-        : 0,
-  }));
-}
-
-function deriveLatestInsight(insights: DBAiInsight[]) {
-  if (!insights.length) return null;
+function deriveLatestInsight(insights?: DBAiInsight[]) {
+  if (!insights || !insights.length) return null;
   const latest = insights[0];
   return {
-    title: latest.title   ?? "Smart Insight",
-    body:  latest.content ?? latest.content ?? "",
+    title: latest.message,  // was latest.title
+    body:  latest.detail,   // was latest.content
+    type:  latest.type,     // "alert" | "positive" | "suggestion"
   };
 }
-
 // ─────────────────────────────────────────────────────────────
 // DONUT
 // ─────────────────────────────────────────────────────────────
 
-const RADIUS       = 40;
+const RADIUS = 40;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 function DonutChart({
   spending,
+  totalExpenses,
 }: {
-  spending: ReturnType<typeof deriveSpending>;
+  spending: Array<{ label: string; amount: number; pct: number; color: string }>;
+  totalExpenses: number;
 }) {
   let cumulative = 0;
-  const totalExpenses = spending.reduce((sum, s) => sum + s.amount, 0);
 
   return (
     <div className="rounded-full bg-rayo-green p-5 shadow-inner">
       <div className="relative h-36 w-36">
         <svg viewBox="0 0 100 100" className="-rotate-90">
           {spending.map((item, i) => {
-            const dash   = (item.pct / 100) * CIRCUMFERENCE;
-            const gap    = CIRCUMFERENCE - dash;
+            const dash = (item.pct / 100) * CIRCUMFERENCE;
+            const gap = CIRCUMFERENCE - dash;
             const offset = -(cumulative / 100) * CIRCUMFERENCE;
-            cumulative  += item.pct;
+            cumulative += item.pct;
 
             return (
               <circle
@@ -200,14 +160,24 @@ function SkeletonCard() {
 
 export default function DashboardPage() {
   const [showBalance, setShowBalance] = useState(true);
-  const [loading, setLoading]         = useState(true);
-  const [error, setError]             = useState<string | null>(null);
-  const [userId, setUserId]           = useState<string | null>(null);
-  const [data, setData]               = useState<DashboardState>({
-    accounts:     [],
-    transactions: [],
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [data, setData] = useState<DashboardState>({
+    totalBalance: 0,
+    totalIncome: 0,
+    totalExpenses: 0,
+    monthlyIncome: 0,
+    monthlyExpenses: 0,
+    monthlySavings: 0,
+    budgetMonthlyLimit: 0,
+    budgetPercentUsed: 0,
+    budgets: [],
+    spendingByCategory: [],
+    recentTransactions: [],
+    savingsRate: 0,
     savingsGoals: [],
-    insights:     [],
+    insights: [],
   });
 
   const router = useRouter();
@@ -219,8 +189,25 @@ export default function DashboardPage() {
         setError(null);
         const user = await fetchCurrentUser();
         setUserId(user.id);
+        
+        // Ensure your fetchDashboardData returns the response.data object directly
         const dashboardData = await fetchDashboardData();
-        setData(dashboardData);
+        setData({
+          totalBalance:       dashboardData.totalBalance,
+          totalIncome:        dashboardData.totalIncome,
+          totalExpenses:      dashboardData.totalExpenses,
+          monthlyIncome:      dashboardData.monthlyIncome,
+          monthlyExpenses:    dashboardData.monthlyExpenses,
+          monthlySavings:     dashboardData.monthlySavings,
+          savingsRate:        dashboardData.savingsRate,
+          budgetMonthlyLimit: dashboardData.budgetMonthlyLimit,
+          budgetPercentUsed:  dashboardData.budgetPercentUsed,
+          budgets:            dashboardData.budgets,
+          spendingByCategory: dashboardData.spendingByCategory,
+          recentTransactions: dashboardData.recentTransactions,
+          savingsGoals:       dashboardData.savingsGoals,
+          insights:           dashboardData.insights,
+        });
       } catch (err: unknown) {
         const message =
           err instanceof Error ? err.message : "Failed to load dashboard data";
@@ -232,20 +219,43 @@ export default function DashboardPage() {
     load();
   }, []);
 
-  const metrics       = useMemo(() => deriveMetrics(data),              [data]);
-  const spending      = useMemo(() => deriveSpending(data.transactions), [data.transactions]);
-  const goals         = useMemo(() => deriveSavingsGoals(data.savingsGoals), [data.savingsGoals]);
+  // Map the new backend payload directly to UI metrics
+  const metrics = useMemo(() => [
+    { title: "Total Balance", value: data.totalBalance, change: "Active", positive: true, icon: Wallet },
+    { title: "Income", value: data.monthlyIncome, change: "This month", positive: true, icon: ArrowUpRight },
+    { title: "Expenses", value: data.monthlyExpenses, change: "This month", positive: false, icon: ArrowDownLeft },
+    { title: "Savings Rate", value: `${data.savingsRate}%`, change: "Overall", positive: true, icon: PiggyBank },
+  ], [data]);
+
+  const spending = useMemo(() => 
+    data.spendingByCategory.map((item) => ({
+      label: item.category,
+      amount: item.amount,
+      pct: item.percentage,
+      color: getCategoryColor(item.category)
+    })), [data.spendingByCategory]);
+
+  const budgets = useMemo(() => 
+    data.budgets.map((b) => ({
+      label: b.category,
+      amount: b.totalSpent,
+      remaining: b.remaining,
+      pct: b.percentUsed,
+      color: getCategoryColor(b.category)
+    })), [data.budgets]);
+
+  const goals = useMemo(() => 
+    data.savingsGoals.map((g) => ({
+      title: g.name,
+      current: g.currentAmount,
+      target: g.targetAmount,
+      pct: g.percentComplete
+    })), [data.savingsGoals]);
+
   const latestInsight = useMemo(() => deriveLatestInsight(data.insights), [data.insights]);
-  const recentTxs     = useMemo(() => data.transactions.slice(0, 5),    [data.transactions]);
+  const recentTxs = data.recentTransactions;
 
   const highestSpendingCategory = spending[0]?.label ?? "N/A";
-
-  const quickActions = [
-    { label: "Add Expense",   href: "/product/finance/transactions/new" },
-    { label: "Add Income",    href: "/product/finance/transactions/new" },
-    { label: "Create Budget", href: "/product/finance/budget"           },
-    { label: "Ask Insights",  href: "/product/finance/ai"               },
-  ];
 
   return (
     <main className="min-h-screen bg-rayo-beige">
@@ -261,7 +271,6 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-3 overflow-x-auto pb-1">
-
             <Link
               href="/product/finance/ai?q=Why+am+I+spending+so+much+this+month%3F"
               className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-rayo-green/10 bg-white px-5 text-sm font-medium text-rayo-green"
@@ -297,6 +306,14 @@ export default function DashboardPage() {
 
             {latestInsight ? (
               <div className="max-w-3xl">
+                <div className={`mb-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium ${
+                  latestInsight.type === "alert"      ? "bg-rayo-orange/20 text-rayo-orange" :
+                  latestInsight.type === "positive"   ? "bg-white/20 text-white" :
+                                                        "bg-white/10 text-white/80"
+                }`}>
+                  {latestInsight.type === "alert" ? "⚠ Alert" :
+                  latestInsight.type === "positive" ? "✓ Positive" : "💡 Suggestion"}
+                </div>
                 <h2 className="text-2xl font-semibold tracking-tight md:text-4xl">
                   {latestInsight.title}
                 </h2>
@@ -307,12 +324,12 @@ export default function DashboardPage() {
             ) : (
               <div className="max-w-3xl">
                 <h2 className="text-2xl font-semibold tracking-tight md:text-4xl">
-                  {loading ? "Analyzing your finances…" : "No insights yet."}
+                  {loading ? "Analyzing your finances…" : "Ready to optimize your budget."}
                 </h2>
                 <p className="mt-4 text-sm leading-7 text-white/75 md:text-base">
                   {loading
                     ? "Give us a moment."
-                    : "Add transactions to start getting personalized insights."}
+                    : "Track your spending and connect categories to get personalized AI insights."}
                 </p>
               </div>
             )}
@@ -323,12 +340,6 @@ export default function DashboardPage() {
                 className="rounded-2xl bg-white px-5 py-3 text-sm font-medium text-rayo-green transition-all hover:bg-rayo-beige"
               >
                 Show me how
-              </Link>
-              <Link
-                href="/product/finance/ai"
-                className="rounded-2xl border border-white/10 px-5 py-3 text-sm font-medium text-white/90 backdrop-blur-sm"
-              >
-                Explain spending changes
               </Link>
             </div>
           </div>
@@ -382,7 +393,7 @@ export default function DashboardPage() {
                         }`}
                       >
                         <TrendingUp size={12} />
-                        {item.change} this month
+                        {item.change}
                       </div>
                     </div>
                   ))}
@@ -410,7 +421,7 @@ export default function DashboardPage() {
                   {loading ? (
                     <div className="h-48 w-48 animate-pulse rounded-full bg-rayo-beige" />
                   ) : spending.length > 0 ? (
-                    <DonutChart spending={spending} />
+                    <DonutChart spending={spending} totalExpenses={data.monthlyExpenses} />
                   ) : (
                     <div className="flex h-48 w-48 items-center justify-center rounded-full bg-rayo-ash text-sm text-rayo-green/50">
                       No data yet
@@ -481,12 +492,11 @@ export default function DashboardPage() {
                       </div>
                     ))}
                   </div>
-                ) : spending.length === 0 ? (
+                ) : budgets.length === 0 ? (
                   <p className="text-sm text-rayo-green/50">No budget data yet.</p>
                 ) : (
                   <div className="space-y-6">
-                    {spending.map((item) => {
-                      const remaining = 100000 - item.amount;
+                    {budgets.map((item) => {
                       const status =
                         item.pct >= 80
                           ? "Near limit"
@@ -513,7 +523,7 @@ export default function DashboardPage() {
                                 </span>
                               </div>
                               <p className="mt-1 text-xs text-rayo-green/55">
-                                {formatNaira(remaining)} remaining
+                                {formatNaira(item.remaining)} remaining
                               </p>
                             </div>
                             <p className="text-sm font-semibold text-rayo-green/60">
@@ -525,7 +535,7 @@ export default function DashboardPage() {
                             <div
                               className="h-full rounded-full transition-all"
                               style={{
-                                width: `${item.pct}%`,
+                                width: `${Math.min(item.pct, 100)}%`,
                                 backgroundColor: item.color,
                               }}
                             />
@@ -533,14 +543,6 @@ export default function DashboardPage() {
                         </div>
                       );
                     })}
-                  </div>
-                )}
-
-                {!loading && spending.length > 0 && (
-                  <div className="mt-7 rounded-2xl bg-rayo-ash p-4">
-                    <p className="text-sm leading-6 text-rayo-green/80">
-                      You are currently on track to stay within your monthly budget.
-                    </p>
                   </div>
                 )}
 
@@ -585,7 +587,7 @@ export default function DashboardPage() {
                         <div>
                           <p className="font-medium text-rayo-green">{tx.description}</p>
                           <p className="mt-1 text-xs text-rayo-green/60">
-                            {tx.category} • {tx.date}
+                            {tx.category} • {new Date(tx.date).toLocaleDateString("en-NG")}
                           </p>
                         </div>
                         <p
@@ -730,76 +732,10 @@ export default function DashboardPage() {
                   ))}
                 </div>
               )}
-
-              <Link
-                href="/product/finance/savings"
-                className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-rayo-green transition-all hover:gap-3"
-              >
-                Reach goals faster
-                <ChevronRight size={16} />
-              </Link>
-            </section>
-
-            {/* QUICK ACTIONS */}
-            <section className="rounded-[28px] border border-rayo-green/5 bg-white p-5 shadow-sm md:p-6">
-              <h3 className="mb-5 text-lg font-semibold text-rayo-green">Quick Actions</h3>
-              <div className="grid grid-cols-2 gap-3">
-                {quickActions.map((action) => (
-                  <button
-                    key={action.label}
-                    onClick={() => router.push(action.href)}
-                    className="rounded-2xl bg-rayo-ash px-4 py-4 text-sm font-medium text-rayo-green transition-all hover:bg-rayo-beige"
-                  >
-                    {action.label}
-                  </button>
-                ))}
-              </div>
-            </section>
-
-            {/* SMART INSIGHT */}
-            <section className="rounded-[28px] bg-rayo-orange p-6 text-white shadow-sm">
-              <div className="flex items-center gap-2">
-                <Sparkles size={18} />
-                <p className="font-semibold">Smart Insight</p>
-              </div>
-
-              {loading ? (
-                <div className="mt-5 animate-pulse space-y-2">
-                  <div className="h-6 w-full rounded bg-white/20" />
-                  <div className="h-6 w-3/4 rounded bg-white/20" />
-                </div>
-              ) : latestInsight ? (
-                <>
-                  <h3 className="mt-5 text-2xl font-semibold leading-tight">
-                    {latestInsight.title}
-                  </h3>
-                  <p className="mt-4 text-sm leading-7 text-white/80">{latestInsight.body}</p>
-                </>
-              ) : (
-                <h3 className="mt-5 text-2xl font-semibold leading-tight">
-                  No insights yet — add transactions to get started.
-                </h3>
-              )}
-
-              <Link
-                href="/product/finance/ai"
-                className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-medium text-rayo-green"
-              >
-                Explain this trend
-                <ArrowRight size={16} />
-              </Link>
             </section>
           </div>
         </div>
       </div>
-
-      {/* MOBILE FAB */}
-      <Link
-        href="/product/finance/transactions/new"
-        className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-rayo-green text-white shadow-xl transition-all hover:scale-105 hover:bg-rayo-green-dark md:hidden"
-      >
-        <Plus size={22} />
-      </Link>
     </main>
   );
 }

@@ -18,8 +18,8 @@ export async function fetchCurrentUser() {
   return getCurrentUser();
 }
 
-export async function fetchDashboardData() {
-  if (USE_MOCK) return mockDashboardData;
+export async function fetchDashboardData(): Promise<Awaited<ReturnType<typeof getDashboardData>>> {
+  if (USE_MOCK) return mockDashboardData as any;
   return getDashboardData();
 }
 

@@ -30,12 +30,12 @@ export interface SavingsGoal {
   deadline: string;
 }
 
+// types/src/index.ts
 export interface AiInsight {
-  id: number;
-  userId: number;
-  title: string;
-  content: string;
-  createdAt: string;
+  id: string;
+  type: "alert" | "positive" | "suggestion" | "warning" | "observation";
+  message: string;
+  detail: string;
 }
 
 export interface Attachment {
