@@ -49,12 +49,12 @@ export default function LoginPage() {
   }, [searchParams, router]);
 
   function handleGoogleLogin() {
-    setGoogleLoading(true);
-    const origin = window.location.origin;
-    const dashboardUrl = `${origin}/product/dashboard`;
-    const loginUrl = `${origin}/auth/login`;
-    signInWithGoogle(dashboardUrl, loginUrl);
-  }
+  setGoogleLoading(true);
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const dashboardUrl = `${origin}/dashboard`;
+  const loginUrl     = `${origin}/auth/login`;
+  signInWithGoogle(dashboardUrl, loginUrl);
+}
 
   function isEmailUnverified(response: Awaited<ReturnType<typeof login>>): boolean {
     const message = `${response.error || ""} ${(response.details && typeof response.details === "object" ? JSON.stringify(response.details) : "")}`.toLowerCase();
@@ -144,13 +144,10 @@ export default function LoginPage() {
       if (response.success && response.data?.token) {
         const token = response.data.token;
 
-        // For API calls via createHeaders()
-        localStorage.setItem("authToken", token);
-
-        // For middleware route protection (cookies are readable in Edge runtime)
-        document.cookie = `authToken=${token}; path=/; max-age=${
-          60 * 60 * 24 * 7  // 7 days
-        }; SameSite=Lax`;
+        if (token) {
+          localStorage.setItem("authToken", token); // ← same fix
+          router.replace("/product/dashboard");
+        }
 
         const redirect = searchParams.get("redirect") ?? "/product/dashboard";
         router.push(redirect);

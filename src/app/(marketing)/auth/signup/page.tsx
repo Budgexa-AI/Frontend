@@ -122,34 +122,34 @@ export default function SignUpPage() {
     setForm((f) => ({ ...f, [key]: val }));
 
   // Handle OAuth callback: token or error returned via URL params
-  useEffect(() => {
-    const token = searchParams.get("token");
-    const oauthError = searchParams.get("error");
+  // Handle OAuth callback: token or error returned via URL params
+useEffect(() => {
+  const token = searchParams.get("token");
+  const oauthError = searchParams.get("error");
 
-    if (token) {
-      // TODO: Store the token however your app requires
-      // localStorage.setItem("authToken", token);
-      router.replace("/product/onboarding/welcome");
-    }
-
-    if (oauthError) {
-      const messages: Record<string, string> = {
-        oauth_cancelled: "Google sign-up was cancelled.",
-        oauth_failed: "Google sign-up failed. Please try again.",
-      };
-      setServerError(messages[oauthError] ?? "An error occurred during Google sign-up.");
-    }
-  }, [searchParams, router]);
-
-  function handleGoogleSignUp() {
-    setGoogleLoading(true);
-    const onboardUrl = "/product/onboarding/welcome";
-    const signupUrl =
-      typeof window !== "undefined"
-        ? window.location.origin + "/auth/signup"
-        : "";
-    signInWithGoogle(onboardUrl, signupUrl);
+  if (token) {
+    localStorage.setItem("authToken", token); // ← store it
+    router.replace("/product/onboarding/welcome");
   }
+
+  if (oauthError) {
+    const messages: Record<string, string> = {
+      oauth_cancelled: "Google sign-up was cancelled.",
+      oauth_failed: "Google sign-up failed. Please try again.",
+    };
+    setServerError(messages[oauthError] ?? "An error occurred during Google sign-up.");
+  }
+}, [searchParams, router]);
+
+function handleGoogleSignUp() {
+  setGoogleLoading(true);
+
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const onboardUrl = `${origin}/product/onboarding/welcome`;
+  const signupUrl  = `${origin}/auth/signup`;
+
+  signInWithGoogle(onboardUrl, signupUrl);
+}
 
   function shouldGoToVerifyEmail(response: Awaited<ReturnType<typeof signUp>>): boolean {
     const message = `${response.error || ""} ${(response.details && typeof response.details === "object" ? JSON.stringify(response.details) : "")}`.toLowerCase();
