@@ -1,5 +1,5 @@
 // lib/mock-data.ts
-import type { Account, Transaction, SavingsGoal, AiInsight, UserProfile, AiConversation } from "@/lib/types/src";
+import type { Account, Transaction, SavingsGoal, AiInsight, UserProfile, AiConversation, BudgetCategory } from "@/lib/types/src";
 
 export const mockUser: UserProfile = {
   id: "1",
@@ -25,10 +25,21 @@ export const mockDashboardData = {
   budgetPercentUsed:  0,
   accounts:           [],
   transactions:       [],
-  budgets:            [],
+  budgets:            [
+    {
+      id: "transport",
+      name: "Transport",
+      subtitle: "Taxi, Fuel",
+      budget: 80000,
+      spent: 36000,
+      color: "#8B5CF6",
+      emoji: "🚗",
+    }
+  ],
   spendingByCategory: [],
   savingsGoals:       [],
   insights:           [],
+  recentTransactions: [],
 };
 
 export const mockTransactions = [
@@ -206,4 +217,17 @@ export const BANKS = [
   "UBA",
   "Union Bank",
   "Zenith Bank",
+];
+
+export const CATEGORIES: BudgetCategory[] = [
+  {
+    id: 1,
+    userId: 5,
+    category: "Food",
+    monthlyLimit: 90000,
+    totalSpent: 20500,
+    remaining: 69500,
+    percentUsed: 20,
+    rollover: false,
+  }
 ];

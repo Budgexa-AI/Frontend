@@ -8,7 +8,7 @@ export const CATEGORIES = [
   { label: "Education",            emoji: "📚", value: "education"           },
   { label: "Savings & Investment", emoji: "💰", value: "savings_investment"  },
   { label: "Airtime & Data",       emoji: "📱", value: "airtime_data"        },
-  // ── Income categories ──────────────────────────────────────────────────
+  // ── Income categories ───────────────────────────────────────────────────
   { label: "Salary",               emoji: "💼", value: "salary"              },
   { label: "Freelance",            emoji: "💻", value: "freelance"           },
   { label: "Business Income",      emoji: "📈", value: "business_income"     },
@@ -19,13 +19,89 @@ export const CATEGORIES = [
   { label: "Other",                emoji: "📦", value: "other"               },
 ];
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Budget category mapping
+//
+// The backend stores budget categories as free-text strings (whatever the user
+// typed during onboarding or when creating a budget — e.g. "Food", "Transport").
+// Transaction categories are structured slugs (e.g. "food_dining", "transport").
+//
+// This map normalises transaction category slugs → the canonical budget category
+// name that the backend will match against when computing totalSpent via
+// TransactionUseCase.getSpentByCategory.
+//
+// Rules:
+//  - Keys are transaction category `value` slugs (from CATEGORIES above).
+//  - Values are the exact strings used as budget category names on the backend.
+//  - Keep this in sync with whatever category names are created during onboarding.
+// ─────────────────────────────────────────────────────────────────────────────
+export const TRANSACTION_TO_BUDGET_CATEGORY: Record<string, string> = {
+  food_dining:        "Food",
+  transport:          "Transport",
+  shopping:           "Shopping",
+  bills_utilities:    "Utilities",
+  health:             "Health",
+  entertainment:      "Entertainment",
+  education:          "Education",
+  savings_investment: "Savings",
+  airtime_data:       "Data",
+  salary:             "Income",
+  freelance:          "Income",
+  business_income:    "Income",
+  family_support:     "Income",
+  transfer_received:  "Income",
+  transfer_sent:      "Transfers",
+  refund:             "Other",
+  other:              "Other",
+};
+
+/**
+ * Converts a transaction category slug to the matching budget category name.
+ * Falls back to the slug itself if no mapping exists (handles user-created
+ * budget categories that don't correspond to a standard slug).
+ */
+export function toBudgetCategory(transactionCategory: string): string {
+  return TRANSACTION_TO_BUDGET_CATEGORY[transactionCategory] ?? transactionCategory;
+}
+
+/**
+ * Given a budget category name (e.g. "Food"), returns the best matching
+ * CATEGORIES entry for display purposes (emoji, label).
+ * Falls back to "other" if nothing matches.
+ */
+export function getCategoryMetaFromBudget(budgetCategory: string): typeof CATEGORIES[number] {
+  const normalized = budgetCategory.toLowerCase();
+
+  // Reverse-lookup: find which slug maps to this budget category name
+  const slug = Object.entries(TRANSACTION_TO_BUDGET_CATEGORY).find(
+    ([, budgetName]) => budgetName.toLowerCase() === normalized
+  )?.[0];
+
+  if (slug) {
+    const match = CATEGORIES.find((c) => c.value === slug);
+    if (match) return match;
+  }
+
+  // Fallback: fuzzy match on label
+  const labelMatch = CATEGORIES.find((c) =>
+    c.label.toLowerCase().includes(normalized) ||
+    normalized.includes(c.label.toLowerCase().split(" ")[0])
+  );
+
+  return labelMatch ?? CATEGORIES.find((c) => c.value === "other")!;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Detection rules (unchanged)
+// ─────────────────────────────────────────────────────────────────────────────
+
 interface CategoryRule {
   keywords: string[];
   category: string;
 }
 
 const RULES: CategoryRule[] = [
-  // ── Income ─────────────────────────────────────────────────────────────
+  // ── Income ──────────────────────────────────────────────────────────────
   {
     keywords: [
       "salary", "salari", "wages", "wage", "payroll", "monthly pay",
@@ -168,7 +244,6 @@ export function detectCategory(
 ): CategorySuggestion {
   const haystack = `${description} ${merchant ?? ""}`.toLowerCase();
 
-  // High confidence — 2+ keyword matches
   for (const rule of RULES) {
     const matched = rule.keywords.filter((kw) => haystack.includes(kw));
     if (matched.length >= 2) {
@@ -179,7 +254,6 @@ export function detectCategory(
     }
   }
 
-  // Medium confidence — 1 exact keyword match
   for (const rule of RULES) {
     const matched = rule.keywords.filter((kw) => haystack.includes(kw));
     if (matched.length === 1) {
@@ -190,7 +264,6 @@ export function detectCategory(
     }
   }
 
-  // Low confidence — partial prefix match (catches typos and abbreviations)
   for (const rule of RULES) {
     const words = haystack.split(/\s+/);
     const hasPartial = rule.keywords.some((kw) =>

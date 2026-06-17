@@ -122,34 +122,40 @@ export default function SignUpPage() {
     setForm((f) => ({ ...f, [key]: val }));
 
   // Handle OAuth callback: token or error returned via URL params
-  // Handle OAuth callback: token or error returned via URL params
-useEffect(() => {
-  const token = searchParams.get("token");
-  const oauthError = searchParams.get("error");
+  useEffect(() => {
+    const token      = searchParams.get("token");
+    const oauthError = searchParams.get("error");
+    const isNewUser  = searchParams.get("isNewUser");
 
-  if (token) {
-    localStorage.setItem("authToken", token); // ← store it
-    router.replace("/product/onboarding/welcome");
+    if (token) {
+      localStorage.setItem("authToken", token);
+      document.cookie = `authToken=${token}; path=/; max-age=${60 * 60 * 24 * 7}`; // 1 year
+
+      if (isNewUser === "true") {
+        router.replace("/product/onboarding/welcome");
+      } else {
+        router.replace("/product/dashboard"); // returning user — skip onboarding
+      }
+    }
+
+    if (oauthError) {
+      const messages: Record<string, string> = {
+        oauth_cancelled: "Google sign-up was cancelled.",
+        oauth_failed:    "Google sign-up failed. Please try again.",
+      };
+      setServerError(messages[oauthError] ?? "An error occurred during Google sign-up.");
+    }
+  }, [searchParams, router]);
+
+  function handleGoogleSignUp() {
+    setGoogleLoading(true);
+
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const onboardUrl = `${origin}/product/onboarding/welcome`;
+    const signupUrl  = `${origin}/auth/signup`;
+
+    signInWithGoogle(onboardUrl, signupUrl);
   }
-
-  if (oauthError) {
-    const messages: Record<string, string> = {
-      oauth_cancelled: "Google sign-up was cancelled.",
-      oauth_failed: "Google sign-up failed. Please try again.",
-    };
-    setServerError(messages[oauthError] ?? "An error occurred during Google sign-up.");
-  }
-}, [searchParams, router]);
-
-function handleGoogleSignUp() {
-  setGoogleLoading(true);
-
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
-  const onboardUrl = `${origin}/product/onboarding/welcome`;
-  const signupUrl  = `${origin}/auth/signup`;
-
-  signInWithGoogle(onboardUrl, signupUrl);
-}
 
   function shouldGoToVerifyEmail(response: Awaited<ReturnType<typeof signUp>>): boolean {
     const message = `${response.error || ""} ${(response.details && typeof response.details === "object" ? JSON.stringify(response.details) : "")}`.toLowerCase();

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AlertCircle, ArrowLeft, MoreHorizontal, Mic, TrendingUp, Lightbulb } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useChat } from "@/hooks/useChat";
+import { useChat } from "../../../../hooks/useChat";
 import { MessageList } from "@/components/ai/MessageList";
 import { ChatInput } from "@/components/ai/ChatInput";
 import RayoLogo from "@/components/icons/RayoLogo";

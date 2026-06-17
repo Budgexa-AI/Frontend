@@ -50,10 +50,14 @@ async function proxyRequest(
   const incomingUrl = new URL(request.url);
   targetUrl.search = incomingUrl.search;
 
+  // Build forwarding headers — strip cache + encoding headers
   const headers = new Headers(request.headers);
   headers.delete("accept-encoding");
   headers.delete("host");
   headers.delete("content-length");
+  headers.delete("if-none-match");        // ← was on forwardHeaders (unused)
+  headers.delete("if-modified-since");    // ← was on forwardHeaders (unused)
+  headers.delete("cache-control");
 
   const hasBody = !["GET", "HEAD"].includes(request.method.toUpperCase());
   const body = hasBody ? await request.text() : undefined;
@@ -62,7 +66,6 @@ async function proxyRequest(
     method: request.method,
     target: pathUrl.toString(),
   });
-  
 
   try {
     const response = await fetch(targetUrl, {
@@ -71,6 +74,12 @@ async function proxyRequest(
       body,
       redirect: "manual",
     });
+
+    // 304 means "use your cache" — backend has no body to send.
+    // Treat it as a 200 with empty data so the dashboard doesn't crash.
+    if (response.status === 304) {
+      return new NextResponse(null, { status: 200 });
+    }
 
     if (!response.ok) {
       const contentType = response.headers.get("content-type") || "";
@@ -96,16 +105,12 @@ async function proxyRequest(
       );
     }
 
-    // Forward the response back to the browser, preserving all headers
-    // including Set-Cookie so auth cookies reach the browser correctly.
     const proxiedResponse = new NextResponse(response.body, {
       status: response.status,
       statusText: response.statusText,
       headers: response.headers,
     });
 
-    // Explicitly re-set Set-Cookie — some runtimes strip it from the
-    // headers copy above. This ensures the auth cookie always lands.
     const setCookie = response.headers.get("set-cookie");
     if (setCookie) {
       proxiedResponse.headers.set("set-cookie", setCookie);

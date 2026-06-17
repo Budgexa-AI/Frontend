@@ -6,6 +6,7 @@ import type {
   AiMessage,
   TransactionFilters,
   TransactionListResponse,
+  BudgetCategory,
 } from "@/lib/types/src";
 
 export interface UserProfile {
@@ -544,7 +545,7 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
  *
  * Only call this client-side.
  */
-export function signInWithGoogle(redirectUrl: string, errorUrl: string): void {
+export function signInWithGoogle(redirectUrl: string, errorUrl: string) {
   const googleOAuthUrl =
     `${BACKEND_URL}/api/v1/auth/google` +
     `?redirectUrl=${encodeURIComponent(redirectUrl)}` +
@@ -699,7 +700,7 @@ export async function completeOnboarding(data: {
 // Dashboard API
 export async function getDashboardData() {
   const [summaryRes, insightsRes] = await Promise.allSettled([
-    apiFetch("/dashboard/summary"),
+    apiFetch("/dashboard/summary", { cache: "no-cache" }), // summary can be a bit stale, but we want to bypass Next.js static cache
     apiFetch("/ai/insights"),
   ]);
 
@@ -880,6 +881,44 @@ export async function deleteMultipleTransactions(ids: number[]): Promise<void> {
     const body = await res.json().catch(() => null);
     throw new Error(extractErrorMessage(body, "Failed to delete transactions"));
   }
+}
+
+// Budget API
+export async function fetchBudgets(): Promise<BudgetCategory[]> {
+  const res = await apiFetch(`/budget`);
+  if (!res.ok) throw new Error("Failed to fetch budgets");
+  const data = await res.json();
+  return Array.isArray(data) ? data : data.data ?? [];
+}
+
+export async function createBudget(
+  payload: { category: string; monthlyLimit: number }
+): Promise<BudgetCategory> {
+  const res = await apiFetch(`/budget`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error("Failed to create budget");
+  const data = await res.json();
+  return data.data ?? data;
+}
+
+export async function updateBudget(
+  id: number,                                          // number, not string
+  payload: { monthlyLimit: number }                   // only editable field
+): Promise<BudgetCategory> {
+  const res = await apiFetch(`/budget/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error("Failed to update budget");
+  const data = await res.json();
+  return data.data ?? data;
+}
+
+export async function deleteBudget(id: number): Promise<void> {  // number, not string
+  const res = await apiFetch(`/budget/${id}`, { method: "DELETE" });
+  if (!res.ok) throw new Error("Failed to delete budget");
 }
 
 // Error Handling Helper

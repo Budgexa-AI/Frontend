@@ -21,63 +21,16 @@ import {
 import { formatNaira } from "@/lib/utils";
 import { getCategoryColor } from "@/lib/chart-colors";
 import { useRouter } from "next/navigation";
-import type { AiInsight as DBAiInsight } from "@/lib/types/src";
+import type { DashboardState, AiInsight as DBAiInsight } from "@/lib/types/src";
 import { fetchCurrentUser, fetchDashboardData } from "@/lib/data-service";
 
-// ─────────────────────────────────────────────────────────────
-// TYPES
-// ─────────────────────────────────────────────────────────────
-
-interface DashboardState {
-  totalBalance: number;
-  totalIncome: number;
-  totalExpenses: number;
-  monthlyIncome: number;
-  monthlyExpenses: number;
-  monthlySavings: number;
-  budgetMonthlyLimit: number;
-  budgetPercentUsed: number;
-  budgets: Array<{
-    id: number;
-    category: string;
-    monthlyLimit: number;
-    totalSpent: number;
-    remaining: number;
-    percentUsed: number;
-    rollover: boolean;
-  }>;
-  spendingByCategory: Array<{
-    category: string;
-    amount: number;
-    percentage: number;
-  }>;
-  recentTransactions: Array<{
-    id: number | string;
-    type: "income" | "expense";
-    amount: number;
-    category: string;
-    description: string;
-    date: string;
-    createdAt: string;
-  }>;
-  savingsRate: number;
-  savingsGoals: Array<{
-    id: number;
-    name: string;
-    targetAmount: number;
-    currentAmount: number;
-    deadline: string;
-    percentComplete: number;
-  }>;
-  insights?: DBAiInsight[]; // Kept optional for the AI Hero section
-}
 
 // ─────────────────────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────────────────────
 
 function deriveLatestInsight(insights?: DBAiInsight[]) {
-  if (!insights || !insights.length) return null;
+  if (!insights || !insights?.length) return null;
   const latest = insights[0];
   return {
     title: latest.message,  // was latest.title
@@ -192,6 +145,7 @@ export default function DashboardPage() {
         
         // Ensure your fetchDashboardData returns the response.data object directly
         const dashboardData = await fetchDashboardData();
+        console.log("[Dashboard] Fetched dashboard data:", dashboardData);
         setData({
           totalBalance:       dashboardData.totalBalance,
           totalIncome:        dashboardData.totalIncome,
@@ -345,59 +299,59 @@ export default function DashboardPage() {
           </div>
         </section>
 
+        {/* METRICS */}
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 pt-4">
+          {loading
+            ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
+            : metrics.map((item) => (
+                <div
+                  key={item.title}
+                  className="rounded-[28px] border border-rayo-green/5 bg-white p-5 shadow-sm"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rayo-green/5 text-rayo-green">
+                      <item.icon size={20} />
+                    </div>
+
+                    {item.title === "Total Balance" && (
+                      <button
+                        onClick={() => setShowBalance(!showBalance)}
+                        className="text-rayo-green/50"
+                      >
+                        {showBalance ? <Eye size={18} /> : <EyeOff size={18} />}
+                      </button>
+                    )}
+                  </div>
+
+                  <p className="mt-5 text-sm text-rayo-green/60">{item.title}</p>
+
+                  <h3 className="mt-2 text-3xl font-bold tracking-tight text-rayo-green">
+                    {typeof item.value === "number"
+                      ? showBalance
+                        ? formatNaira(item.value)
+                        : "••••••"
+                      : item.value}
+                  </h3>
+
+                  <div
+                    className={`mt-4 inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${
+                      item.positive
+                        ? "bg-rayo-green/5 text-rayo-green"
+                        : "bg-rayo-orange/10 text-rayo-orange"
+                    }`}
+                  >
+                    <TrendingUp size={12} />
+                    {item.change}
+                  </div>
+                </div>
+              ))}
+        </section>
+
         {/* ── MAIN GRID ── */}
         <div className="mt-6 grid gap-6 xl:grid-cols-12">
 
           {/* LEFT */}
           <div className="space-y-6 xl:col-span-8">
-
-            {/* METRICS */}
-            <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {loading
-                ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
-                : metrics.map((item) => (
-                    <div
-                      key={item.title}
-                      className="rounded-[28px] border border-rayo-green/5 bg-white p-5 shadow-sm"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rayo-green/5 text-rayo-green">
-                          <item.icon size={20} />
-                        </div>
-
-                        {item.title === "Total Balance" && (
-                          <button
-                            onClick={() => setShowBalance(!showBalance)}
-                            className="text-rayo-green/50"
-                          >
-                            {showBalance ? <Eye size={18} /> : <EyeOff size={18} />}
-                          </button>
-                        )}
-                      </div>
-
-                      <p className="mt-5 text-sm text-rayo-green/60">{item.title}</p>
-
-                      <h3 className="mt-2 text-3xl font-bold tracking-tight text-rayo-green">
-                        {typeof item.value === "number"
-                          ? showBalance
-                            ? formatNaira(item.value)
-                            : "••••••"
-                          : item.value}
-                      </h3>
-
-                      <div
-                        className={`mt-4 inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${
-                          item.positive
-                            ? "bg-rayo-green/5 text-rayo-green"
-                            : "bg-rayo-orange/10 text-rayo-orange"
-                        }`}
-                      >
-                        <TrendingUp size={12} />
-                        {item.change}
-                      </div>
-                    </div>
-                  ))}
-            </section>
 
             {/* SPENDING + BUDGET */}
             <div className="grid gap-6 xl:grid-cols-2">
@@ -689,6 +643,7 @@ export default function DashboardPage() {
 
             {/* SAVINGS GOALS */}
             <section className="rounded-[28px] border border-rayo-green/5 bg-white p-5 shadow-sm md:p-6">
+
               <div className="mb-6 flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-semibold text-rayo-green">Savings Goals</h3>

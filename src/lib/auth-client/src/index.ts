@@ -36,6 +36,8 @@ export interface UploadImageInput {
   file: File;
 }
 
+const TOKEN_KEY = "authToken"; // ← unified key, matches middleware
+
 /**
  * Extract user profile from API response
  */
@@ -60,7 +62,7 @@ export function parseAuthResponse(response: any): AuthUser | null {
 export function isAuthenticated(): boolean {
   if (typeof window === "undefined") return false;
   
-  const token = localStorage.getItem("auth_token");
+  const token = localStorage.getItem(TOKEN_KEY);
   return !!token;
 }
 
@@ -69,15 +71,17 @@ export function isAuthenticated(): boolean {
  */
 export function getAuthToken(): string | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem("auth_token");
+  return localStorage.getItem(TOKEN_KEY);
 }
 
 /**
- * Store auth token
+ * Store auth token in both localStorage (for client-side checks)
+ * and a cookie (for middleware/server-side checks)
  */
 export function setAuthToken(token: string): void {
   if (typeof window === "undefined") return;
-  localStorage.setItem("auth_token", token);
+  localStorage.setItem(TOKEN_KEY, token);
+  document.cookie = `${TOKEN_KEY}=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
 }
 
 /**
@@ -85,7 +89,8 @@ export function setAuthToken(token: string): void {
  */
 export function clearAuthToken(): void {
   if (typeof window === "undefined") return;
-  localStorage.removeItem("auth_token");
+  localStorage.removeItem(TOKEN_KEY);
+  document.cookie = `${TOKEN_KEY}=; path=/; max-age=0`;
 }
 
 /**

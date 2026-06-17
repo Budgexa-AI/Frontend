@@ -2,22 +2,61 @@
 
 import { useState, useEffect, useMemo } from "react";
 import {
-  Plus, ChevronDown, Search, Filter, MoreHorizontal,
-  Landmark, TrendingUp, ChevronLeft, ChevronRight, ArrowLeft, Trash2,
+  Plus, Search, TrendingUp, ChevronLeft, ChevronRight, Trash2, Pencil,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { fetchTransactions, deleteTransaction } from "@/lib/data-service";
-import { mockCategorySpending } from "@/lib/mock-data";
 import type { AiInsight, Transaction } from "@/lib/types/src";
 import { getAiInsights } from "@/lib/api-client/src/index";
 
 const fmt = (n: number) =>
   `${n < 0 ? "-" : ""}₦${Math.abs(n).toLocaleString("en-NG")}`;
 
-const CATEGORY_SPENDING = mockCategorySpending; // replace with real data when endpoint exists
+// ─────────────────────────────────────────────────────────────
+// Delete Confirm Modal
+// ─────────────────────────────────────────────────────────────
+function DeleteModal({
+  label,
+  onCancel,
+  onConfirm,
+  deleting,
+}: {
+  label: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+  deleting: boolean;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+        <h3 className="text-base font-semibold text-rayo-green">Delete transaction?</h3>
+        <p className="mt-2 text-sm text-rayo-green/60">
+          <span className="font-medium text-rayo-green">"{label}"</span> will be permanently removed. This cannot be undone.
+        </p>
+        <div className="mt-6 flex gap-3">
+          <button
+            onClick={onCancel}
+            className="flex-1 rounded-xl border border-rayo-green/10 py-2.5 text-sm font-medium text-rayo-green transition hover:bg-rayo-beige"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={deleting}
+            className="flex-1 rounded-xl bg-red-500 py-2.5 text-sm font-medium text-white transition hover:bg-red-600 disabled:opacity-60"
+          >
+            {deleting ? "Deleting…" : "Delete"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
+// ─────────────────────────────────────────────────────────────
+// Page
+// ─────────────────────────────────────────────────────────────
 export default function TransactionsPage() {
   const [activeTab, setActiveTab]   = useState<"all" | "recurring">("all");
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -28,7 +67,10 @@ export default function TransactionsPage() {
   const [search, setSearch]         = useState("");
   const [typeFilter, setTypeFilter] = useState<"" | "income" | "expense">("");
   const limit = 10;
-  const router = useRouter();
+
+  // Delete state
+  const [deleteTarget, setDeleteTarget] = useState<Transaction | null>(null);
+  const [deleting, setDeleting]         = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -40,7 +82,6 @@ export default function TransactionsPage() {
           limit,
           type: typeFilter || undefined,
         });
-        
         setTransactions(result.transactions);
         setTotal(result.total);
       } catch (err: unknown) {
@@ -52,25 +93,21 @@ export default function TransactionsPage() {
     load();
   }, [page, typeFilter]);
 
-  const [insights, setInsights] = useState<AiInsight[]>([]);
+  const [insights, setInsights]           = useState<AiInsight[]>([]);
   const [insightsLoading, setInsightsLoading] = useState(true);
 
   useEffect(() => {
     async function loadInsights() {
       try {
         setInsightsLoading(true);
-
         const data = await getAiInsights();
-
         setInsights(data);
-      } catch (error) {
-        console.error("Failed to load AI insights", error);
+      } catch {
         setInsights([]);
       } finally {
         setInsightsLoading(false);
       }
     }
-
     loadInsights();
   }, []);
 
@@ -89,19 +126,14 @@ export default function TransactionsPage() {
   const balance       = totalIncome - totalExpenses;
   const totalPages    = Math.ceil(total / limit);
 
-  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
-  const [deleting, setDeleting] = useState(false);
-
   async function handleDelete() {
-    if (!deleteConfirm) return;
+    if (!deleteTarget) return;
     try {
       setDeleting(true);
-      await deleteTransaction(deleteConfirm);
-      setTransactions((prev) => prev.filter((t) => t.id !== deleteConfirm));
+      await deleteTransaction(deleteTarget.id);
+      setTransactions((prev) => prev.filter((t) => t.id !== deleteTarget.id));
       setTotal((prev) => prev - 1);
-      setDeleteConfirm(null);
-    } catch {
-      // error handled below
+      setDeleteTarget(null);
     } finally {
       setDeleting(false);
     }
@@ -109,6 +141,16 @@ export default function TransactionsPage() {
 
   return (
     <div className="min-h-screen">
+      {/* ── Delete Modal (rendered at root so it's never clipped) ── */}
+      {deleteTarget && (
+        <DeleteModal
+          label={deleteTarget.description}
+          onCancel={() => setDeleteTarget(null)}
+          onConfirm={handleDelete}
+          deleting={deleting}
+        />
+      )}
+
       <div className="max-w-full mx-auto px-4 md:px-6 py-6">
 
         {/* HEADER */}
@@ -137,7 +179,7 @@ export default function TransactionsPage() {
 
         {/* CASHFLOW OVERVIEW */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-6">
-          <div className="bg-white border border-[#ECEFE8] rounded-2xl p-5">
+          <div className="bg-white border border-rayo-ash rounded-2xl p-5">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-rayo-green/45">
               Cashflow Overview
             </h3>
@@ -150,7 +192,7 @@ export default function TransactionsPage() {
                 <span className="text-rayo-green/60">Expenses</span>
                 <span className="text-red-500 font-bold">{fmt(totalExpenses)}</span>
               </div>
-              <div className="border-t border-[#ECEFE8] pt-3 flex justify-between items-center">
+              <div className="border-t border-rayo-ash pt-3 flex justify-between items-center">
                 <span className="font-medium text-rayo-green/80">Net Balance</span>
                 <span className={cn("font-bold text-lg", balance >= 0 ? "text-rayo-green" : "text-red-500")}>
                   {fmt(balance)}
@@ -159,8 +201,7 @@ export default function TransactionsPage() {
             </div>
           </div>
 
-          {/* AI Insights panel — unchanged from original */}
-          <div className="bg-white border border-[#ECEFE8] rounded-2xl p-5 lg:col-span-2">
+          <div className="bg-white border border-rayo-ash rounded-2xl p-5 lg:col-span-2">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-rayo-green/45">
                 AI Spending Insights
@@ -176,32 +217,28 @@ export default function TransactionsPage() {
               ) : transactions.length === 0 ? (
                 <p className="text-sm text-rayo-green/50">Add transactions to get AI-powered spending insights.</p>
               ) : (
-                  <div className="space-y-3">
-                    {insights.map((insight, index) => (
-                      <div
-                        key={index}
-                        className="flex items-start gap-2.5"
-                      >
-                        <span className="w-2 h-2 rounded-full bg-rayo-orange mt-1.5 shrink-0" />
-                        <p>{insight.message}</p>
-                      </div>
-                    ))}
-                  </div>
-                )
-              }
+                <div className="space-y-3">
+                  {insights.map((insight, index) => (
+                    <div key={index} className="flex items-start gap-2.5">
+                      <span className="w-2 h-2 rounded-full bg-rayo-orange mt-1.5 shrink-0" />
+                      <p>{insight.message}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* FILTERS */}
-        <div className="bg-white rounded-2xl border border-[#ECEFE8] p-4 mt-6">
+        <div className="bg-white rounded-2xl border border-rayo-ash p-4 mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
             <div className="flex flex-col gap-2">
               <label className="text-xs font-medium text-rayo-green/70">Type</label>
               <select
                 value={typeFilter}
                 onChange={(e) => { setTypeFilter(e.target.value as any); setPage(1); }}
-                className="h-11 rounded-xl border border-[#E4E9E0] bg-white px-4 text-sm text-rayo-green/70 outline-none"
+                className="h-11 rounded-xl border border-rayo-ash bg-white px-4 text-sm text-rayo-green/70 outline-none"
               >
                 <option value="">All</option>
                 <option value="income">Income</option>
@@ -217,7 +254,7 @@ export default function TransactionsPage() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search by description or category..."
-                  className="h-11 w-full rounded-xl border border-[#E4E9E0] bg-white pl-9 pr-4 text-sm outline-none focus:border-rayo-green/20"
+                  className="h-11 w-full rounded-xl border border-rayo-ash bg-white pl-9 pr-4 text-sm outline-none focus:border-rayo-green/20"
                 />
               </div>
             </div>
@@ -226,11 +263,11 @@ export default function TransactionsPage() {
 
         {/* TRANSACTION TABLE */}
         <div className="mt-6">
-          <div className="bg-white rounded-2xl border border-[#ECEFE8] overflow-hidden">
+          <div className="bg-white rounded-2xl border border-rayo-ash overflow-hidden">
 
-            {/* Desktop */}
+            {/* ── Desktop ── */}
             <div className="hidden xl:block overflow-x-auto">
-              <div className="grid grid-cols-[130px_2fr_1.2fr_110px_130px_80px] px-5 py-3 bg-[#F8FAF7] border-b border-[#ECEFE8]">
+              <div className="grid grid-cols-[130px_2fr_1.2fr_110px_130px_100px] px-5 py-3 bg-rayo-muted border-b border-rayo-ash">
                 {["DATE", "DESCRIPTION", "CATEGORY", "TYPE", "AMOUNT", "ACTIONS"].map((h) => (
                   <span key={h} className="text-[10px] font-semibold tracking-wider text-rayo-green/35">{h}</span>
                 ))}
@@ -239,77 +276,52 @@ export default function TransactionsPage() {
               {loading ? (
                 <div className="p-6 space-y-4 animate-pulse">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="h-12 rounded-xl bg-[#F8FAF7]" />
+                    <div key={i} className="h-12 rounded-xl bg-rayo-muted" />
                   ))}
                 </div>
               ) : filtered.length === 0 ? (
                 <div className="p-10 text-center text-sm text-rayo-green/50">No transactions yet.</div>
               ) : (
-                <div className="divide-y divide-[#F0F2EE]">
+                <div className="divide-y divide-rayo-ash">
                   {filtered.map((t) => (
                     <div
                       key={t.id}
-                      className="grid grid-cols-[130px_2fr_1.2fr_110px_130px_80px] items-center px-5 py-4 hover:bg-[#FAFBF8] transition-colors group"
+                      className="grid grid-cols-[130px_2fr_1.2fr_110px_130px_100px] items-center px-5 py-4 hover:bg-rayo-muted/40 transition-colors group"
                     >
-                      <div>
-                        <p className="text-sm font-medium text-rayo-green">
-                          {new Date(t.date).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}
-                        </p>
-                      </div>
+                      <p className="text-sm font-medium text-rayo-green">
+                        {new Date(t.date).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}
+                      </p>
 
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold text-rayo-green truncate">{t.description}</p>
-                      </div>
+                      <p className="text-sm font-semibold text-rayo-green truncate pr-4">{t.description}</p>
 
-                      <div>
-                        <span className="inline-flex items-center gap-1.5 rounded-lg bg-[#F7F8F5] px-2.5 py-1 text-xs font-medium text-rayo-green">
-                          {t.category}
-                        </span>
-                      </div>
+                      <span className="inline-flex items-center gap-1.5 rounded-lg bg-rayo-muted px-2.5 py-1 text-xs font-medium text-rayo-green w-fit">
+                        {t.category}
+                      </span>
 
-                      <div>
-                        <span className={cn(
-                          "inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-semibold",
-                          t.type === "income" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"
-                        )}>
-                          {t.type === "income" ? "Income" : "Expense"}
-                        </span>
-                      </div>
+                      <span className={cn(
+                        "inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-semibold w-fit",
+                        t.type === "income" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"
+                      )}>
+                        {t.type === "income" ? "Income" : "Expense"}
+                      </span>
 
-                      <div>
-                        <p className={cn("text-sm font-bold", t.type === "income" ? "text-emerald-600" : "text-red-500")}>
-                          {t.type === "income" ? "+" : "-"}{fmt(Number(t.amount))}
-                        </p>
-                      </div>
+                      <p className={cn("text-sm font-bold", t.type === "income" ? "text-emerald-600" : "text-red-500")}>
+                        {t.type === "income" ? "+" : "-"}{fmt(Number(t.amount))}
+                      </p>
 
-                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        {deleteConfirm && (
-                          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4">
-                            <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-                              <h3 className="text-base font-semibold text-rayo-green">Delete transaction?</h3>
-                              <p className="mt-2 text-sm text-rayo-green/60">
-                                This action cannot be undone. The transaction will be permanently removed.
-                              </p>
-                              <div className="mt-6 flex gap-3">
-                                <button
-                                  onClick={() => setDeleteConfirm(null)}
-                                  className="flex-1 rounded-xl border border-rayo-green/10 py-2.5 text-sm font-medium text-rayo-green transition hover:bg-rayo-beige"
-                                >
-                                  Cancel
-                                </button>
-                                <button
-                                  onClick={handleDelete}
-                                  disabled={deleting}
-                                  className="flex-1 rounded-xl bg-red-500 py-2.5 text-sm font-medium text-white transition hover:bg-red-600 disabled:opacity-60"
-                                >
-                                  {deleting ? "Deleting…" : "Delete"}
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                        <button className="w-8 h-8 rounded-lg border border-[#E4E9E0] flex items-center justify-center text-rayo-green/40 hover:text-rayo-green transition-colors">
-                          <MoreHorizontal size={14} />
+                      {/* ── Actions: always visible on hover, never clipped ── */}
+                      <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Link
+                          href={`/product/finance/transactions/${t.id}/edit`}
+                          className="w-8 h-8 rounded-lg border border-rayo-ash flex items-center justify-center text-rayo-green/40 hover:text-rayo-green transition-colors"
+                        >
+                          <Pencil size={13} />
+                        </Link>
+                        <button
+                          onClick={() => setDeleteTarget(t)}
+                          className="w-8 h-8 rounded-lg border border-rayo-ash flex items-center justify-center text-rayo-green/40 hover:text-red-500 transition-colors"
+                        >
+                          <Trash2 size={13} />
                         </button>
                       </div>
                     </div>
@@ -318,19 +330,19 @@ export default function TransactionsPage() {
               )}
             </div>
 
-            {/* Mobile */}
-            <div className="xl:hidden divide-y divide-[#F0F2EE]">
+            {/* ── Mobile ── */}
+            <div className="xl:hidden divide-y divide-rayo-ash">
               {loading ? (
                 <div className="p-4 space-y-3 animate-pulse">
                   {Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="h-16 rounded-xl bg-[#F8FAF7]" />
+                    <div key={i} className="h-16 rounded-xl bg-rayo-muted" />
                   ))}
                 </div>
               ) : filtered.length === 0 ? (
                 <div className="p-8 text-center text-sm text-rayo-green/50">No transactions yet.</div>
               ) : (
                 filtered.map((t) => (
-                  <div key={t.id} className="p-4 hover:bg-[#FAFBF8] transition-colors">
+                  <div key={t.id} className="p-4 hover:bg-rayo-muted/40 transition-colors">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="text-sm font-semibold text-rayo-green truncate">{t.description}</p>
@@ -343,12 +355,20 @@ export default function TransactionsPage() {
                         <p className={cn("text-sm font-bold", t.type === "income" ? "text-emerald-600" : "text-red-500")}>
                           {t.type === "income" ? "+" : "-"}{fmt(Number(t.amount))}
                         </p>
-                        <button
-                          onClick={() => setDeleteConfirm(t.id)}
-                          className="text-red-400 hover:text-red-600 transition-colors"
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                        <div className="flex items-center gap-1.5">
+                          <Link
+                            href={`/product/finance/transactions/${t.id}/edit`}
+                            className="p-1.5 rounded-lg text-rayo-green/40 hover:text-rayo-green transition-colors"
+                          >
+                            <Pencil size={14} />
+                          </Link>
+                          <button
+                            onClick={() => setDeleteTarget(t)}
+                            className="p-1.5 rounded-lg text-rayo-green/40 hover:text-red-500 transition-colors"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -357,42 +377,40 @@ export default function TransactionsPage() {
             </div>
 
             {/* Pagination */}
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between px-5 py-4 border-t border-[#ECEFE8]">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between px-5 py-4 border-t border-rayo-ash">
               <p className="text-xs text-rayo-green/45">
                 Showing {Math.min((page - 1) * limit + 1, total)}–{Math.min(page * limit, total)} of {total} transactions
               </p>
-
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="w-8 h-8 rounded-lg border border-[#E4E9E0] flex items-center justify-center text-rayo-green/40 disabled:opacity-40"
+                  className="w-8 h-8 rounded-lg border border-rayo-ash flex items-center justify-center text-rayo-green/40 disabled:opacity-40"
                 >
                   <ChevronLeft size={14} />
                 </button>
-
                 {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map((n) => (
                   <button
                     key={n}
                     onClick={() => setPage(n)}
                     className={cn(
                       "w-8 h-8 rounded-lg text-sm font-medium",
-                      page === n ? "bg-rayo-green text-white" : "border border-[#E4E9E0] text-rayo-green/60"
+                      page === n ? "bg-rayo-green text-white" : "border border-rayo-ash text-rayo-green/60"
                     )}
                   >
                     {n}
                   </button>
                 ))}
-
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page >= totalPages}
-                  className="w-8 h-8 rounded-lg border border-[#E4E9E0] flex items-center justify-center text-rayo-green/40 disabled:opacity-40"
+                  className="w-8 h-8 rounded-lg border border-rayo-ash flex items-center justify-center text-rayo-green/40 disabled:opacity-40"
                 >
                   <ChevronRight size={14} />
                 </button>
               </div>
             </div>
+
           </div>
         </div>
       </div>

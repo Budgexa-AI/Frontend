@@ -86,13 +86,14 @@ export interface UserProfile {
 }
 
 export interface BudgetCategory {
-  id: string;
-  name: string;
-  subtitle: string;
-  budget: number;
-  spent: number;
-  color: string;
-  emoji: string;
+  id: number;
+  userId: number;
+  category: string;
+  monthlyLimit: number;
+  totalSpent: number;
+  remaining: number;
+  percentUsed: number;
+  rollover: boolean;
 }
 
 export interface TransactionFilters {
@@ -109,4 +110,48 @@ export interface TransactionListResponse {
   total: number;
   page: number;
   limit: number;
+}
+
+export interface DashboardState {
+  totalBalance: number;
+  totalIncome: number;
+  totalExpenses: number;
+  monthlyIncome: number;
+  monthlyExpenses: number;
+  monthlySavings: number;
+  budgetMonthlyLimit: number;
+  budgetPercentUsed: number;
+  budgets: Array<{
+    id: number;
+    category: string;
+    monthlyLimit: number;
+    totalSpent: number;
+    remaining: number;
+    percentUsed: number;
+    rollover: boolean;
+  }>;
+  spendingByCategory: Array<{
+    category: string;
+    amount: number;
+    percentage: number;
+  }>;
+  recentTransactions: Array<{
+    id: number | string;
+    type: "income" | "expense";
+    amount: number;
+    category: string;
+    description: string;
+    date: string;
+    createdAt: string;
+  }>;
+  savingsRate: number;
+  savingsGoals: Array<{
+    id: number;
+    name: string;
+    targetAmount: number;
+    currentAmount: number;
+    deadline: string;
+    percentComplete: number;
+  }>;
+  insights?: AiInsight[]; // Kept optional for the AI Hero section
 }

@@ -37,12 +37,29 @@ export default function LoginPage() {
 
   // Handle OAuth callback: token or error returned via URL params
   useEffect(() => {
+    const token      = searchParams.get("token");
     const oauthError = searchParams.get("error");
+    const isNewUser  = searchParams.get("isNewUser");
+
+    if (token) {
+      localStorage.setItem("authToken", token);
+
+      // Middleware reads this cookie on the server side — must be set
+      // for the very next navigation to /product/dashboard to pass auth check
+      document.cookie = `authToken=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+
+      if (isNewUser === "true") {
+        router.replace("/product/onboarding/welcome");
+      } else {
+        router.replace("/product/dashboard");
+      }
+      return;
+    }
 
     if (oauthError) {
       const messages: Record<string, string> = {
         oauth_cancelled: "Google sign-in was cancelled.",
-        oauth_failed: "Google sign-in failed. Please try again.",
+        oauth_failed:    "Google sign-in failed. Please try again.",
       };
       setServerError(messages[oauthError] ?? "An error occurred during Google sign-in.");
     }
@@ -50,11 +67,11 @@ export default function LoginPage() {
 
   function handleGoogleLogin() {
   setGoogleLoading(true);
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
-  const dashboardUrl = `${origin}/dashboard`;
-  const loginUrl     = `${origin}/auth/login`;
-  signInWithGoogle(dashboardUrl, loginUrl);
-}
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const dashboardUrl = `${origin}/product/dashboard`;
+    const loginUrl     = `${origin}/auth/login`;
+    signInWithGoogle(dashboardUrl, loginUrl);  
+  }
 
   function isEmailUnverified(response: Awaited<ReturnType<typeof login>>): boolean {
     const message = `${response.error || ""} ${(response.details && typeof response.details === "object" ? JSON.stringify(response.details) : "")}`.toLowerCase();
@@ -133,8 +150,6 @@ export default function LoginPage() {
         password: parsed.data.password,
       });
 
-      console.log("[login] response:", JSON.stringify(response));
-
       if (isEmailUnverified(response) || extractLoginEmailUnverifiedMessage(response)) {
         await redirectToVerifyEmail(parsed.data.email);
         return;
@@ -143,14 +158,13 @@ export default function LoginPage() {
       // Wherever you handle successful login (your login page's submit handler)
       if (response.success && response.data?.token) {
         const token = response.data.token;
-
-        if (token) {
-          localStorage.setItem("authToken", token); // ← same fix
-          router.replace("/product/dashboard");
-        }
-
+        localStorage.setItem("authToken", token);
+        document.cookie=`authToken=${token}; path=/; max-age=${60 * 60 * 24 * 7};`;
+          
+        // 2. FIX: Clean up the dual routing logic to avoid conflicting redirects
         const redirect = searchParams.get("redirect") ?? "/product/dashboard";
-        router.push(redirect);
+        router.replace(redirect);
+        return; // Stop execution here
       } else {
         if (extractLoginEmailUnverifiedMessage(response)) {
           await redirectToVerifyEmail(parsed.data.email);
