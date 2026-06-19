@@ -35,7 +35,13 @@ export type SignUpInput = z.infer<typeof signUpSchema>;
 export type SignInInput = z.infer<typeof signInSchema>;
 
 export const addTransactionSchema = z.object({
-  amount: z.string().min(1, "Amount is required"),
+  amount: z
+    .string()
+    .min(1, "Amount is required")
+    .regex(
+      /^\d+(?:\.\d{1,2})?$/, 
+      "Please enter a valid number (e.g., 1500 or 1500.50)"
+    ),
   date: z.string().min(1, "Date is required"),
   description: z.string().min(1, "Description is required"),
   merchant: z.string().optional(),
