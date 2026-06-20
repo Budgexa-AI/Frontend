@@ -94,11 +94,9 @@ function normalizeProfile(payload: any): UserProfile {
   };
 }
 
-function createHeaders(extraHeaders?: HeadersInit): HeadersInit {
-  const token =
-    typeof window !== "undefined"
-      ? localStorage.getItem("authToken")
-      : null;
+function createHeaders(extraHeaders?: HeadersInit, serverToken?: string | null): HeadersInit {
+  const token = serverToken 
+    || (typeof window !== "undefined" ? localStorage.getItem("authToken") : null);
 
   return {
     "Content-Type": "application/json",
@@ -109,14 +107,15 @@ function createHeaders(extraHeaders?: HeadersInit): HeadersInit {
 
 async function apiFetch(
   path: string,
-  init: RequestInit = {}
+  init: RequestInit = {},
+  serverToken?: string | null
 ): Promise<Response> {
   const { headers: extraHeaders, ...restInit } = init;
 
   return fetch(proxyPath(path), {
-    credentials: "include",          // matches your existing calls
+    credentials: "include",
     ...restInit,
-    headers: createHeaders(extraHeaders as HeadersInit),  // your existing createHeaders
+    headers: createHeaders(extraHeaders as HeadersInit, serverToken),
   });
 }
 

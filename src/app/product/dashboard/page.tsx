@@ -24,7 +24,6 @@ import { useRouter } from "next/navigation";
 import type { DashboardState, AiInsight as DBAiInsight } from "@/lib/types/src";
 import { fetchCurrentUser, fetchDashboardData } from "@/lib/data-service";
 
-
 // ─────────────────────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────────────────────
@@ -33,11 +32,12 @@ function deriveLatestInsight(insights?: DBAiInsight[]) {
   if (!insights || !insights?.length) return null;
   const latest = insights[0];
   return {
-    title: latest.message,  // was latest.title
-    body:  latest.detail,   // was latest.content
+    title: latest.message,  // Mapped from latest.title
+    body:  latest.detail,   // Mapped from latest.content
     type:  latest.type,     // "alert" | "positive" | "suggestion"
   };
 }
+
 // ─────────────────────────────────────────────────────────────
 // DONUT
 // ─────────────────────────────────────────────────────────────
@@ -143,9 +143,9 @@ export default function DashboardPage() {
         const user = await fetchCurrentUser();
         setUserId(user.id);
         
-        // Ensure your fetchDashboardData returns the response.data object directly
         const dashboardData = await fetchDashboardData();
         console.log("[Dashboard] Fetched dashboard data:", dashboardData);
+        
         setData({
           totalBalance:       dashboardData.totalBalance,
           totalIncome:        dashboardData.totalIncome,
@@ -153,7 +153,7 @@ export default function DashboardPage() {
           monthlyIncome:      dashboardData.monthlyIncome,
           monthlyExpenses:    dashboardData.monthlyExpenses,
           monthlySavings:     dashboardData.monthlySavings,
-          savingsRate:        dashboardData.savingsRate,
+          savingsRate:        dashboardData.savingsRate ?? 0, // Fixed: changed fallback from [] to 0
           budgetMonthlyLimit: dashboardData.budgetMonthlyLimit,
           budgetPercentUsed:  dashboardData.budgetPercentUsed,
           budgets:            dashboardData.budgets,
@@ -173,7 +173,7 @@ export default function DashboardPage() {
     load();
   }, []);
 
-  // Map the new backend payload directly to UI metrics
+  // Map the backend payload directly to UI metrics
   const metrics = useMemo(() => [
     { title: "Total Balance", value: data.totalBalance, change: "Active", positive: true, icon: Wallet },
     { title: "Income", value: data.monthlyIncome, change: "This month", positive: true, icon: ArrowUpRight },
@@ -329,7 +329,7 @@ export default function DashboardPage() {
                     {typeof item.value === "number"
                       ? showBalance
                         ? formatNaira(item.value)
-                        : "••••••"
+                        : "•••••"
                       : item.value}
                   </h3>
 
@@ -541,7 +541,7 @@ export default function DashboardPage() {
                         <div>
                           <p className="font-medium text-rayo-green">{tx.description}</p>
                           <p className="mt-1 text-xs text-rayo-green/60">
-                            {tx.category} • {new Date(tx.date).toLocaleDateString("en-NG")}
+                            {tx.category} • {new Date(tx.date || tx.createdAt).toLocaleDateString("en-NG")}
                           </p>
                         </div>
                         <p
@@ -612,9 +612,7 @@ export default function DashboardPage() {
                             </span>
                           </td>
                           <td className="py-4 text-sm text-rayo-green/60">
-                            {tx.date
-                              ? new Date(tx.date).toLocaleDateString("en-NG")
-                              : new Date(tx.createdAt).toLocaleDateString("en-NG")}
+                            {new Date(tx.date || tx.createdAt).toLocaleDateString("en-NG")}
                           </td>
                           <td
                             className={`py-4 text-right text-sm font-semibold ${
@@ -643,7 +641,6 @@ export default function DashboardPage() {
 
             {/* SAVINGS GOALS */}
             <section className="rounded-[28px] border border-rayo-green/5 bg-white p-5 shadow-sm md:p-6">
-
               <div className="mb-6 flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-semibold text-rayo-green">Savings Goals</h3>
@@ -671,7 +668,7 @@ export default function DashboardPage() {
                         <div>
                           <p className="font-medium text-rayo-green">{goal.title}</p>
                           <p className="mt-1 text-xs text-rayo-green/60">
-                            {formatNaira(goal.current)} / {formatNaira(goal.target)}
+                            {goal.target === 0 ? "Target not configured" : `${formatNaira(goal.current)} / ${formatNaira(goal.target)}`}
                           </p>
                         </div>
                         <p className="text-sm font-semibold text-rayo-green">{goal.pct}%</p>
@@ -679,8 +676,8 @@ export default function DashboardPage() {
 
                       <div className="h-2 overflow-hidden rounded-full bg-rayo-beige">
                         <div
-                          className="h-full rounded-full bg-rayo-green"
-                          style={{ width: `${goal.pct}%` }}
+                          className="h-full rounded-full bg-rayo-green transition-all"
+                          style={{ width: `${goal.pct === 0 ? 4 : goal.pct}%` }}
                         />
                       </div>
                     </div>
