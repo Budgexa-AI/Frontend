@@ -281,7 +281,7 @@ export default function CreateSavingsGoalPage() {
                           className="w-full rounded-2xl border border-[#E4E9E0] bg-[#FBFCFA] px-4 py-3 text-sm text-rayo-green outline-none resize-none focus:border-rayo-green/30"
                         />
 
-                        <span className="absolute bottom-3 right-4 text-[11px] text-rayo-green/35">
+                        <span className="absolute bottom-3 right-4 text-xs text-rayo-green/35">
                           {
                             goalDescription.length
                           }
@@ -335,7 +335,7 @@ export default function CreateSavingsGoalPage() {
                         />
                       </div>
 
-                      <p className="mt-2 text-[11px] text-rayo-green/40">
+                      <p className="mt-2 text-xs text-rayo-green/40">
                         How much do you want
                         to save?
                       </p>
@@ -366,7 +366,7 @@ export default function CreateSavingsGoalPage() {
                         />
                       </div>
 
-                      <p className="mt-2 text-[11px] text-rayo-green/40">
+                      <p className="mt-2 text-xs text-rayo-green/40">
                         By when do you want
                         to achieve this?
                       </p>
@@ -418,7 +418,7 @@ export default function CreateSavingsGoalPage() {
                         />
                       </div>
 
-                      <p className="mt-2 text-[11px] text-rayo-green/40">
+                      <p className="mt-2 text-xs text-rayo-green/40">
                         How much are you
                         saving right now?
                       </p>
@@ -453,7 +453,7 @@ export default function CreateSavingsGoalPage() {
                         />
                       </div>
 
-                      <p className="mt-2 text-[11px] text-rayo-green/40">
+                      <p className="mt-2 text-xs text-rayo-green/40">
                         How much can you
                         save each month?
                       </p>
@@ -505,7 +505,7 @@ export default function CreateSavingsGoalPage() {
                     </h2>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
+                  <div className="grid grid-cols-1 gap-5 mt-5">
                     {/* Category */}
 
                     <div>
@@ -528,7 +528,7 @@ export default function CreateSavingsGoalPage() {
 
                     {/* Private */}
 
-                    <div className="flex items-center justify-between rounded-2xl border border-[#E8EDE5] bg-[#FBFCFA] px-4 py-3">
+                    {/* <div className="flex items-center justify-between rounded-2xl border border-[#E8EDE5] bg-[#FBFCFA] px-4 py-3">
                       <div>
                         <p className="text-sm font-semibold text-rayo-green">
                           Make Goal Private
@@ -562,7 +562,7 @@ export default function CreateSavingsGoalPage() {
                           )}
                         />
                       </button>
-                    </div>
+                    </div> */}
                   </div>
                 </section>
 
@@ -624,7 +624,7 @@ export default function CreateSavingsGoalPage() {
                               }
                             </p>
 
-                            <span className="inline-flex items-center rounded-lg bg-[#EEF5EB] px-2.5 py-1 text-[11px] font-medium text-rayo-green mt-3">
+                            <span className="inline-flex items-center rounded-lg bg-[#EEF5EB] px-2.5 py-1 text-xs font-medium text-rayo-green mt-3">
                               {goalCategory}
                             </span>
                           </div>
@@ -662,7 +662,7 @@ export default function CreateSavingsGoalPage() {
                               }
                               className="p-4 border-r last:border-r-0 border-[#EDF1EA]"
                             >
-                              <p className="text-[11px] uppercase tracking-wide text-rayo-green/35">
+                              <p className="text-xs uppercase tracking-wide text-rayo-green/35">
                                 {label}
                               </p>
 
@@ -679,7 +679,7 @@ export default function CreateSavingsGoalPage() {
                       <div className="p-5 border-t border-[#EDF1EA]">
                         <div className="grid grid-cols-2 gap-4 mb-4">
                           <div>
-                            <p className="text-[11px] uppercase tracking-wide text-rayo-green/35">
+                            <p className="text-xs uppercase tracking-wide text-rayo-green/35">
                               Initial Deposit
                             </p>
 
@@ -691,7 +691,7 @@ export default function CreateSavingsGoalPage() {
                           </div>
 
                           <div>
-                            <p className="text-[11px] uppercase tracking-wide text-rayo-green/35">
+                            <p className="text-xs uppercase tracking-wide text-rayo-green/35">
                               Monthly
                               Contribution
                             </p>
@@ -723,7 +723,7 @@ export default function CreateSavingsGoalPage() {
                           />
                         </div>
 
-                        <div className="flex items-center justify-between mt-2 text-[11px] text-rayo-green/45">
+                        <div className="flex items-center justify-between mt-2 text-xs text-rayo-green/45">
                           <span>
                             Saved So Far:{" "}
                             {fmt(

@@ -787,14 +787,15 @@ export async function listTransactions(
   filters?: TransactionFilters
 ): Promise<TransactionListResponse> {
   const params = new URLSearchParams();
-  if (filters?.type)      params.set("type",      filters.type);
-  if (filters?.category)  params.set("category",  filters.category);
-  if (filters?.startDate) params.set("startDate", filters.startDate);
-  if (filters?.endDate)   params.set("endDate",   filters.endDate);
-  if (filters?.page)      params.set("page",      String(filters.page));
-  if (filters?.limit)     params.set("limit",     String(filters.limit));
 
-  const url = `${proxyPath("/transactions")}${params.size ? `?${params}` : ""}`;
+  if (filters?.type) params.set("type", filters.type);
+  if (filters?.category) params.set("category", filters.category);
+  if (filters?.startDate) params.set("startDate", filters.startDate);
+  if (filters?.endDate) params.set("endDate", filters.endDate);
+  if (filters?.page) params.set("page", String(filters.page));
+  if (filters?.limit) params.set("limit", String(filters.limit));
+
+  const url = `${proxyPath("/transactions")}${params.toString() ? `?${params}` : ""}`;
 
   const res = await fetch(url, {
     headers: createHeaders(),
@@ -803,12 +804,21 @@ export async function listTransactions(
 
   if (!res.ok) throw new Error("Failed to fetch transactions");
 
-  const data = await readJsonResponse<any>(res);
+  const json = await readJsonResponse<any>(res);
+
+  const rows = json?.data?.rows ?? [];
+
+  const pagination = json?.data?.pagination ?? {
+    total: 0,
+    page: 1,
+    limit: 10,
+  };
+
   return {
-    transactions: data.transactions ?? data.data?.transactions ?? data.data ?? [],
-    total:        data.total        ?? data.data?.total        ?? data.count ?? data.data?.count ?? 0,
-    page:         data.page         ?? data.data?.page         ?? 1,
-    limit:        data.limit        ?? data.data?.limit        ?? 10,
+    transactions: rows,
+    total: pagination.total,
+    page: pagination.page,
+    limit: pagination.limit,
   };
 }
 

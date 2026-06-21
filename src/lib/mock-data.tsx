@@ -14,32 +14,106 @@ export const mockUser: UserProfile = {
 const now = new Date().toISOString();
 
 export const mockDashboardData = {
-  totalBalance:       45000,
-  totalIncome:        50000,
-  totalExpenses:      5000,
-  monthlyIncome:      0,
-  monthlyExpenses:    0,
-  monthlySavings:     0,
-  savingsRate:        0,
+  insights: [],
+  totalBalance: 85000,
+  totalIncome: 100000,       // Fixed: cased to camelCase
+  totalExpenses: 35000,      // Fixed: cased to camelCase
+  monthlyIncome: 50000,      // Fixed: cased to camelCase
+  monthlyExpenses: 10000,    // Fixed: cased to camelCase
+  monthlySavings: 40000,
   budgetMonthlyLimit: 30000,
-  budgetPercentUsed:  0,
-  accounts:           [],
-  transactions:       [],
-  budgets:            [
+  budgetPercentUsed: 33.33,
+  budgets: [
     {
-      id: "transport",
-      name: "Transport",
-      subtitle: "Taxi, Fuel",
-      budget: 80000,
-      spent: 36000,
-      color: "#8B5CF6",
-      emoji: "🚗",
+      id: 4,
+      userId: 14,
+      category: "Food",
+      limit: 30000,          // Fixed: changed from monthlyLimit to limit to align with state assignment
+      totalSpent: 10000,
+      remaining: 20000,
+      percentUsed: 33.33,
+      rollover: true
+    },
+    {
+      id: 3,
+      userId: 5,
+      category: "Transport",
+      totalSpent: 15000,
+      remaining: 45000,
+      percentUsed: 33.33,
+      roleover: false
     }
   ],
-  spendingByCategory: [],
-  savingsGoals:       [],
-  insights:           [],
-  recentTransactions: [],
+  spendingByCategory: [
+    {
+      category: "Food",
+      amount: 10000,
+      percentage: 100
+    }
+  ],
+  recentTransactions: [
+    {
+      id: 19,
+      userId: "14",
+      type: "expense",
+      amount: 10000,
+      category: "Food",
+      description: "Fab",
+      date: "2026-06-07",
+      createdAt: "2026-06-10T22:25:13.290Z"
+    },
+    {
+      id: 18,
+      userId: "14",
+      type: "income",
+      amount: 50000,
+      category: "Salary",
+      description: "Salary",
+      date: "2026-06-01",
+      createdAt: "2026-06-10T22:24:44.976Z"
+    },
+    {
+      id: 16,
+      userId: "14",
+      type: "expense",
+      amount: 5000,
+      category: "Food",
+      description: "Mummy put",
+      date: "2026-05-27",
+      createdAt: "2026-06-09T17:19:05.311Z"
+    },
+    {
+      id: 17,
+      userId: "14",
+      type: "income",
+      amount: 50000,
+      category: "Freelance",
+      description: "Freelance",
+      date: "2026-05-27",
+      createdAt: "2026-06-09T17:19:42.383Z"
+    }
+  ],
+  savingsRate: 80,
+  savingsGoals: [
+    {
+      id: 8,
+      userId: 14,
+      name: "Emergency",
+      targetAmount: 230000,
+      currentAmount: 20000,
+      deadline: "2027-06-06",
+      percentComplete: 16.5
+    },
+    {
+      id: 9,
+      userId: 14,
+      name: "Vacation",
+      targetAmount: 150000,
+      currentAmount: 15000,
+      deadline: "2027-06-06",
+      percentComplete: 10
+    }
+  ]
 };
 
 export const mockTransactions = [
@@ -50,8 +124,8 @@ export const mockTransactions = [
     description: "Lunch at Chicken Republic",
     subtitle: "Ate with Tobi after class",
     category: "Food & Dining",
-    type: "Expense" as const,
-    amount: -4500,
+    type: "expense" as const,
+    amount: 4500,
     paymentMethod: "Access Bank",
     icon: "🍔",
     color: "#F59E0B",
@@ -63,8 +137,8 @@ export const mockTransactions = [
     description: "MTN Data Bundle",
     subtitle: "150GB Monthly Plan",
     category: "Data & Internet",
-    type: "Expense" as const,
-    amount: -20000,
+    type: "expense" as const,
+    amount: 20000,
     paymentMethod: "Access Bank",
     icon: "📶",
     color: "#8B5CF6",
@@ -76,8 +150,8 @@ export const mockTransactions = [
     description: "Transfer to Tobi",
     subtitle: "Rent contribution",
     category: "Transfers",
-    type: "Expense" as const,
-    amount: -25000,
+    type: "expense" as const,
+    amount: 25000,
     paymentMethod: "GTBank",
     icon: "🔄",
     color: "#3B82F6",
@@ -89,8 +163,8 @@ export const mockTransactions = [
     description: "KFC Victoria Island",
     subtitle: "Lunch",
     category: "Food & Dining",
-    type: "Expense" as const,
-    amount: -3800,
+    type: "expense" as const,
+    amount: 3800,
     paymentMethod: "Moniepoint",
     icon: "🍗",
     color: "#F59E0B",
@@ -102,8 +176,8 @@ export const mockTransactions = [
     description: "Netflix Subscription",
     subtitle: "Monthly subscription",
     category: "Entertainment",
-    type: "Expense" as const,
-    amount: -2900,
+    type: "expense" as const,
+    amount: 2900,
     paymentMethod: "Access Bank",
     icon: "🎬",
     color: "#EF4444",
@@ -115,8 +189,8 @@ export const mockTransactions = [
     description: "Airtime Top Up",
     subtitle: "MTN Airtime",
     category: "Airtime",
-    type: "Expense" as const,
-    amount: -1000,
+    type: "expense" as const,
+    amount: 1000,
     paymentMethod: "Access Bank",
     icon: "📱",
     color: "#10B981",
@@ -128,7 +202,7 @@ export const mockTransactions = [
     description: "Freelance Payment",
     subtitle: "UI/UX Design Project",
     category: "Freelance",
-    type: "Income" as const,
+    type: "income" as const,
     amount: 120000,
     paymentMethod: "GTBank",
     icon: "💻",
@@ -141,7 +215,7 @@ export const mockTransactions = [
     description: "Paid by Mom",
     subtitle: "Upkeep stipend",
     category: "Family Support",
-    type: "Income" as const,
+    type: "income" as const,
     amount: 50000,
     paymentMethod: "Zenith Bank",
     icon: "💜",
@@ -154,8 +228,8 @@ export const mockTransactions = [
     description: "Bolt Ride",
     subtitle: "From school to home",
     category: "Transport",
-    type: "Expense" as const,
-    amount: -1700,
+    type: "expense" as const,
+    amount: 1700,
     paymentMethod: "Moniepoint",
     icon: "🚕",
     color: "#F97316",
@@ -167,8 +241,8 @@ export const mockTransactions = [
     description: "Groceries at Shoprite",
     subtitle: "Weekly restocking",
     category: "Groceries",
-    type: "Expense" as const,
-    amount: -7450,
+    type: "expense" as const,
+    amount: 7450,
     paymentMethod: "Access Bank",
     icon: "🛒",
     color: "#2563EB",
