@@ -183,10 +183,10 @@ export default function DashboardPage() {
 
   const spending = useMemo(() => 
     data.spendingByCategory.map((item) => ({
-      label: item.category,
+      label: item.parentSlug,
       amount: item.amount,
       pct: item.percentage,
-      color: getCategoryColor(item.category)
+      color: getCategoryColor(item.parentSlug)
     })), [data.spendingByCategory]);
 
   const budgets = useMemo(() => 
@@ -195,7 +195,7 @@ export default function DashboardPage() {
       amount: b.totalSpent,
       remaining: b.remaining,
       pct: b.percentUsed,
-      color: getCategoryColor(b.category)
+      color: getCategoryColor(b.category ?? "Other")
     })), [data.budgets]);
 
   const goals = useMemo(() => 
@@ -541,7 +541,7 @@ export default function DashboardPage() {
                         <div>
                           <p className="font-medium text-rayo-green">{tx.description}</p>
                           <p className="mt-1 text-xs text-rayo-green/60">
-                            {tx.category} • {new Date(tx.date || tx.createdAt).toLocaleDateString("en-NG")}
+                            {tx.categoryName} • {new Date(tx.date || tx.createdAt).toLocaleDateString("en-NG")}
                           </p>
                         </div>
                         <p
@@ -608,7 +608,7 @@ export default function DashboardPage() {
                           </td>
                           <td className="py-4">
                             <span className="rounded-full bg-rayo-ash px-3 py-1 text-xs font-medium text-rayo-green">
-                              {tx.category}
+                              {tx.categoryName}
                             </span>
                           </td>
                           <td className="py-4 text-sm text-rayo-green/60">
