@@ -305,3 +305,35 @@ export const CATEGORIES: BudgetCategory[] = [
     rollover: false,
   }
 ];
+
+// mock-savings-goals.ts
+// ─────────────────────────────────────────────────────────────
+// MOCK DATA — swap out when backend endpoints are ready.
+// Mirrors the shape returned by GET /api/savings/goals
+// ─────────────────────────────────────────────────────────────
+
+export interface Goal {
+  id: string;
+  name: string;
+  subtitle: string;
+  iconKey: string;
+  iconBg: string;
+  saved: number;
+  target: number;
+  targetDate: string;
+}
+
+// lib/mock-savings-goals.ts
+// ─────────────────────────────────────────────────────────────
+// Shape mirrors SavingsGoalRow from the backend exactly.
+// Used when NEXT_PUBLIC_USE_MOCK_DATA=true.
+// ─────────────────────────────────────────────────────────────
+import type { SavingsGoalRow } from "@/lib/api-client";
+
+export const MOCK_SAVINGS_GOALS: SavingsGoalRow[] = [
+  { id: 1, userId: 0, name: "New Car",            targetAmount: 4000000, currentAmount: 2600000, deadline: "2026-12-01", percentComplete: 65 },
+  { id: 2, userId: 0, name: "Emergency Fund",     targetAmount: 300000,  currentAmount: 120000,  deadline: "2026-08-01", percentComplete: 40 },
+  { id: 3, userId: 0, name: "House Down Payment", targetAmount: 5000000, currentAmount: 1400000, deadline: "2027-12-01", percentComplete: 28 },
+  { id: 4, userId: 0, name: "Vacation",           targetAmount: 500000,  currentAmount: 300000,  deadline: "2026-07-01", percentComplete: 60 },
+  { id: 5, userId: 0, name: "MacBook Pro",        targetAmount: 500000,  currentAmount: 175000,  deadline: "2026-10-01", percentComplete: 35 },
+];

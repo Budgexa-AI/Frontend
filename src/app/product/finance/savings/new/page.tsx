@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   ArrowLeft,
@@ -21,9 +21,13 @@ import {
  Zap,
   Briefcase,
   GraduationCap,
+  Loader2,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { createSavingsGoal } from "@/lib/api-client/src/client";
+import { fetchCategories } from "@/lib/data-service";
+import type { Category } from "@/lib/types/src";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Goal Templates
@@ -62,9 +66,16 @@ const GOAL_TYPES = [
   },
 ];
 
-// ─────────────────────────────────────────────────────────────────────────────
+const GOAL_TYPE_TO_SLUG: Record<string, string> = {
+  car:       "transport",
+  home:      "bills_utilities",
+  travel:    "travel",
+  business:  "business_income",
+  education: "education",
+  emergency: "savings_investment",
+};
+
 // Helpers
-// ─────────────────────────────────────────────────────────────────────────────
 
 const fmt = (n: number) =>
   "₦" + n.toLocaleString("en-NG");
@@ -79,11 +90,12 @@ const formatDate = (date: string) =>
     }
   );
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Page
-// ─────────────────────────────────────────────────────────────────────────────
 
 export default function CreateSavingsGoalPage() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+
   const [selectedGoalType, setSelectedGoalType] =
     useState("car");
 
@@ -107,15 +119,31 @@ export default function CreateSavingsGoalPage() {
   const [monthlyContribution, setMonthlyContribution] =
     useState(100000);
 
-  const [goalCategory, setGoalCategory] =
-    useState("Personal Goals");
+  const [categoryId, setCategoryId] = useState("");
+  const [categoryName, setCategoryName] = useState("");
+  const [categoryError, setCategoryError] = useState<string | null>(null);
 
-  const [makePrivate, setMakePrivate] =
-    useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchCategories()
+      .then(setCategories)
+      .catch(() => setCategories([]))
+      .finally(() => setCategoriesLoading(false));
+  }, []);
 
   const selectedGoal = GOAL_TYPES.find(
     (g) => g.id === selectedGoalType
   );
+
+  const selectedCategory = categoryId
+    ? categories.find((category) => String(category.id) === categoryId)
+    : null;
+
+  const categoryDisplayLabel =
+    selectedCategory?.name || categoryName.trim() || "Select a category";
 
   const Icon =
     selectedGoal?.icon || Goal;
@@ -144,8 +172,42 @@ export default function CreateSavingsGoalPage() {
       100
   );
 
+  async function handleCreate() {
+    setSubmitting(true);
+    setError(null);
+    setCategoryError(null);
+
+    const trimmedCategoryName = categoryName.trim();
+    const selectedCategoryId = categoryId ? Number(categoryId) : null;
+
+    if (!selectedCategoryId && !trimmedCategoryName) {
+      setCategoryError("Please select a category or enter a custom category name.");
+      setSubmitting(false);
+      return;
+    }
+
+    try {
+      await createSavingsGoal({
+        name:        goalName,
+        targetAmount: targetAmount,
+        deadline:    targetDate,           // already "YYYY-MM-DD"
+        ...(selectedCategoryId
+          ? { categoryId: selectedCategoryId }
+          : {
+              categoryName: trimmedCategoryName,
+              parentSlug: selectedGoalType === "emergency" ? "savings_investment" : GOAL_TYPE_TO_SLUG[selectedGoalType] ?? "savings_investment",
+            }),
+      });
+      window.location.href = "/product/finance/savings";
+    } catch (e: any) {
+      setError(e.message || "Failed to create goal");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-[#F5F6F2]">
+    <div className="min-h-screen">
       <div className="max-w-[1450px] mx-auto px-4 md:px-6 py-5 md:py-7">
         {/* ───────────────── Card Container ───────────────── */}
 
@@ -513,69 +575,83 @@ export default function CreateSavingsGoalPage() {
                         Goal Category
                       </label>
 
-                      <button className="w-full h-12 rounded-2xl border border-[#E4E9E0] bg-[#FBFCFA] px-4 flex items-center justify-between text-sm text-rayo-green">
-                        <div className="flex items-center gap-2">
-                          <Target size={15} />
-                          {goalCategory}
+                      <div className="space-y-3">
+                        <div className="relative">
+                          <select
+                            value={categoryId}
+                            onChange={(e) => {
+                              setCategoryId(e.target.value);
+                              if (e.target.value) setCategoryName("");
+                            }}
+                            disabled={categoriesLoading}
+                            className="w-full h-12 rounded-2xl border border-[#E4E9E0] bg-[#FBFCFA] px-4 pr-10 text-sm text-rayo-green outline-none focus:border-rayo-green/30 disabled:opacity-60"
+                          >
+                            <option value="">Select an existing category</option>
+                            {categories.map((category) => (
+                              <option key={category.id} value={category.id}>
+                                {category.emoji ? `${category.emoji} ` : ""}{category.name}
+                              </option>
+                            ))}
+                          </select>
+
+                          <ChevronDown
+                            size={16}
+                            className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-rayo-green/30"
+                          />
                         </div>
 
-                        <ChevronDown
-                          size={16}
-                          className="text-rayo-green/30"
+                        <div className="flex items-center gap-2 text-xs text-rayo-green/40">
+                          <span className="h-px flex-1 bg-[#E8EDE5]" />
+                          <span>or</span>
+                          <span className="h-px flex-1 bg-[#E8EDE5]" />
+                        </div>
+
+                        <input
+                          type="text"
+                          value={categoryName}
+                          onChange={(e) => {
+                            setCategoryName(e.target.value);
+                            if (e.target.value.trim()) setCategoryId("");
+                          }}
+                          placeholder="Custom category name"
+                          className="w-full h-12 rounded-2xl border border-[#E4E9E0] bg-[#FBFCFA] px-4 text-sm text-rayo-green outline-none focus:border-rayo-green/30"
                         />
-                      </button>
-                    </div>
 
-                    {/* Private */}
-
-                    {/* <div className="flex items-center justify-between rounded-2xl border border-[#E8EDE5] bg-[#FBFCFA] px-4 py-3">
-                      <div>
-                        <p className="text-sm font-semibold text-rayo-green">
-                          Make Goal Private
-                        </p>
-
-                        <p className="text-xs text-rayo-green/45 mt-1">
-                          Only you can see
-                          this goal
+                        <p className="text-xs text-rayo-green/40">
+                          Pick an existing category or type a custom one. The backend needs one of them.
                         </p>
                       </div>
 
-                      <button
-                        onClick={() =>
-                          setMakePrivate(
-                            !makePrivate
-                          )
-                        }
-                        className={cn(
-                          "relative w-11 h-6 rounded-full transition-colors",
-                          makePrivate
-                            ? "bg-rayo-green"
-                            : "bg-[#D7DED2]"
-                        )}
-                      >
-                        <div
-                          className={cn(
-                            "absolute top-1 w-4 h-4 rounded-full bg-white transition-all",
-                            makePrivate
-                              ? "left-6"
-                              : "left-1"
-                          )}
-                        />
-                      </button>
-                    </div> */}
+                      {categoryError && (
+                        <p className="mt-2 text-xs text-red-600">{categoryError}</p>
+                      )}
+                    </div>
+
                   </div>
                 </section>
 
                 {/* Footer Actions */}
+
+                {error && (
+                  <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    {error}
+                  </div>
+                )}
 
                 <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-3">
                   <button className="flex-1 h-12 rounded-2xl border border-[#E4E9E0] bg-white text-sm font-semibold text-rayo-green/70 hover:border-rayo-green/20 transition-colors">
                     Cancel
                   </button>
 
-                  <button className="flex-[1.5] h-12 rounded-2xl bg-rayo-green text-white text-sm font-semibold hover:bg-rayo-green-dark transition-colors flex items-center justify-center gap-2">
-                    <Target size={15} />
-                    Create Goal
+                  <button
+                    onClick={handleCreate}
+                    disabled={submitting}
+                    className="flex-[1.5] h-12 rounded-2xl bg-rayo-green text-white text-sm font-semibold hover:bg-rayo-green-dark transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+                  >
+                    {submitting
+                      ? <><Loader2 size={15} className="animate-spin" /> Creating...</>
+                      : <><Target size={15} /> Create Goal</>
+                    }
                   </button>
                 </div>
               </div>
@@ -625,7 +701,7 @@ export default function CreateSavingsGoalPage() {
                             </p>
 
                             <span className="inline-flex items-center rounded-lg bg-[#EEF5EB] px-2.5 py-1 text-xs font-medium text-rayo-green mt-3">
-                              {goalCategory}
+                              {categoryDisplayLabel}
                             </span>
                           </div>
                         </div>

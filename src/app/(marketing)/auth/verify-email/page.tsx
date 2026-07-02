@@ -9,6 +9,28 @@ import { resendVerificationOtp, verifyEmailOtp } from "@/lib/api-client";
 
 type FieldErrors = Partial<Record<string, string>>;
 
+function extractTokenFromVerifyResponse(response: unknown): string | null {
+  if (!response || typeof response !== "object") {
+    return null;
+  }
+
+  const payload = response as Record<string, unknown>;
+  const directToken = payload.token;
+  if (typeof directToken === "string" && directToken.length > 0) {
+    return directToken;
+  }
+
+  const data = payload.data;
+  if (data && typeof data === "object") {
+    const nestedToken = (data as Record<string, unknown>).token;
+    if (typeof nestedToken === "string" && nestedToken.length > 0) {
+      return nestedToken;
+    }
+  }
+
+  return null;
+}
+
 export default function VerifyEmailPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -116,7 +138,16 @@ export default function VerifyEmailPage() {
       });
 
       if (response.success) {
-        router.push("/product/onboarding/welcome");
+        const token = extractTokenFromVerifyResponse(response);
+
+        if (token) {
+          localStorage.setItem("authToken", token);
+          document.cookie = `authToken=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+          router.replace("/product/onboarding/welcome");
+          return;
+        }
+
+        router.replace("/auth/login?redirect=%2Fproduct%2Fonboarding%2Fwelcome");
       } else {
         setServerError(response.error || "Invalid verification code.");
       }

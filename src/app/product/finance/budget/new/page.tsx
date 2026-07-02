@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   ArrowRight,
@@ -11,9 +12,12 @@ import {
   Target,
   ArrowLeft,
   ChevronRight,
+  Loader2
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { createBudget } from "@/lib/api-client/src/client";
+import { CATEGORIES } from "@/lib/category";
 
 type Mode = "guided" | "zero" | "envelope" | "hybrid";
 type HybridSub = "zero" | "envelope";
@@ -315,6 +319,7 @@ function StepIndicator({ current }: { current: number }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function BudgetSetupPage() {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [mode, setMode] = useState<Mode | null>(null);
   const [hybridSub, setHybridSub] = useState<HybridSub>("zero");
@@ -355,8 +360,46 @@ export default function BudgetSetupPage() {
     aiReallocation: false,
   });
 
+  const [budgetCategory, setBudgetCategory] = useState("School");
+  const [monthlyLimit, setMonthlyLimit] = useState("75000");
+  const [parentSlug, setParentSlug] = useState("entertainment");
+  const [creatingBudget, setCreatingBudget] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+
   const next = () => setStep((s) => Math.min(4, s + 1));
   const back = () => setStep((s) => Math.max(1, s - 1));
+
+  const handleCreateBudget = useCallback(async () => {
+    const limit = Number(monthlyLimit.replace(/,/g, ""));
+
+    if (!budgetCategory.trim()) {
+      setCreateError("Please enter a budget category.");
+      return;
+    }
+
+    if (!Number.isFinite(limit) || limit <= 0) {
+      setCreateError("Please enter a valid monthly limit.");
+      return;
+    }
+
+    setCreatingBudget(true);
+    setCreateError(null);
+
+    try {
+      await createBudget({
+        monthlyLimit: limit,
+        category: budgetCategory.trim(),
+        ...(parentSlug ? { parentSlug } : {}),
+      });
+
+      router.push("/product/finance/budget");
+      router.refresh();
+    } catch (error: any) {
+      setCreateError(error?.message || "Failed to create budget");
+    } finally {
+      setCreatingBudget(false);
+    }
+  }, [budgetCategory, monthlyLimit, parentSlug, router]);
 
   // ── Mode cards ────────────────────────────────────────────────────────────
 
@@ -691,6 +734,75 @@ export default function BudgetSetupPage() {
 
               <SectionTitle>Spending controls</SectionTitle>
 
+              <div className="space-y-4 border-b border-[#EEF2EB] pb-5">
+                <div>
+                  <p className="text-sm font-medium text-rayo-green">Budget details</p>
+                  <p className="text-xs text-rayo-green/45 mt-0.5">
+                    These values become the request body sent to create your budget.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                  <div>
+                    <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-rayo-green/45">
+                      Category
+                    </label>
+                    <input
+                      type="text"
+                      value={budgetCategory}
+                      onChange={(e) => setBudgetCategory(e.target.value)}
+                      placeholder="School"
+                      className="w-full h-12 rounded-2xl border border-[#E4E9E0] bg-[#FBFCFA] px-4 text-sm text-rayo-green outline-none focus:border-rayo-green/30"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-rayo-green/45">
+                      Monthly Limit
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-rayo-green/40 font-medium text-sm select-none">
+                        ₦
+                      </span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={monthlyLimit}
+                        onChange={(e) =>
+                          setMonthlyLimit(e.target.value.replace(/[^0-9,]/g, ""))
+                        }
+                        placeholder="75,000"
+                        className="w-full h-12 rounded-2xl border border-[#E4E9E0] bg-[#FBFCFA] pl-9 pr-4 text-sm text-rayo-green outline-none focus:border-rayo-green/30"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-rayo-green/45">
+                      Parent slug <span className="font-normal lowercase">(optional)</span>
+                    </label>
+                    <select
+                      value={parentSlug}
+                      onChange={(e) => setParentSlug(e.target.value)}
+                      className="w-full h-12 rounded-2xl border border-[#E4E9E0] bg-[#FBFCFA] px-4 text-sm text-rayo-green outline-none focus:border-rayo-green/30"
+                    >
+                      <option value="">No parent slug</option>
+                      {CATEGORIES.map((category) => (
+                        <option key={category.value} value={category.value}>
+                          {category.emoji} {category.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {createError && (
+                  <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    {createError}
+                  </div>
+                )}
+              </div>
+
               {/* Rollover */}
               <div className="flex items-center justify-between py-3 border-b border-[#EEF2EB]">
                 <div>
@@ -826,9 +938,22 @@ export default function BudgetSetupPage() {
                 ))}
               </div>
 
-              <Button className="w-full flex items-center justify-center gap-2">
-                Create budget system
-                <ChevronRight size={15} />
+              <Button
+                onClick={handleCreateBudget}
+                disabled={creatingBudget}
+                className="w-full flex items-center justify-center gap-2 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {creatingBudget ? (
+                  <>
+                    <Loader2 size={15} className="animate-spin" />
+                    Creating budget…
+                  </>
+                ) : (
+                  <>
+                    Create budget system
+                    <ChevronRight size={15} />
+                  </>
+                )}
               </Button>
             </Card>
           </div>

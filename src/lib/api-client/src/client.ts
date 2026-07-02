@@ -7,6 +7,7 @@ import type {
   TransactionFilters,
   TransactionListResponse,
   BudgetCategory,
+  Category,
 } from "@/lib/types/src";
 
 export interface UserProfile {
@@ -787,9 +788,8 @@ export async function listTransactions(
   filters?: TransactionFilters
 ): Promise<TransactionListResponse> {
   const params = new URLSearchParams();
-
   if (filters?.type) params.set("type", filters.type);
-  if (filters?.category) params.set("category", filters.category);
+  if (filters?.categoryId) params.set("category", String(filters.categoryId));
   if (filters?.startDate) params.set("startDate", filters.startDate);
   if (filters?.endDate) params.set("endDate", filters.endDate);
   if (filters?.page) params.set("page", String(filters.page));
@@ -797,25 +797,32 @@ export async function listTransactions(
 
   const url = `${proxyPath("/transactions")}${params.toString() ? `?${params}` : ""}`;
 
-  const res = await fetch(url, {
-    headers: createHeaders(),
-    credentials: "include",
-  });
+  const [txRes, catRes] = await Promise.all([
+    fetch(url, { headers: createHeaders(), credentials: "include" }),
+    apiFetch("/categories"),
+  ]);
 
-  if (!res.ok) throw new Error("Failed to fetch transactions");
+  if (!txRes.ok) throw new Error("Failed to fetch transactions");
 
-  const json = await readJsonResponse<any>(res);
+  const txJson = await readJsonResponse<any>(txRes);
+  const rows = txJson?.data?.rows ?? [];
+  const pagination = txJson?.data?.pagination ?? { total: 0, page: 1, limit: 10 };
 
-  const rows = json?.data?.rows ?? [];
+  // Build id → name map
+  const categoryMap = new Map<number, string>();
+  if (catRes.ok) {
+    const catJson = await readJsonResponse<any>(catRes);
+    const cats: any[] = Array.isArray(catJson) ? catJson : (catJson.data ?? []);
+    cats.forEach((c: any) => categoryMap.set(c.id, c.name));
+  }
 
-  const pagination = json?.data?.pagination ?? {
-    total: 0,
-    page: 1,
-    limit: 10,
-  };
+  const transactions: Transaction[] = rows.map((t: any) => ({
+    ...t,
+    categoryName: categoryMap.get(t.categoryId) ?? "Uncategorized",
+  }));
 
   return {
-    transactions: rows,
+    transactions,
     total: pagination.total,
     page: pagination.page,
     limit: pagination.limit,
@@ -894,14 +901,36 @@ export async function deleteMultipleTransactions(ids: number[]): Promise<void> {
 
 // Budget API
 export async function fetchBudgets(): Promise<BudgetCategory[]> {
-  const res = await apiFetch(`/budget`);
-  if (!res.ok) throw new Error("Failed to fetch budgets");
-  const data = await res.json();
-  return Array.isArray(data) ? data : data.data ?? [];
+  const [budgetRes, catRes] = await Promise.all([
+    apiFetch("/budget"),
+    apiFetch("/categories"),
+  ]);
+
+  if (!budgetRes.ok) throw new Error("Failed to fetch budgets");
+
+  const data = await budgetRes.json();
+  const rows: any[] = Array.isArray(data) ? data : (data.data ?? []);
+
+  // Build id → category lookup
+  const categoryMap = new Map<number, Category>();
+  if (catRes.ok) {
+    const catJson = await readJsonResponse<any>(catRes);
+    const cats: any[] = Array.isArray(catJson) ? catJson : (catJson.data ?? []);
+    cats.forEach((c: any) => categoryMap.set(c.id, c));
+  }
+
+  return rows.map((b: any) => {
+    const cat = categoryMap.get(b.categoryId);
+    return {
+      ...b,
+      categoryName:  b.category ?? cat?.name ?? "Unknown",
+      categoryEmoji: cat?.emoji ?? "📦",
+    };
+  });
 }
 
 export async function createBudget(
-  payload: { category: string; monthlyLimit: number }
+  payload: { category: string; monthlyLimit: number; parentSlug?: string }
 ): Promise<BudgetCategory> {
   const res = await apiFetch(`/budget`, {
     method: "POST",
@@ -913,8 +942,8 @@ export async function createBudget(
 }
 
 export async function updateBudget(
-  id: number,                                          // number, not string
-  payload: { monthlyLimit: number }                   // only editable field
+  id: number,                                          
+  payload: { monthlyLimit: number }                  
 ): Promise<BudgetCategory> {
   const res = await apiFetch(`/budget/${id}`, {
     method: "PUT",
@@ -925,9 +954,102 @@ export async function updateBudget(
   return data.data ?? data;
 }
 
-export async function deleteBudget(id: number): Promise<void> {  // number, not string
+export async function deleteBudget(id: number): Promise<void> {  
   const res = await apiFetch(`/budget/${id}`, { method: "DELETE" });
   if (!res.ok) throw new Error("Failed to delete budget");
+}
+
+// Savings Goals API
+export interface SavingsGoalRow {
+  id: number;
+  userId: number;
+  name: string;
+  targetAmount: number;
+  currentAmount: number;
+  deadline: string;        
+  percentComplete: number;
+}
+
+export interface SavingsGoalListResponse {
+  rows: SavingsGoalRow[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+}
+
+export interface CreateSavingsGoalPayload {
+  name: string;
+  targetAmount: number;
+  currentAmount?: number;
+  deadline: string;        
+}
+
+export interface UpdateSavingsGoalPayload {
+  name?: string;
+  targetAmount?: number;
+  currentAmount?: number;
+  deadline?: string;
+}
+
+export async function fetchSavingsGoals(): Promise<SavingsGoalRow[]> {
+  const res = await apiFetch("/savings");
+  if (!res.ok) throw new Error(`Failed to fetch savings goals (${res.status})`);
+  const json = await readJsonResponse<any>(res);
+  const inner = json.data ?? json;
+  return inner.rows ?? [];
+}
+
+export async function createSavingsGoal(
+  payload: CreateSavingsGoalPayload
+): Promise<SavingsGoalRow> {
+  const res = await apiFetch("/savings", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(extractErrorMessage(body, "Failed to create savings goal"));
+  }
+  const data = await readJsonResponse<any>(res);
+  return data.data ?? data;
+}
+
+export async function updateSavingsGoal(
+  id: number,
+  payload: UpdateSavingsGoalPayload
+): Promise<SavingsGoalRow> {
+  const res = await apiFetch(`/savings/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(extractErrorMessage(body, "Failed to update savings goal"));
+  }
+  const data = await readJsonResponse<any>(res);
+  return data.data ?? data;
+}
+
+export async function deleteSavingsGoal(id: number): Promise<void> {
+  const res = await apiFetch(`/savings/${id}`, { method: "DELETE" });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(extractErrorMessage(body, "Failed to delete savings goal"));
+  }
+}
+
+// Categories API
+
+export async function fetchCategories(): Promise<Category[]> {
+  const res = await apiFetch("/categories");
+  if (!res.ok) throw new Error("Failed to fetch categories");
+  const json = await readJsonResponse<any>(res);
+  return Array.isArray(json) ? json : (json.data ?? []);
 }
 
 // Error Handling Helper
