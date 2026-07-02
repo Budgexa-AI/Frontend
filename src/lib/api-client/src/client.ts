@@ -8,6 +8,7 @@ import type {
   TransactionListResponse,
   BudgetCategory,
   Category,
+  Budget,
 } from "@/lib/types/src";
 
 export interface UserProfile {
@@ -675,15 +676,24 @@ export async function uploadProfileImage(
 export async function completeOnboarding(data: {
   level: string;
   method: string;
-  income: string;
-  goals: string[];
+  incomeSource: string;
+  financialGoals: string[];
   categories: string[];
 }): Promise<{ success: boolean; error?: string }> {
+  console.log("Onboarding data:", data);
   const res = await fetch(proxyPath("/onboarding"), {
     method: "POST",
     headers: createHeaders(),
     credentials: "include",
-    body: JSON.stringify(data), // arrays serialize fine as JSON
+    body: JSON.stringify({
+      level: data.level,
+      method: data.method,
+      incomeSource: data.incomeSource,
+      income: data.incomeSource,
+      financialGoals: data.financialGoals,
+      goals: data.financialGoals,
+      categories: data.categories,
+    }),
   });
 
   if (!res.ok) {
@@ -929,14 +939,21 @@ export async function fetchBudgets(): Promise<BudgetCategory[]> {
   });
 }
 
-export async function createBudget(
-  payload: { category: string; monthlyLimit: number; parentSlug?: string }
-): Promise<BudgetCategory> {
-  const res = await apiFetch(`/budget`, {
+export async function createBudget(payload: {
+  categoryId?: number;
+  category?: string;
+  parentSlug?: string;
+  monthlyLimit: number;
+  rollover?: boolean;
+}): Promise<Budget> {
+  const res = await apiFetch("/budget", {
     method: "POST",
     body: JSON.stringify(payload),
   });
-  if (!res.ok) throw new Error("Failed to create budget");
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(extractErrorMessage(body, "Failed to create budget"));
+  }
   const data = await res.json();
   return data.data ?? data;
 }

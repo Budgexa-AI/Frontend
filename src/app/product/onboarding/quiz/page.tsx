@@ -150,7 +150,9 @@ export default function FinancialQuizPage() {
         level: financialLevel,
       });
 
-      router.push("/product/onboarding/recommendation")
+      router.push(
+        `/product/onboarding/recommendation?level=${encodeURIComponent(financialLevel.toLowerCase())}`
+      );
     }
   };
 
@@ -283,9 +285,12 @@ export default function FinancialQuizPage() {
                 />
               </button>
 
-              <button className="h-14 rounded-2xl px-6 text-sm font-medium text-[#254F22]/60 transition-colors hover:text-[#254F22]">
+              <Link
+                href="/product/dashboard"
+                className="inline-flex h-14 items-center justify-center rounded-2xl px-6 text-sm font-medium text-[#254F22]/60 transition-colors hover:text-[#254F22]"
+              >
                 Skip onboarding
-              </button>
+              </Link>
             </div>
           </div>
         </div>

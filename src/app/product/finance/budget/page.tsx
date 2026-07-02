@@ -9,26 +9,13 @@ import {
 } from "lucide-react";
 import { fetchBudgets, createBudget, updateBudget, deleteBudget } from "@/lib/api-client/src";
 import { CHART_PALETTE } from "@/lib/chart-colors";
+import { useRouter } from "next/navigation";
+import { Budget, Category } from "@/lib/types/src";
+import { CategoryPicker, CategoryPickerValue } from "@/components/product/CategoryPicker";
+import { fetchCategories } from "@/lib/data-service";
 
-// ─────────────────────────────────────────────────────────────
-// Types
-// ─────────────────────────────────────────────────────────────
-interface Budget {
-  id: number;
-  userId: number;
-  category?: string;
-  categoryName?: string;
-  categoryEmoji?: string;
-  monthlyLimit: number;
-  totalSpent: number;
-  remaining: number;
-  percentUsed: number;
-  rollover: boolean;
-}
-
-// ─────────────────────────────────────────────────────────────
 // Constants
-// ─────────────────────────────────────────────────────────────
+
 const TABS = ["Overview", "Categories", "Insights"] as const;
 
 const CATEGORY_EMOJI: Record<string, string> = {
@@ -42,17 +29,16 @@ function getCategoryEmoji(category: string) {
   return CATEGORY_EMOJI[category.toLowerCase()] ?? CATEGORY_EMOJI.default;
 }
 
-function getBudgetCategoryLabel(budget: Pick<Budget, "category" | "categoryName">) {
-  return budget.categoryName ?? budget.category ?? "Unknown";
+function getBudgetCategoryLabel(budget: Pick<Budget, "categoryId" | "categoryName">) {
+  return budget.categoryName ?? budget.categoryId?.toString() ?? "Unknown";
 }
 
 function getCategoryColor(index: number) {
   return CHART_PALETTE[index % CHART_PALETTE.length];
 }
 
-// ─────────────────────────────────────────────────────────────
 // Helpers
-// ─────────────────────────────────────────────────────────────
+
 const fmt = (n: number) => "₦" + n.toLocaleString("en-NG");
 
 function ProgressBar({ value, color }: { value: number; color: string }) {
@@ -78,9 +64,8 @@ function SummaryCard({ icon, label, value, sub }: { icon: React.ReactNode; label
   );
 }
 
-// ─────────────────────────────────────────────────────────────
 // Delete Modal
-// ─────────────────────────────────────────────────────────────
+
 function DeleteModal({
   category,
   onCancel,
@@ -119,75 +104,115 @@ function DeleteModal({
   );
 }
 
-// ─────────────────────────────────────────────────────────────
 // Budget Modal (Create / Edit)
-// ─────────────────────────────────────────────────────────────
+
 interface BudgetModalProps {
   initial?: Budget;
+  categories: Category[];
   onClose: () => void;
-  onSave: (payload: { category: string; monthlyLimit: number }) => Promise<void>;
+  onSave: (payload: {
+    name: string;
+    categoryId?: number;
+    category?: string;
+    parentSlug?: string;
+    monthlyLimit: number;
+    rollover: boolean;
+  }) => Promise<void>;
 }
 
-function BudgetModal({ initial, onClose, onSave }: BudgetModalProps) {
-  const [category, setCategory] = useState(initial?.category ?? "");
-  const [limitStr, setLimitStr] = useState(initial ? initial.monthlyLimit.toLocaleString("en-NG") : "");
-  const [saving, setSaving]     = useState(false);
-  const [error, setError]       = useState<string | null>(null);
+function BudgetModal({ initial, categories, onClose, onSave }: BudgetModalProps) {
+  const [name, setName] = useState(initial?.name ?? "");
+  const [selectedCategory, setSelectedCategory] = useState<CategoryPickerValue>(
+    initial?.categoryId
+      ? { type: "existing", category: categories.find((c) => c.id === initial.categoryId)! }
+      : null
+  );
+  const [limitStr, setLimitStr] = useState(
+    initial ? initial.monthlyLimit.toLocaleString("en-NG") : ""
+  );
+  const [saving, setSaving] = useState(false);
+  const [error, setError]   = useState<string | null>(null);
 
   async function handleSubmit() {
-    const trimmed = category.trim();
-    const limit   = Number(limitStr.replace(/,/g, ""));
-    if (!trimmed)       return setError("Category name is required.");
+    const limit = Number(limitStr.replace(/,/g, ""));
+    if (!name.trim())         return setError("Budget name is required.");
+    if (!selectedCategory)    return setError("Please select a category.");
     if (!limit || limit <= 0) return setError("Enter a valid monthly limit.");
     setError(null);
     setSaving(true);
     try {
-      await onSave({ category: trimmed, monthlyLimit: limit });
+      const categoryPayload =
+        selectedCategory.type === "existing"
+          ? { categoryId: selectedCategory.category.id }
+          : { category: selectedCategory.name, parentSlug: selectedCategory.parentSlug };
+
+      await onSave({ name: name.trim(), ...categoryPayload, monthlyLimit: limit, rollover: true });
       onClose();
     } catch (e: any) {
-      setError(e.message || "Failed to save budget.");
+      setError(e?.message || "Failed to save budget");
     } finally {
       setSaving(false);
     }
-  }
-
-  function handleLimitChange(raw: string) {
-    const digits = raw.replace(/[^0-9]/g, "");
-    setLimitStr(digits ? Number(digits).toLocaleString("en-NG") : "");
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 space-y-5">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-rayo-green">{initial ? "Edit Budget" : "New Budget"}</h2>
+          <h2 className="text-lg font-bold text-rayo-green">
+            {initial ? "Edit Budget" : "New Budget"}
+          </h2>
           <button onClick={onClose} className="p-1.5 rounded-lg text-rayo-green/40 hover:text-rayo-green transition">
             <X size={16} />
           </button>
         </div>
 
         <div className="space-y-4">
+          {/* Budget name */}
           <div>
-            <label className="block text-xs font-medium text-rayo-green/60 mb-1.5">Category</label>
+            <label className="block text-xs font-medium text-rayo-green/60 mb-1.5">
+              Budget Name <span className="text-red-400">*</span>
+            </label>
             <input
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              disabled={!!initial}
-              placeholder="e.g. Food, Transport, Rent"
-              className="w-full h-11 px-3 rounded-xl border border-rayo-ash text-sm text-rayo-green bg-white focus:outline-none focus:ring-2 focus:ring-rayo-green/20 disabled:opacity-50 disabled:bg-rayo-muted"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Monthly Groceries, Fuel Money, Netflix"
+              className="w-full h-11 px-3 rounded-xl border border-rayo-ash text-sm text-rayo-green bg-white focus:outline-none focus:ring-2 focus:ring-rayo-green/20"
             />
+          </div>
+
+          {/* Category */}
+          <div>
+            <label className="block text-xs font-medium text-rayo-green/60 mb-1.5">
+              Category <span className="text-red-400">*</span>
+            </label>
+            {initial ? (
+              <div className="h-11 px-3 rounded-xl border border-rayo-ash bg-rayo-muted text-sm text-rayo-green/50 flex items-center">
+                {initial.categoryName ?? initial.categoryName ?? "Unknown"}
+              </div>
+            ) : (
+              <CategoryPicker
+                categories={categories}
+                value={selectedCategory}
+                onChange={setSelectedCategory}
+              />
+            )}
             {initial && (
               <p className="text-[11px] text-rayo-green/40 mt-1">Category cannot be changed after creation.</p>
             )}
           </div>
 
+          {/* Monthly limit */}
           <div>
             <label className="block text-xs font-medium text-rayo-green/60 mb-1.5">Monthly Limit</label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-rayo-green/40 font-medium">₦</span>
               <input
                 value={limitStr}
-                onChange={(e) => handleLimitChange(e.target.value)}
+                onChange={(e) => {
+                  const digits = e.target.value.replace(/[^0-9]/g, "");
+                  setLimitStr(digits ? Number(digits).toLocaleString("en-NG") : "");
+                }}
                 placeholder="0"
                 className="w-full h-11 pl-7 pr-3 rounded-xl border border-rayo-ash text-sm text-rayo-green bg-white focus:outline-none focus:ring-2 focus:ring-rayo-green/20"
               />
@@ -198,17 +223,12 @@ function BudgetModal({ initial, onClose, onSave }: BudgetModalProps) {
         {error && <p className="text-xs text-red-500">{error}</p>}
 
         <div className="flex gap-2 pt-1">
-          <button
-            onClick={onClose}
-            className="flex-1 h-11 rounded-xl border border-rayo-ash text-sm text-rayo-green/60 hover:bg-rayo-muted transition"
-          >
+          <button onClick={onClose}
+            className="flex-1 h-11 rounded-xl border border-rayo-ash text-sm text-rayo-green/60 hover:bg-rayo-muted transition">
             Cancel
           </button>
-          <button
-            onClick={handleSubmit}
-            disabled={saving}
-            className="flex-1 h-11 rounded-xl bg-rayo-green text-white text-sm font-medium flex items-center justify-center gap-2 hover:bg-rayo-green/90 transition disabled:opacity-50"
-          >
+          <button onClick={handleSubmit} disabled={saving}
+            className="flex-1 h-11 rounded-xl bg-rayo-green text-white text-sm font-medium flex items-center justify-center gap-2 hover:bg-rayo-green/90 transition disabled:opacity-50">
             {saving ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
             {saving ? "Saving…" : "Save Budget"}
           </button>
@@ -232,6 +252,11 @@ export default function BudgetPage() {
   // null = closed, Budget = pending delete
   const [deleteTarget, setDeleteTarget] = useState<Budget | null>(null);
   const [deleting, setDeleting]         = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    fetchCategories().then(setCategories).catch(() => setCategories([]));
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -248,9 +273,15 @@ export default function BudgetPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  async function handleSave(payload: { category: string; monthlyLimit: number }) {
+  async function handleSave(payload: {
+    categoryId?: number;
+    category?: string;
+    parentSlug?: string;
+    monthlyLimit: number;
+    rollover: boolean;
+  }) {
     if (modalTarget) {
-      const updated = await updateBudget(modalTarget.id, payload);
+      const updated = await updateBudget(modalTarget.id, { monthlyLimit: payload.monthlyLimit });
       setBudgets((prev) => prev.map((b) => (b.id === modalTarget.id ? { ...b, ...updated } : b)));
     } else {
       const created = await createBudget(payload);
@@ -284,6 +315,7 @@ export default function BudgetPage() {
       {modalTarget !== undefined && (
         <BudgetModal
           initial={modalTarget ?? undefined}
+          categories={categories}
           onClose={() => setModalTarget(undefined)}
           onSave={handleSave}
         />

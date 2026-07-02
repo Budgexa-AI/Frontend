@@ -94,21 +94,6 @@ export interface Category {
   isSystem: boolean;
 }
 
-export interface BudgetCategory {
-  id: number;
-  userId: number;
-  categoryId: number;
-  category?: string;
-  categoryName?: string;   // resolved client-side via /categories lookup
-  categoryEmoji?: string;
-  monthlyLimit: number;
-  totalSpent: number;
-  remaining: number;
-  percentUsed: number;
-  rollover: boolean;
-  balance?: number;
-}
-
 export interface TransactionFilters {
   type?: "income" | "expense";
   categoryId?: number;
@@ -180,3 +165,20 @@ export interface UpdateSavingsGoalPayload {
   currentAmount?: number;
   deadline?: string;
 }
+
+export interface Budget {
+  id: number;
+  userId: number;
+  name: string;
+  categoryId: number;
+  categoryName?: string;
+  categoryEmoji?: string;
+  monthlyLimit: number;
+  totalSpent: number;
+  remaining: number;
+  percentUsed: number;
+  rollover: boolean;
+  balance?: number;
+}
+
+export type BudgetCategory = Budget;

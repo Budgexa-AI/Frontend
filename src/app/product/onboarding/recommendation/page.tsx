@@ -1,6 +1,8 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   ArrowRight,
@@ -87,6 +89,16 @@ const recommendations = [
 ];
 
 export default function BudgetRecommendationPage() {
+  const searchParams = useSearchParams();
+  const level = searchParams.get("level") || "beginner";
+  const [selectedMethod, setSelectedMethod] = useState("envelope");
+
+  const levelLabel = useMemo(() => {
+    return level.charAt(0).toUpperCase() + level.slice(1);
+  }, [level]);
+
+  const setupHref = `/product/onboarding/setup?level=${encodeURIComponent(level)}&method=${encodeURIComponent(selectedMethod)}`;
+
   return (
     <main className="min-h-screen bg-[#EDE4CC] px-6 py-8 md:px-10 lg:px-16">
       <div className="mx-auto max-w-7xl">
@@ -138,6 +150,11 @@ export default function BudgetRecommendationPage() {
             we recommend starting with a system designed to help
             you stay consistent without feeling overwhelmed.
           </p>
+
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-[#254F22]/10 bg-white px-4 py-2 text-sm font-medium text-[#254F22] shadow-sm">
+            <Sparkles size={16} className="text-[#F5824A]" />
+            {levelLabel} profile detected
+          </div>
         </div>
 
         {/* RECOMMENDATION GRID */}
@@ -149,23 +166,23 @@ export default function BudgetRecommendationPage() {
               <div
                 key={item.id}
                 className={`relative flex flex-col rounded-[32px] border bg-white p-6 shadow-sm transition-all ${
-                  item.recommended
+                  selectedMethod === item.id
                     ? "border-[#254F22] shadow-xl shadow-[#254F22]/5"
                     : "border-[#254F22]/5"
                 }`}
               >
                 {/* BADGE */}
-                {item.recommended && (
+                {(item.recommended || selectedMethod === item.id) && (
                   <div className="absolute right-5 top-5 inline-flex items-center gap-2 rounded-full bg-[#254F22] px-3 py-1.5 text-xs font-medium text-white">
                     <BadgeCheck size={14} />
-                    Recommended
+                    {item.recommended ? "Recommended" : "Selected"}
                   </div>
                 )}
 
                 {/* ICON */}
                 <div
                   className={`mb-6 flex h-14 w-14 items-center justify-center rounded-3xl ${
-                    item.recommended
+                    selectedMethod === item.id
                       ? "bg-[#254F22] text-white"
                       : "bg-[#254F22]/5 text-[#254F22]"
                   }`}
@@ -225,16 +242,20 @@ export default function BudgetRecommendationPage() {
                 </div>
 
                 {/* CTA */}
-                <button
+                  <button
+                    type="button"
+                    onClick={() => setSelectedMethod(item.id)}
                   className={`group mt-auto inline-flex h-14 items-center justify-center gap-2 rounded-2xl px-6 text-sm font-medium transition-all ${
-                    item.recommended
+                    selectedMethod === item.id
                       ? "bg-[#254F22] text-white hover:bg-[#1D3F1B]"
                       : "border border-[#254F22]/10 text-[#254F22] hover:border-[#254F22]/20 hover:bg-[#254F22]/5"
                   }`}
                 >
-                  {item.recommended
-                    ? "Use Recommended Budget"
-                    : "Choose This Method"}
+                  {selectedMethod === item.id
+                    ? "Selected"
+                    : item.recommended
+                      ? "Use Recommended Budget"
+                      : "Choose This Method"}
 
                   <ChevronRight
                     size={18}
@@ -262,7 +283,7 @@ export default function BudgetRecommendationPage() {
             </div>
 
             <Link
-              href="/product/onboarding/setup"
+              href={setupHref}
               className="group inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-[#254F22] px-7 text-base font-medium text-white transition-all hover:bg-[#1D3F1B]"
             >
               Continue Setup
