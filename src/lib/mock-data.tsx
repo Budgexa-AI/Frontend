@@ -298,7 +298,7 @@ export const CATEGORIES: BudgetCategory[] = [
     id: 1,
     categoryId: 1,
     userId: 5,
-    category: "Food",
+    name: "Food",
     monthlyLimit: 90000,
     totalSpent: 20500,
     remaining: 69500,
