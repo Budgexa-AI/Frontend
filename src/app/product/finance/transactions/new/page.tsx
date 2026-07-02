@@ -1,23 +1,38 @@
 "use client";
 import Link from "next/link";
-import { useState, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@/lib/utils";
-import {
-  addTransactionSchema,
-  type AddTransactionFormValues,
-} from "@/lib/validations";
-import { detectCategory, CATEGORIES, toBudgetCategory } from "@/lib/category";
+import { addTransactionSchema, type AddTransactionFormValues } from "@/lib/validations";
+import { detectCategory } from "@/lib/category";
 import { createTransaction } from "@/lib/data-service";
+import { fetchCategories } from "@/lib/data-service";
 import { AIInsightPanel } from "@/components/ai/InsightPanel";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Search, ChevronDown, Plus, Check } from "lucide-react";
 import { PAYMENT_METHODS, BANKS } from "@/lib/mock-data";
+import { Category } from "@/lib/types/src";
+import { CategoryPicker, type CategoryPickerValue } from "@/components/product/CategoryPicker";
+
+// ─────────────────────────────────────────────────────────────
+// Page
+// ─────────────────────────────────────────────────────────────
 
 export default function AddTransactionPage() {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryPickerValue>(null);
+  const [categoryError, setCategoryError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchCategories()
+      .then(setCategories)
+      .catch(() => setCategories([]))
+      .finally(() => setCategoriesLoading(false));
+  }, []);
 
   const {
     register,
@@ -34,43 +49,62 @@ export default function AddTransactionPage() {
       description: "",
       merchant: "",
       billType: undefined,
-      category: "",
       institution: "",
     },
   });
 
-  const watched      = useWatch({ control });
-  const description  = useWatch({ control, name: "description" });
-  const merchant     = useWatch({ control, name: "merchant" });
+  const watched     = useWatch({ control });
+  const description = useWatch({ control, name: "description" });
+  const merchant    = useWatch({ control, name: "merchant" });
 
+  // AI category suggestion — map suggestion label to a real category from the list
   const suggestion = detectCategory(description ?? "", merchant ?? "");
+  const suggestedCategory =
+    categories.find(
+      (c) =>
+        c.slug === suggestion.meta.value ||
+        c.name.toLowerCase() === suggestion.meta.label.toLowerCase()
+    ) ?? null;
 
-  const handleDescriptionBlur = useCallback(() => {
-    if (!watched.category) {
-      setValue("category", suggestion.meta.value, { shouldValidate: false });
+  useEffect(() => {
+    if (!selectedCategory && suggestedCategory) {
+      setSelectedCategory({ type: "existing", category: suggestedCategory });
     }
-  }, [watched.category, suggestion.meta.value, setValue]);
+  }, [selectedCategory, suggestedCategory]);
 
   async function onSubmit(data: AddTransactionFormValues) {
+    if (!selectedCategory) {
+      setCategoryError("Please select or create a category");
+      return;
+    }
+    setCategoryError(null);
+
     try {
       setServerError(null);
 
-      // The transaction category sent to the backend is the budget-aligned name
-      // (e.g. "food_dining" → "Food") so that TransactionUseCase.getSpentByCategory
-      // can match it against the user's budget categories.
-      const budgetCategory = toBudgetCategory(data.category);
+      const payload =
+        selectedCategory.type === "existing"
+          ? {
+              amount: Number(data.amount.replace(/,/g, "")),
+              date: data.date,
+              description: data.description,
+              type: data.direction.toLowerCase() as "income" | "expense",
+              merchant: data.merchant || undefined,
+              institution: data.institution || undefined,
+              categoryId: selectedCategory.category.id,
+            }
+          : {
+              amount: Number(data.amount.replace(/,/g, "")),
+              date: data.date,
+              description: data.description,
+              type: data.direction.toLowerCase() as "income" | "expense",
+              merchant: data.merchant || undefined,
+              institution: data.institution || undefined,
+              category: selectedCategory.name,
+              // parentSlug omitted → backend defaults to "other"
+            };
 
-      await createTransaction({
-        amount:      Number(data.amount.replace(/,/g, "")),
-        date:        data.date,
-        description: data.description,
-        category:    budgetCategory,
-        type:        data.direction.toLowerCase() as "income" | "expense",
-        merchant:    data.merchant || undefined,
-        bill_type:   data.billType || undefined,
-        institution: data.institution || undefined,
-      });
-
+      await createTransaction(payload as any);
       router.push("/product/finance/transactions");
       router.refresh();
     } catch (error) {
@@ -84,60 +118,33 @@ export default function AddTransactionPage() {
     <div className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
 
-        {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold tracking-tight text-rayo-green">
-            Add Transaction
-          </h1>
-          <p className="mt-1 text-sm text-rayo-green/70">
-            Record your income or expense to keep track of your finances.
-          </p>
+          <h1 className="text-2xl font-semibold tracking-tight text-rayo-green">Add Transaction</h1>
+          <p className="mt-1 text-sm text-rayo-green/70">Record your income or expense to keep track of your finances.</p>
         </div>
 
-        <form
-          noValidate
-          onSubmit={handleSubmit(onSubmit)}
-          className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]"
-        >
-          {/* ── Left column ─────────────────────────────────────────────── */}
+        <form noValidate onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">
           <div className="order-1 rounded-2xl border border-rayo-ash bg-white p-6 shadow-sm">
 
-            {/* Direction tabs */}
+            {/* Direction tabs — unchanged */}
             <Controller
               control={control}
               name="direction"
               render={({ field }) => (
                 <div className="mb-6 flex rounded-xl bg-rayo-ash p-1 gap-1">
                   {(["Expense", "Income"] as const).map((dir) => (
-                    <button
-                      key={dir}
-                      type="button"
-                      onClick={() => field.onChange(dir)}
+                    <button key={dir} type="button" onClick={() => field.onChange(dir)}
                       className={cn(
                         "flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition",
                         field.value === dir
-                          ? dir === "Expense"
-                            ? "border-red-200 bg-red-100 text-red-600 shadow-sm"
-                            : "border-green-200 bg-green-100 text-green-700 shadow-sm"
-                          : dir === "Income"
-                          ? "text-rayo-grey hover:text-green-400"
-                          : "text-rayo-grey hover:text-red-500"
+                          ? dir === "Expense" ? "border-red-200 bg-red-100 text-red-600 shadow-sm" : "border-green-200 bg-green-100 text-green-700 shadow-sm"
+                          : dir === "Income" ? "text-rayo-grey hover:text-green-400" : "text-rayo-grey hover:text-red-500"
                       )}
                     >
                       {dir === "Expense" ? (
-                        <>
-                          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
-                          </svg>
-                          Expense (Money Out)
-                        </>
+                        <><svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" /></svg>Expense (Money Out)</>
                       ) : (
-                        <>
-                          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 4.5l-15 15m0 0h11.25m-11.25 0V8.25" />
-                          </svg>
-                          Income (Money In)
-                        </>
+                        <><svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 4.5l-15 15m0 0h11.25m-11.25 0V8.25" /></svg>Income (Money In)</>
                       )}
                     </button>
                   ))}
@@ -145,205 +152,136 @@ export default function AddTransactionPage() {
               )}
             />
 
-            {/* Amount + Date */}
+            {/* Amount + Date — unchanged */}
             <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-rayo-green">
-                  Amount <span className="text-red-500">*</span>
-                </label>
+                <label className="text-xs font-medium text-rayo-green">Amount <span className="text-red-500">*</span></label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 select-none">₦</span>
-                  <input
-                    {...register("amount")}
-                    type="text"
-                    inputMode="decimal"
-                    placeholder="0.00"
-                    className={cn(
-                      "w-full rounded-lg border bg-white py-2.5 pl-7 pr-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-300",
-                      "focus:border-gray-400 focus:ring-2 focus:ring-gray-200",
-                      errors.amount ? "border-red-300 focus:border-red-400 focus:ring-red-100" : "border-gray-200"
-                    )}
+                  <input {...register("amount")} type="text" inputMode="decimal" placeholder="0.00"
+                    className={cn("w-full rounded-lg border bg-white py-2.5 pl-7 pr-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-200", errors.amount ? "border-red-300" : "border-gray-200")}
                   />
                 </div>
-                {errors.amount
-                  ? <p className="text-xs text-red-500">{errors.amount.message}</p>
-                  : <p className="text-xs text-gray-400">Enter the exact amount.</p>
-                }
+                {errors.amount ? <p className="text-xs text-red-500">{errors.amount.message}</p> : <p className="text-xs text-gray-400">Enter the exact amount.</p>}
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-rayo-green">
-                  Date <span className="text-red-500">*</span>
-                </label>
-                <input
-                  {...register("date")}
-                  type="date"
-                  className={cn(
-                    "w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-700 outline-none transition",
-                    "focus:border-gray-400 focus:ring-2 focus:ring-gray-200",
-                    errors.date ? "border-red-300" : "border-gray-200"
-                  )}
+                <label className="text-xs font-medium text-rayo-green">Date <span className="text-red-500">*</span></label>
+                <input {...register("date")} type="date"
+                  className={cn("w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-700 outline-none transition focus:border-gray-400 focus:ring-2 focus:ring-gray-200", errors.date ? "border-red-300" : "border-gray-200")}
                 />
                 {errors.date && <p className="text-xs text-red-500">{errors.date.message}</p>}
               </div>
             </div>
 
-            {/* Description */}
+            {/* Description — unchanged */}
             <div className="mb-5 flex flex-col gap-1.5">
-              <label className="text-xs font-medium text-rayo-green">
-                What was this for? <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                {...register("description")}
-                onBlur={handleDescriptionBlur}
-                rows={3}
-                maxLength={150}
+              <label className="text-xs font-medium text-rayo-green">What was this for? <span className="text-red-500">*</span></label>
+              <textarea {...register("description")} rows={3} maxLength={150}
                 placeholder="E.g., Lunch at Chicken Republic, Rent payment, Data bundle"
-                className={cn(
-                  "w-full resize-none rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-300",
-                  "focus:border-gray-400 focus:ring-2 focus:ring-gray-200",
-                  errors.description ? "border-red-300 focus:ring-red-100" : "border-gray-200"
-                )}
+                className={cn("w-full resize-none rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-200", errors.description ? "border-red-300" : "border-gray-200")}
               />
               <div className="flex items-center justify-between">
                 <p className="text-xs text-gray-400">Help your future self remember why you spent this.</p>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-400">{(description ?? "").length} / 150</span>
-                  {errors.description && (
-                    <span className="rounded-md border border-red-200 bg-red-50 px-2 py-0.5 text-xs text-red-600">Required</span>
-                  )}
-                </div>
+                <span className="text-xs text-gray-400">{(description ?? "").length} / 150</span>
               </div>
             </div>
 
-            {/* Merchant + Transaction type */}
+            {/* Merchant + Bill type — unchanged */}
             <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-rayo-green">
-                  Who was involved? (Merchant / Recipient)
-                </label>
-                <input
-                  {...register("merchant")}
-                  type="text"
-                  placeholder="E.g., Chicken Republic, MTN, Tobi"
+                <label className="text-xs font-medium text-rayo-green">Who was involved? (Merchant / Recipient)</label>
+                <input {...register("merchant")} type="text" placeholder="E.g., Chicken Republic, MTN, Tobi"
                   className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-200"
                 />
-                <p className="text-xs text-gray-400">The person or business you paid.</p>
               </div>
-
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-rayo-green">
-                  Transaction Type <span className="font-normal text-gray-400">(Optional)</span>
-                </label>
-                <select
-                  {...register("billType")}
-                  className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-700 outline-none transition focus:border-gray-400 focus:ring-2 focus:ring-gray-200"
-                >
+                <label className="text-xs font-medium text-rayo-green">Transaction Type <span className="font-normal text-gray-400">(Optional)</span></label>
+                <select {...register("billType")} className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-700 outline-none transition focus:border-gray-400 focus:ring-2 focus:ring-gray-200">
                   <option value="">Select type</option>
-                  {PAYMENT_METHODS.map((m) => (
-                    <option key={m.value} value={m.value}>{m.label}</option>
-                  ))}
+                  {PAYMENT_METHODS.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
                 </select>
-                <p className="text-xs text-gray-400">Helps us understand this transaction better.</p>
               </div>
             </div>
 
-            {/* AI Category — shows slug label but submits budget-aligned name */}
+            {/* ── Category picker ── */}
             <div className="mb-5 flex flex-col gap-1.5">
               <label className="flex items-center gap-1.5 text-xs font-medium text-rayo-green">
                 <Sparkles className="h-4 w-4 text-rayo-sage-dark" />
-                AI Category <span className="font-normal text-gray-400">(Suggested)</span>
+                Category <span className="font-normal text-gray-400">*</span>
               </label>
-              <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-rayo-beige-dark px-4 py-2.5">
-                <div className="flex items-center gap-2 text-sm font-medium text-rayo-green">
-                  <span className="text-lg">{suggestion.meta.emoji}</span>
-                  {suggestion.meta.label}
-                  {/* Show the budget category it will map to */}
-                  <span className="ml-1 text-xs font-normal text-rayo-green/40">
-                    → {toBudgetCategory(suggestion.meta.value)} budget
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className={cn(
-                    "rounded-full px-2.5 py-0.5 text-xs font-medium",
-                    suggestion.confidence === "High"   && "border border-green-200 bg-green-50 text-green-700",
-                    suggestion.confidence === "Medium" && "border border-yellow-200 bg-yellow-50 text-yellow-700",
-                    suggestion.confidence === "Low"    && "border border-gray-200 bg-gray-100 text-gray-500"
-                  )}>
-                    {suggestion.confidence} confidence
-                  </span>
-                  <select {...register("category")} className="hidden">
-                    {CATEGORIES.map((c) => (
-                      <option key={c.value} value={c.value}>{c.label}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <p className="text-xs text-gray-400">
-                We'll learn from your choices and get better over time.
-              </p>
+
+              {categoriesLoading ? (
+                <div className="h-10 rounded-lg bg-gray-100 animate-pulse" />
+              ) : (
+                <CategoryPicker
+                  categories={categories}
+                  value={selectedCategory}
+                  onChange={setSelectedCategory}
+                />
+              )}
+
+              {categoryError && <p className="text-xs text-red-500">{categoryError}</p>}
+
+              {selectedCategory?.type === "custom" && (
+                <p className="text-xs text-rayo-green/60">
+                  "{selectedCategory.name}" will be saved as a custom category under "Other" and available next time.
+                </p>
+              )}
+              {!selectedCategory && suggestedCategory && (
+                <p className="text-xs text-gray-400">
+                  AI suggests <span className="font-medium">{suggestedCategory.name}</span> — select it above or pick another.
+                </p>
+              )}
             </div>
 
-            {/* Institution */}
+            {/* Institution — unchanged */}
             <div className="mb-5 flex flex-col gap-1.5">
-              <label className="flex items-center gap-1.5 text-xs font-medium text-rayo-green">
-                🏦 Institution <span className="font-normal text-gray-400">(Optional)</span>
-              </label>
-              <select
-                {...register("institution")}
-                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-rayo-grey outline-none transition focus:border-gray-400 focus:ring-2 focus:ring-gray-200"
-              >
+              <label className="flex items-center gap-1.5 text-xs font-medium text-rayo-green">🏦 Institution <span className="font-normal text-gray-400">(Optional)</span></label>
+              <select {...register("institution")} className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-rayo-grey outline-none transition focus:border-gray-400 focus:ring-2 focus:ring-gray-200">
                 <option value="">Select bank / institution</option>
                 {BANKS.map((b) => <option key={b} value={b}>{b}</option>)}
               </select>
-              <p className="text-xs text-gray-400">Where the transaction was made.</p>
             </div>
 
-            {/* Server error */}
             {serverError && (
-              <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                {serverError}
-              </div>
+              <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{serverError}</div>
             )}
 
-            {/* Actions */}
             <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => router.back()}
-                disabled={isSubmitting}
-                className="flex-1 rounded-xl border border-gray-200 bg-white py-2.5 text-sm font-medium text-gray-700 transition hover:bg-rayo-grey/20 active:scale-[0.99] disabled:opacity-50"
-              >
+              <button type="button" onClick={() => router.back()} disabled={isSubmitting}
+                className="flex-1 rounded-xl border border-gray-200 bg-white py-2.5 text-sm font-medium text-gray-700 transition hover:bg-rayo-grey/20 active:scale-[0.99] disabled:opacity-50">
                 Cancel
               </button>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex flex-[2] items-center justify-center gap-2 rounded-xl bg-rayo-green py-2.5 text-sm font-medium text-white transition hover:bg-rayo-green-dark active:scale-[0.99] disabled:opacity-60"
-              >
+              <button type="submit" disabled={isSubmitting}
+                className="flex flex-[2] items-center justify-center gap-2 rounded-xl bg-rayo-green py-2.5 text-sm font-medium text-white transition hover:bg-rayo-green-dark active:scale-[0.99] disabled:opacity-60">
                 {isSubmitting ? (
-                  <>
-                    <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
-                    Saving...
-                  </>
+                  <><svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>Saving...</>
                 ) : (
-                  <>
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                    Save Transaction
-                  </>
+                  <><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>Save Transaction</>
                 )}
               </button>
             </div>
           </div>
 
-          {/* ── Right column: AI panel ─────────────────────────────────── */}
           <div className="order-2">
-            <AIInsightPanel values={watched} />
+            <AIInsightPanel
+              values={watched}
+              selectedCategoryLabel={
+                selectedCategory?.type === "existing"
+                  ? selectedCategory.category.name
+                  : selectedCategory?.type === "custom"
+                    ? selectedCategory.name
+                    : null
+              }
+              selectedCategoryEmoji={
+                selectedCategory?.type === "existing"
+                  ? selectedCategory.category.emoji ?? null
+                  : selectedCategory?.type === "custom"
+                    ? "✏️"
+                    : null
+              }
+            />
           </div>
         </form>
       </div>

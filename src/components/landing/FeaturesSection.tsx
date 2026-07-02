@@ -5,32 +5,32 @@ const FEATURES = [
     icon: Bot,
     title: "AI Financial Copilot",
     description:
-      "Your 24/7 money mentor. Ask questions like 'Can I afford dinner tonight?' and get instant, data-backed advice tailored to your balance.",
+      "Chat with Rayo about your money. Ask questions about your spending, savings, budgets, and financial habits, and receive personalized guidance based on your own financial data.",
     cta: "See how it works",
     href: "#how-it-works",
   },
   {
     icon: BarChart3,
-    title: "Budgeting Automation",
+    title: "Smart Expense Tracking",
     description:
-      "Stop tracking spreadsheets. We categorize your spending automatically and alert you before you overspend on coffee or subscriptions.",
-    cta: "View auto-categories",
+      "Track every transaction in one place. Organize your spending into categories and understand exactly where your money goes each month.",
+    cta: "Explore tracking",
     href: "#features",
   },
   {
     icon: RefreshCw,
-    title: "Savings Automation",
+    title: "Savings Goals",
     description:
-      "Hit your goals on autopilot. Smart transfers analyze your cash flow and stash away spare change without you feeling the pinch.",
-    cta: "Start saving smart",
+      "Create savings goals, monitor your progress, and stay motivated with clear milestones designed to help you reach your financial targets.",
+    cta: "Start saving",
     href: "#features",
   },
   {
     icon: TrendingUp,
-    title: "Investment Tracking",
+    title: "Personalized Financial Insights",
     description:
-      "Stay on top of your investments. Connect your accounts and track portfolio performance across all platforms in one dashboard.",
-    cta: "View portfolio",
+      "Discover spending patterns, budgeting opportunities, and practical recommendations that help you make smarter financial decisions every day.",
+    cta: "View insights",
     href: "#features",
   },
 ];

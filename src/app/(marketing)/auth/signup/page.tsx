@@ -126,15 +126,18 @@ export default function SignUpPage() {
     const token      = searchParams.get("token");
     const oauthError = searchParams.get("error");
     const isNewUser  = searchParams.get("isNewUser");
+    const redirect   = searchParams.get("redirect");
 
     if (token) {
       localStorage.setItem("authToken", token);
       document.cookie = `authToken=${token}; path=/; max-age=${60 * 60 * 24 * 7}`; // 1 year
 
-      if (isNewUser === "true") {
+      if (redirect) {
+        router.replace(redirect);
+      } else if (isNewUser === "true") {
         router.replace("/product/onboarding/welcome");
       } else {
-        router.replace("/product/dashboard"); // returning user — skip onboarding
+        router.replace("/product/onboarding/welcome");
       }
     }
 
@@ -151,7 +154,7 @@ export default function SignUpPage() {
     setGoogleLoading(true);
 
     const origin = typeof window !== "undefined" ? window.location.origin : "";
-    const onboardUrl = `${origin}/product/onboarding/welcome`;
+    const onboardUrl = `${origin}/auth/signup?redirect=${encodeURIComponent("/product/onboarding/welcome")}`;
     const signupUrl  = `${origin}/auth/signup`;
 
     signInWithGoogle(onboardUrl, signupUrl);

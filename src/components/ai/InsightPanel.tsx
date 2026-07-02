@@ -9,6 +9,8 @@ import { cn } from "@/lib/utils";
 
 interface AIInsightPanelProps {
   values: Partial<AddTransactionFormValues>;
+  selectedCategoryLabel?: string | null;
+  selectedCategoryEmoji?: string | null;
 }
 
 const CONFIDENCE_STYLES = {
@@ -23,10 +25,33 @@ type Message = {
   content: string;
 };
 
-export function AIInsightPanel({ values }: AIInsightPanelProps) {
+export function AIInsightPanel({
+  values,
+  selectedCategoryLabel,
+  selectedCategoryEmoji,
+}: AIInsightPanelProps) {
   const suggestion = useMemo(
     () => detectCategory(values.description ?? "", values.merchant ?? ""),
     [values.description, values.merchant]
+  );
+
+  const displayedCategory = useMemo(
+    () =>
+      selectedCategoryLabel
+        ? {
+            label: selectedCategoryLabel,
+            emoji: selectedCategoryEmoji ?? suggestion.meta.emoji,
+          }
+        : {
+            label: suggestion.meta.label,
+            emoji: suggestion.meta.emoji,
+          },
+    [
+      selectedCategoryLabel,
+      selectedCategoryEmoji,
+      suggestion.meta.label,
+      suggestion.meta.emoji,
+    ]
   );
 
   const [messages, setMessages] = useState<Message[]>([]);
@@ -56,7 +81,7 @@ export function AIInsightPanel({ values }: AIInsightPanelProps) {
         {
           id: "insight",
           type: "insight",
-          content: `This looks like a ${suggestion.meta.label.toLowerCase()} transaction.`,
+          content: `This looks like a ${displayedCategory.label.toLowerCase()} transaction.`,
         },
         {
           id: "summary",
@@ -79,7 +104,7 @@ export function AIInsightPanel({ values }: AIInsightPanelProps) {
     }, 600);
 
     return () => clearTimeout(t);
-  }, [values.description, values.merchant, suggestion]);
+  }, [values.description, values.merchant, suggestion, displayedCategory]);
 
   const displayAmount = values.amount
     ? `₦${parseFloat(values.amount.replace(/,/g, "") || "0").toLocaleString(
@@ -183,8 +208,8 @@ export function AIInsightPanel({ values }: AIInsightPanelProps) {
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs text-gray-500">Category</span>
             <span className="inline-flex items-center gap-1 rounded-full bg-rayo-beige-light px-2.5 py-1 text-xs font-medium text-rayo-green">
-              <span>{suggestion.meta.emoji}</span>
-              {suggestion.meta.label}
+              <span>{displayedCategory.emoji}</span>
+              {displayedCategory.label}
             </span>
           </div>
 

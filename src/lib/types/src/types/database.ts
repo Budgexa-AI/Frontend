@@ -9,10 +9,12 @@ export interface Account {
 
 export interface Transaction {
   id: number;
-  userId: number;
+  userId: string;
   type: "income" | "expense";
   amount: number;
-  category: string;
+  categoryId: number;
+  categoryName: string;   // resolved by api-client via /categories lookup
+  parentSlug?: string;
   description: string;
   merchant?: string;
   bill_type?: string;
@@ -25,12 +27,14 @@ export interface SavingsGoal {
   id: number;
   userId: number;
   name: string;
-  targetAmount: string;
-  currentAmount: string;
+  categoryId: number;
+  goalType: "PERSONAL" | "GROUP" | "AJO";
+  targetAmount: number;
+  currentAmount: number;
   deadline: string;
+  percentComplete: number;
 }
 
-// types/src/index.ts
 export interface AiInsight {
   id: string;
   type: "alert" | "positive" | "suggestion" | "warning" | "observation";
@@ -44,7 +48,6 @@ export interface Attachment {
   url?: string;
 }
 
-// Single message type used everywhere — replaces both Message and AiMessage
 export interface Message {
   id: string;
   role: "user" | "assistant";
@@ -53,7 +56,6 @@ export interface Message {
   attachment?: Attachment;
 }
 
-// Alias so existing imports of AiMessage don't break immediately
 export type AiMessage = Message;
 
 export interface Conversation {
@@ -61,13 +63,11 @@ export interface Conversation {
   title: string;
   question: Message[];
   createdAt: string;
-  // optional fields from the old Conversation type
   preview?: string;
   updatedAt?: string;
   category?: "budget" | "savings" | "spending" | "goals" | "debt" | "general";
 }
 
-// Alias so existing imports of AiConversation don't break
 export type AiConversation = Conversation;
 
 export interface ChatResponse {
@@ -85,20 +85,34 @@ export interface UserProfile {
   onboardingComplete: boolean;
 }
 
+export interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  parentSlug: string;
+  emoji?: string;
+  isSystem: boolean;
+}
+
 export interface BudgetCategory {
   id: number;
   userId: number;
-  category: string;
+  categoryId: number;
+  category?: string;
+  categoryName?: string;   // resolved client-side via /categories lookup
+  categoryEmoji?: string;
   monthlyLimit: number;
   totalSpent: number;
   remaining: number;
   percentUsed: number;
   rollover: boolean;
+  balance?: number;
 }
 
 export interface TransactionFilters {
   type?: "income" | "expense";
-  category?: string;
+  categoryId?: number;
+  parentSlug?: string;
   startDate?: string;
   endDate?: string;
   page?: number;
@@ -121,37 +135,48 @@ export interface DashboardState {
   monthlySavings: number;
   budgetMonthlyLimit: number;
   budgetPercentUsed: number;
-  budgets: Array<{
-    id: number;
-    category: string;
-    monthlyLimit: number;
-    totalSpent: number;
-    remaining: number;
-    percentUsed: number;
-    rollover: boolean;
-  }>;
+  budgets: BudgetCategory[];
   spendingByCategory: Array<{
-    category: string;
+    categoryId: number;
+    parentSlug: string;
     amount: number;
     percentage: number;
   }>;
-  recentTransactions: Array<{
-    id: number | string;
-    type: "income" | "expense";
-    amount: number;
-    category: string;
-    description: string;
-    date: string;
-    createdAt: string;
-  }>;
+  recentTransactions: Transaction[];
   savingsRate: number;
-  savingsGoals: Array<{
-    id: number;
-    name: string;
-    targetAmount: number;
-    currentAmount: number;
-    deadline: string;
-    percentComplete: number;
-  }>;
-  insights?: AiInsight[]; // Kept optional for the AI Hero section
+  savingsGoals: SavingsGoal[];
+  insights?: AiInsight[];
+}
+
+export interface SavingsGoalRow {
+  id: number;
+  userId: number;
+  name: string;
+  categoryId: number;                        // ← add
+  goalType: "PERSONAL" | "GROUP" | "AJO";   // ← add
+  targetAmount: number;
+  currentAmount: number;
+  deadline: string;
+  percentComplete: number;
+}
+
+export interface CreateSavingsGoalPayload {
+  name: string;
+  targetAmount: number;
+  currentAmount?: number;
+  deadline: string;
+  // one of these two patterns:
+  categoryId?: number;          // if user picked an existing category
+  categoryName?: string;        // if user typed a custom name
+  parentSlug?: string;          // required when categoryName is provided
+  goalType?: "PERSONAL" | "GROUP" | "AJO";
+}
+
+export interface UpdateSavingsGoalPayload {
+  name?: string;
+  categoryId?: number;
+  goalType?: "PERSONAL" | "GROUP" | "AJO";
+  targetAmount?: number;
+  currentAmount?: number;
+  deadline?: string;
 }

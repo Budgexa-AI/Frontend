@@ -1,7 +1,7 @@
 // lib/data-service.ts
 import { getDashboardData, getCurrentUser, getAiInsights, askAi } from "@/lib/api-client";
 import { mockDashboardData, mockUser, mockAiConversations } from "@/lib/mock-data";
-import { AiConversation, AiMessage, TransactionFilters, TransactionListResponse } from "./types/src";
+import { AiConversation, AiMessage, Category, TransactionFilters, TransactionListResponse } from "./types/src";
 import {
   listTransactions,
   createTransaction,
@@ -9,7 +9,17 @@ import {
   deleteTransaction,
   deleteMultipleTransactions,
 } from "@/lib/api-client";
-import { mockTransactions, mockCategorySpending } from "@/lib/mock-data";
+import { mockTransactions, mockCategorySpending, MOCK_SAVINGS_GOALS } from "@/lib/mock-data";
+import {
+  fetchSavingsGoals as apiFetchSavingsGoals,
+  createSavingsGoal as apiCreateSavingsGoal,
+  updateSavingsGoal as apiUpdateSavingsGoal,
+  deleteSavingsGoal as apiDeleteSavingsGoal,
+  fetchCategories as apiFetchCategories,
+  type SavingsGoalRow,
+  type CreateSavingsGoalPayload,
+  type UpdateSavingsGoalPayload,
+} from "@/lib/api-client";
 
 const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
 
@@ -62,3 +72,33 @@ export async function fetchTransactions(
 }
 
 export { createTransaction, updateTransaction, deleteTransaction, deleteMultipleTransactions };
+
+// Savings Goals
+export async function fetchSavingsGoals(): Promise<SavingsGoalRow[]> {
+  if (USE_MOCK) {
+    await new Promise((r) => setTimeout(r, 400));
+    return MOCK_SAVINGS_GOALS;
+  }
+  return apiFetchSavingsGoals();
+}
+
+export async function createSavingsGoal(
+  payload: CreateSavingsGoalPayload
+): Promise<SavingsGoalRow> {
+  return apiCreateSavingsGoal(payload);
+}
+
+export async function updateSavingsGoal(
+  id: number,
+  payload: UpdateSavingsGoalPayload
+): Promise<SavingsGoalRow> {
+  return apiUpdateSavingsGoal(id, payload);
+}
+
+export async function deleteSavingsGoal(id: number): Promise<void> {
+  return apiDeleteSavingsGoal(id);
+}
+
+export async function fetchCategories(): Promise<Category[]> {
+  return apiFetchCategories();
+}

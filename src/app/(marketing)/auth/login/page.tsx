@@ -40,6 +40,7 @@ export default function LoginPage() {
     const token      = searchParams.get("token");
     const oauthError = searchParams.get("error");
     const isNewUser  = searchParams.get("isNewUser");
+    const redirect   = searchParams.get("redirect");
 
     if (token) {
       localStorage.setItem("authToken", token);
@@ -48,7 +49,9 @@ export default function LoginPage() {
       // for the very next navigation to /product/dashboard to pass auth check
       document.cookie = `authToken=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
 
-      if (isNewUser === "true") {
+      if (redirect) {
+        router.replace(redirect);
+      } else if (isNewUser === "true") {
         router.replace("/product/onboarding/welcome");
       } else {
         router.replace("/product/dashboard");
@@ -68,7 +71,7 @@ export default function LoginPage() {
   function handleGoogleLogin() {
   setGoogleLoading(true);
     const origin = typeof window !== "undefined" ? window.location.origin : "";
-    const dashboardUrl = `${origin}/product/dashboard`;
+    const dashboardUrl = `${origin}/auth/login?redirect=${encodeURIComponent("/product/dashboard")}`;
     const loginUrl     = `${origin}/auth/login`;
     signInWithGoogle(dashboardUrl, loginUrl);  
   }

@@ -6,16 +6,15 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { fetchTransactions, deleteTransaction } from "@/lib/data-service";
-import type { AiInsight, Transaction } from "@/lib/types/src";
+import { fetchTransactions, deleteTransaction, fetchCategories } from "@/lib/data-service";
+import type { AiInsight, Category, Transaction } from "@/lib/types/src";
 import { getAiInsights } from "@/lib/api-client/src/index";
 
 const fmt = (n: number) =>
   `${n < 0 ? "-" : ""}₦${Math.abs(n).toLocaleString("en-NG")}`;
 
-// ─────────────────────────────────────────────────────────────
 // Delete Confirm Modal
-// ─────────────────────────────────────────────────────────────
+
 function DeleteModal({
   label,
   onCancel,
@@ -54,12 +53,12 @@ function DeleteModal({
   );
 }
 
-// ─────────────────────────────────────────────────────────────
 // Page
-// ─────────────────────────────────────────────────────────────
+
 export default function TransactionsPage() {
   const [activeTab, setActiveTab]   = useState<"all" | "recurring">("all");
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [total, setTotal]           = useState(0);
   const [page, setPage]             = useState(1);
   const [loading, setLoading]       = useState(true);
@@ -68,9 +67,23 @@ export default function TransactionsPage() {
   const [typeFilter, setTypeFilter] = useState<"" | "income" | "expense">("");
   const limit = 10;
 
-  // Delete state
   const [deleteTarget, setDeleteTarget] = useState<Transaction | null>(null);
   const [deleting, setDeleting]         = useState(false);
+
+  // Fetch categories once
+  useEffect(() => {
+    fetchCategories().then(setCategories).catch(() => setCategories([]));
+  }, []);
+
+  const categoryNameById = useMemo(() => {
+    const map = new Map<number, string>();
+    categories.forEach((c) => map.set(c.id, c.name));
+    return map;
+  }, [categories]);
+
+  function categoryName(categoryId: number): string {
+    return categoryNameById.get(categoryId) ?? "Uncategorized";
+  }
 
   useEffect(() => {
     async function load() {
@@ -117,9 +130,9 @@ export default function TransactionsPage() {
     return transactions.filter(
       (t) =>
         t.description.toLowerCase().includes(q) ||
-        t.category.toLowerCase().includes(q)
+        categoryName(t.categoryId).toLowerCase().includes(q)
     );
-  }, [transactions, search]);
+  }, [transactions, search, categoryNameById]);
 
   const totalIncome   = transactions.filter((t) => t.type === "income").reduce((s, t) => s + Number(t.amount), 0);
   const totalExpenses = transactions.filter((t) => t.type === "expense").reduce((s, t) => s + Number(t.amount), 0);
@@ -141,7 +154,6 @@ export default function TransactionsPage() {
 
   return (
     <div className="min-h-screen">
-      {/* ── Delete Modal (rendered at root so it's never clipped) ── */}
       {deleteTarget && (
         <DeleteModal
           label={deleteTarget.description}
@@ -269,7 +281,7 @@ export default function TransactionsPage() {
             <div className="hidden xl:block overflow-x-auto">
               <div className="grid grid-cols-[130px_2fr_1.2fr_110px_130px_100px] px-5 py-3 bg-rayo-muted border-b border-rayo-ash">
                 {["DATE", "DESCRIPTION", "CATEGORY", "TYPE", "AMOUNT", "ACTIONS"].map((h) => (
-                  <span key={h} className="text-[10px] font-semibold tracking-wider text-rayo-green/35">{h}</span>
+                  <span key={h} className="text-xs font-semibold tracking-wider text-rayo-green/35">{h}</span>
                 ))}
               </div>
 
@@ -284,18 +296,13 @@ export default function TransactionsPage() {
               ) : (
                 <div className="divide-y divide-rayo-ash">
                   {filtered.map((t) => (
-                    <div
-                      key={t.id}
-                      className="grid grid-cols-[130px_2fr_1.2fr_110px_130px_100px] items-center px-5 py-4 hover:bg-rayo-muted/40 transition-colors group"
-                    >
+                    <div key={t.id} className="grid grid-cols-[130px_2fr_1.2fr_110px_130px_100px] items-center px-5 py-4 hover:bg-rayo-muted/40 transition-colors group">
                       <p className="text-sm font-medium text-rayo-green">
                         {new Date(t.date).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}
                       </p>
-
                       <p className="text-sm font-semibold text-rayo-green truncate pr-4">{t.description}</p>
-
                       <span className="inline-flex items-center gap-1.5 rounded-lg bg-rayo-muted px-2.5 py-1 text-xs font-medium text-rayo-green w-fit">
-                        {t.category}
+                        {categoryName(t.categoryId)}
                       </span>
 
                       <span className={cn(
@@ -346,7 +353,7 @@ export default function TransactionsPage() {
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="text-sm font-semibold text-rayo-green truncate">{t.description}</p>
-                        <p className="text-xs text-rayo-green/40 mt-1">{t.category}</p>
+                        <p className="text-xs text-rayo-green/40 mt-1">{t.categoryId}</p>
                         <p className="text-xs text-rayo-green/45 mt-1">
                           {new Date(t.date).toLocaleDateString("en-NG")}
                         </p>
