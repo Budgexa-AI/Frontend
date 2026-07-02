@@ -296,6 +296,7 @@ export const BANKS = [
 export const CATEGORIES: BudgetCategory[] = [
   {
     id: 1,
+    categoryId: 1,
     userId: 5,
     category: "Food",
     monthlyLimit: 90000,

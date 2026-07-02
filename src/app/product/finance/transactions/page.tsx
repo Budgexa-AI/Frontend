@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Plus, Search, TrendingUp, ChevronLeft, ChevronRight, Trash2, Pencil,
 } from "lucide-react";
@@ -81,9 +81,12 @@ export default function TransactionsPage() {
     return map;
   }, [categories]);
 
-  function categoryName(categoryId: number): string {
-    return categoryNameById.get(categoryId) ?? "Uncategorized";
-  }
+  const categoryName = useCallback(
+    (categoryId: number): string => {
+      return categoryNameById.get(categoryId) ?? "Uncategorized";
+    },
+    [categoryNameById]
+  );
 
   useEffect(() => {
     async function load() {
@@ -132,7 +135,7 @@ export default function TransactionsPage() {
         t.description.toLowerCase().includes(q) ||
         categoryName(t.categoryId).toLowerCase().includes(q)
     );
-  }, [transactions, search, categoryNameById]);
+  }, [transactions, search, categoryName]);
 
   const totalIncome   = transactions.filter((t) => t.type === "income").reduce((s, t) => s + Number(t.amount), 0);
   const totalExpenses = transactions.filter((t) => t.type === "expense").reduce((s, t) => s + Number(t.amount), 0);
