@@ -213,7 +213,7 @@ export default function FinancialSetupPage() {
                   "Business",
                   "Freelance",
                   "Multiple Sources",
-                  "other"
+                  "Other"
                 ].map((item) => {
                   const active = selectedIncome === item;
 
@@ -234,7 +234,7 @@ export default function FinancialSetupPage() {
                   );
                 })}
 
-                {selectedIncome === "other" && (
+                {selectedIncome === "Other" && (
                   <div className="sm:col-span-2">
                     <label className="mb-2 block text-sm font-medium text-rayo-green/70">
                       Write your income source

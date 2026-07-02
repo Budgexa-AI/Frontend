@@ -191,11 +191,11 @@ export default function DashboardPage() {
 
   const budgets = useMemo(() => 
     data.budgets.map((b) => ({
-      label: b.category,
+      label: b.categoryName,
       amount: b.totalSpent,
       remaining: b.remaining,
       pct: b.percentUsed,
-      color: getCategoryColor(b.category ?? "Other")
+      color: getCategoryColor(b.categoryName ?? "Other")
     })), [data.budgets]);
 
   const goals = useMemo(() => 
