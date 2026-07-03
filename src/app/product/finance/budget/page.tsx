@@ -430,7 +430,7 @@ export default function BudgetPage() {
                                 {emoji}
                               </div>
                               <div>
-                                <p className="font-medium text-rayo-green">{label}</p>
+                                <p className="font-medium text-rayo-green">{b.name}</p>
                                 {b.rollover && <p className="text-[11px] text-rayo-green/40">Rollover enabled</p>}
                               </div>
                             </div>
@@ -470,7 +470,7 @@ export default function BudgetPage() {
                                   {emoji}
                                 </div>
                                 <div>
-                                  <p className="font-medium text-rayo-green">{label}</p>
+                                  <p className="font-medium text-rayo-green">{b.name}</p>
                                   {b.rollover && <p className="text-[11px] text-rayo-green/40">Rollover enabled</p>}
                                 </div>
                               </div>
@@ -527,7 +527,7 @@ export default function BudgetPage() {
                   budgets.map((b, i) => (
                     <div key={b.id} className="space-y-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-rayo-green/70">{getBudgetCategoryLabel(b)}</span>
+                        <span className="text-xs text-rayo-green/70">{b.name}</span>
                         <span className="text-xs text-rayo-green/50">{Math.round(b.percentUsed)}%</span>
                       </div>
                       <ProgressBar value={b.percentUsed} color={getCategoryColor(i)} />

@@ -46,7 +46,6 @@ export const addTransactionSchema = z.object({
   description: z.string().min(1, "Description is required"),
   merchant: z.string().optional(),
   direction: z.enum(["Income", "Expense"]),
-  category: z.string().min(1, "Category is required"),
   institution: z.string().optional(),
   billType: z.string().optional(),
 });
@@ -55,6 +54,7 @@ export type AddTransactionFormValues = z.infer<typeof addTransactionSchema>;
 
 const BudgetRowSchema = z.object({
   id:           z.number(),
+  name:         z.string(),
   category:     z.string(),
   monthlyLimit: z.number(),
   spent:        z.number(),
