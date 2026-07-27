@@ -107,7 +107,7 @@ function createHeaders(extraHeaders?: HeadersInit, serverToken?: string | null):
   };
 }
 
-async function apiFetch(
+export async function apiFetch(
   path: string,
   init: RequestInit = {},
   serverToken?: string | null
@@ -910,33 +910,17 @@ export async function deleteMultipleTransactions(ids: number[]): Promise<void> {
 }
 
 // Budget API
-export async function fetchBudgets(): Promise<BudgetCategory[]> {
-  const [budgetRes, catRes] = await Promise.all([
-    apiFetch("/budget"),
-    apiFetch("/categories"),
-  ]);
-
-  if (!budgetRes.ok) throw new Error("Failed to fetch budgets");
-
-  const data = await budgetRes.json();
-  const rows: any[] = Array.isArray(data) ? data : (data.data ?? []);
-
-  // Build id → category lookup
-  const categoryMap = new Map<number, Category>();
-  if (catRes.ok) {
-    const catJson = await readJsonResponse<any>(catRes);
-    const cats: any[] = Array.isArray(catJson) ? catJson : (catJson.data ?? []);
-    cats.forEach((c: any) => categoryMap.set(c.id, c));
+export async function fetchBudgetMethod(): Promise<string | null> {
+  try {
+    const user = await getCurrentUser();
+    return (user as any).budgetMethod ?? null;
+  } catch {
+    return null;
   }
+}
 
-  return rows.map((b: any) => {
-    const cat = categoryMap.get(b.categoryId);
-    return {
-      ...b,
-      categoryName:  b.category ?? cat?.name ?? "Unknown",
-      categoryEmoji: cat?.emoji ?? "📦",
-    };
-  });
+export async function updateBudgetMethod(method: string): Promise<UserProfile> {
+  return updateProfile({ budgetMethod: method } as any);
 }
 
 export async function createBudget(payload: {
@@ -1068,6 +1052,56 @@ export async function fetchCategories(): Promise<Category[]> {
   const json = await readJsonResponse<any>(res);
   return Array.isArray(json) ? json : (json.data ?? []);
 }
+
+// Profile update API
+export async function updateProfile(payload: {
+  name?: string;
+  email?: string;
+  budgetMethod?: string; // ← add
+}): Promise<UserProfile> {
+  const res = await apiFetch("/auth/me", { method: "PATCH", body: JSON.stringify(payload) });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(extractErrorMessage(body, "Failed to update profile"));
+  }
+  return normalizeProfile(await readJsonResponse<any>(res));
+}
+
+// Notifications API
+
+export interface NotificationPreferences {
+  budgetAlerts: boolean;
+  weeklyReport: boolean;
+  savingsReminder: boolean;
+  aiInsights: boolean;
+  securityAlerts: boolean;
+}
+
+export async function fetchNotificationPreferences(): Promise<NotificationPreferences | null> {
+  const res = await apiFetch("/notifications");
+  if (!res.ok) return null;
+  const json = await readJsonResponse<any>(res);
+  return json.data ?? json;
+}
+
+export async function updateNotificationPreferences(
+  prefs: Partial<NotificationPreferences>
+): Promise<NotificationPreferences> {
+  const res = await apiFetch("/notifications", { method: "PATCH", body: JSON.stringify(prefs) });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(extractErrorMessage(body, "Failed to update notification preferences"));
+  }
+  const json = await readJsonResponse<any>(res);
+  return json.data ?? json;
+}
+
+// ── TODO: not yet backed by an endpoint ────────────────────────
+// Wire these up once the corresponding backend routes ship:
+//   - changePassword(current, next)       → needs an authenticated
+//     "change password" route (distinct from the email-token reset flow)
+//   - toggleTwoFactor(enabled)            → no 2FA route exists yet
+//   - updateNotificationPrefs(prefs)      → no notifications route exists yet
 
 // Error Handling Helper
 

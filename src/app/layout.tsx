@@ -18,7 +18,7 @@ export function generateMetadata(): Metadata {
       description,
       type: "website",
       locale: "en_NG",
-      url: "https://rayofinance.com", // Replace with your actual production URL
+      url: "https://rayo-prototype-frontend.vercel.app", // Replace with your actual production URL
     },
     themeColor: "#254F22",
     icons: {

@@ -191,7 +191,7 @@ export default function DashboardPage() {
 
   const budgets = useMemo(() => 
     data.budgets.map((b) => ({
-      label: b.categoryName,
+      label: b.name,
       amount: b.totalSpent,
       remaining: b.remaining,
       pct: b.percentUsed,

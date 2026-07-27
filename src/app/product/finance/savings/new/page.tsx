@@ -190,7 +190,7 @@ export default function CreateSavingsGoalPage() {
       await createSavingsGoal({
         name:        goalName,
         targetAmount: targetAmount,
-        deadline:    targetDate,           // already "YYYY-MM-DD"
+        deadline:    targetDate,           
         ...(selectedCategoryId
           ? { categoryId: selectedCategoryId }
           : {

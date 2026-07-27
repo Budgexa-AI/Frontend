@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Bell,
   BriefcaseBusiness,
   Check,
-  ChevronRight,
+  Clock,
   Eye,
   EyeOff,
+  Loader2,
   LogOut,
   PenLine,
   PiggyBank,
@@ -16,14 +17,12 @@ import {
   Target,
   User,
   Wallet,
-  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { fetchBudgetMethod, getCurrentUser, updateBudget, updateBudgetMethod, updateProfile, UserProfile } from "@/lib/api-client/src";
+import { enablePushNotifications } from "@/lib/push-notification";
 
-// ─────────────────────────────────────────────────────────────
 // TYPES
-// ─────────────────────────────────────────────────────────────
 
 type Section = "profile" | "security" | "notifications" | "budget";
 
@@ -55,10 +54,6 @@ const budgetMethods = [
   },
 ];
 
-// ─────────────────────────────────────────────────────────────
-// NAV ITEMS
-// ─────────────────────────────────────────────────────────────
-
 const navItems: { id: Section; label: string }[] = [
   { id: "profile",       label: "Profile"       },
   { id: "security",      label: "Security"      },
@@ -66,22 +61,39 @@ const navItems: { id: Section; label: string }[] = [
   { id: "budget",        label: "Budget Method" },
 ];
 
-// ─────────────────────────────────────────────────────────────
+// Small reusable "not available yet" badge for stubbed sections
+function ComingSoonBadge() {
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-rayo-orange/10 px-2.5 py-1 text-[11px] font-semibold text-rayo-orange">
+      <Clock size={11} />
+      Coming soon
+    </span>
+  );
+}
+
 // SETTINGS PAGE
-// ─────────────────────────────────────────────────────────────
 
 export default function SettingsPage() {
   const [activeSection, setActiveSection] = useState<Section>("profile");
-  const [mobileNavOpen, setMobileNavOpen]  = useState(false);
 
-  // Profile state
-  const [firstName,   setFirstName]   = useState("Sarah");
-  const [lastName,    setLastName]    = useState("Jenkins");
-  const [email,       setEmail]       = useState("sarah.j@techflow.com");
-  const [phone,       setPhone]       = useState("+234 800 000 0000");
-  const [profileSaved, setProfileSaved] = useState(false);
+  // ── Initial load state ──────────────────────────────────────
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [profileLoadError, setProfileLoadError] = useState<string | null>(null);
 
-  // Security state
+  // Profile state (populated from getCurrentUser)
+  const [firstName, setFirstName] = useState("");
+  const [lastName,  setLastName]  = useState("");
+  const [email,     setEmail]     = useState("");
+  // Not yet returned/accepted by the backend's AuthMeResponse / UpdateMeBody —
+  // kept editable locally but NOT sent on save until the backend supports them.
+  const [phone,         setPhone]         = useState("");
+  const [incomeSource,  setIncomeSource]  = useState("");
+
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileSaved,  setProfileSaved]  = useState(false);
+  const [profileError,  setProfileError]  = useState<string | null>(null);
+
+  // Security state — UI only, no backing endpoint yet (see TODOs in data-service.ts)
   const [twoFactor,       setTwoFactor]       = useState(true);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword,     setNewPassword]     = useState("");
@@ -90,7 +102,7 @@ export default function SettingsPage() {
   const [showNew,         setShowNew]         = useState(false);
   const [showConfirm,     setShowConfirm]     = useState(false);
 
-  // Notifications state
+  // Notifications state — UI only, no backing endpoint yet
   const [notifications, setNotifications] = useState({
     budgetAlerts:    true,
     weeklyReport:    true,
@@ -99,27 +111,103 @@ export default function SettingsPage() {
     securityAlerts:  true,
   });
 
-  // Budget state
-  const [selectedMethod, setSelectedMethod] = useState("envelope");
-  const [budgetSaved,    setBudgetSaved]    = useState(false);
+  // Budget method state
+  const [selectedMethod,     setSelectedMethod]     = useState("envelope");
+  const [budgetMethodLoaded, setBudgetMethodLoaded] = useState(false);
+  const [budgetSaving,       setBudgetSaving]       = useState(false);
+  const [budgetSaved,        setBudgetSaved]        = useState(false);
+  const [budgetError,        setBudgetError]        = useState<string | null>(null);
+
+  // ── Load current user on mount ──────────────────────────────
+  useEffect(() => {
+    getCurrentUser()
+      .then((user: UserProfile) => {
+        const [first, ...rest] = (user.name ?? "").trim().split(/\s+/);
+        setFirstName(first ?? "");
+        setLastName(rest.join(" "));
+        setEmail(user.email ?? "");
+      })
+      .catch((e: Error) => setProfileLoadError(e.message || "Failed to load profile"))
+      .finally(() => setProfileLoading(false));
+  }, []);
+
+  // ── Load current budget method lazily when that tab is opened ──
+  useEffect(() => {
+    if (activeSection !== "budget" || budgetMethodLoaded) return;
+    fetchBudgetMethod()
+      .then((method) => {
+        if (method) setSelectedMethod(method);
+      })
+      .catch(() => {
+        // Non-fatal: fall back to the default selection
+      })
+      .finally(() => setBudgetMethodLoaded(true));
+  }, [activeSection, budgetMethodLoaded]);
 
   // ── Handlers ──────────────────────────────────────────────
 
-  function handleProfileSave() {
-    setProfileSaved(true);
-    setTimeout(() => setProfileSaved(false), 2500);
+  async function handleProfileSave() {
+    setProfileSaving(true);
+    setProfileError(null);
+    try {
+      await updateProfile({
+        name: `${firstName} ${lastName}`.trim(),
+        email,
+      });
+      setProfileSaved(true);
+      setTimeout(() => setProfileSaved(false), 2500);
+    } catch (e: any) {
+      setProfileError(e.message || "Failed to save profile");
+    } finally {
+      setProfileSaving(false);
+    }
   }
 
-  function handleBudgetSave() {
-    setBudgetSaved(true);
-    setTimeout(() => setBudgetSaved(false), 2500);
+  async function handleBudgetSave() {
+    setBudgetSaving(true);
+    setBudgetError(null);
+    try {
+      await updateBudgetMethod(selectedMethod);
+      setBudgetSaved(true);
+      setTimeout(() => setBudgetSaved(false), 2500);
+    } catch (e: any) {
+      setBudgetError(e.message || "Failed to save budget method");
+    } finally {
+      setBudgetSaving(false);
+    }
+  }
+
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+  const [pushError, setPushError] = useState<string | null>(null);
+
+  async function handleEnablePush() {
+    setPushBusy(true);
+    setPushError(null);
+    try {
+      const result = await enablePushNotifications();
+      if (result.success) setPushEnabled(true);
+      else setPushError(result.error ?? "Something went wrong");
+    } catch (err: any) {
+      setPushError(err?.message ?? "Something went wrong");
+    } finally {
+      setPushBusy(false);
+    }
   }
 
   function toggleNotification(key: keyof typeof notifications) {
+    // Local-only preview — not persisted until the notifications
+    // endpoint exists. Toggle stays disabled in the UI below.
     setNotifications((prev) => ({ ...prev, [key]: !prev[key] }));
   }
 
   const activeLabel = navItems.find((n) => n.id === activeSection)?.label;
+  const initials = ((firstName[0] ?? "") + (lastName[0] ?? "")).toUpperCase() || "?";
+
+  const passwordFormValid =
+    currentPassword.length > 0 &&
+    newPassword.length >= 8 &&
+    newPassword === confirmPassword;
 
   return (
     <main className="min-h-screen bg-rayo-beige">
@@ -138,6 +226,12 @@ export default function SettingsPage() {
           </div>
         </div>
 
+        {profileLoadError && (
+          <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            Couldn't load your profile: {profileLoadError}
+          </div>
+        )}
+
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
 
           {/* ── SIDEBAR ── */}
@@ -148,15 +242,19 @@ export default function SettingsPage() {
               <div className="mb-4 flex items-center gap-3 rounded-2xl bg-rayo-beige/60 p-4">
                 <div className="relative">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-rayo-green text-white text-lg font-semibold">
-                    {firstName[0]}{lastName[0]}
+                    {profileLoading ? <Loader2 size={16} className="animate-spin" /> : initials}
                   </div>
                   <button className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-rayo-orange text-white shadow-sm">
                     <PenLine size={10} />
                   </button>
                 </div>
                 <div className="min-w-0">
-                  <p className="truncate font-semibold text-rayo-green">{firstName} {lastName}</p>
-                  <p className="truncate text-xs text-rayo-green/60">{email}</p>
+                  <p className="truncate font-semibold text-rayo-green">
+                    {profileLoading ? "Loading…" : `${firstName} ${lastName}`.trim() || "Your name"}
+                  </p>
+                  <p className="truncate text-xs text-rayo-green/60">
+                    {profileLoading ? " " : email}
+                  </p>
                 </div>
               </div>
 
@@ -224,13 +322,12 @@ export default function SettingsPage() {
             {/* ── PROFILE ── */}
             {activeSection === "profile" && (
               <>
-                {/* Profile hero card */}
                 <section className="rounded-[28px] border border-rayo-green/5 bg-white p-6 shadow-sm">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4">
                       <div className="relative shrink-0">
                         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-rayo-green text-white text-2xl font-semibold">
-                          {firstName[0]}{lastName[0]}
+                          {profileLoading ? <Loader2 size={20} className="animate-spin" /> : initials}
                         </div>
                         <button className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-rayo-orange text-white shadow-md transition-all hover:scale-105">
                           <PenLine size={13} />
@@ -240,22 +337,17 @@ export default function SettingsPage() {
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
                           <h2 className="text-xl font-semibold text-rayo-green">
-                            {firstName} {lastName}
+                            {profileLoading ? "Loading…" : `${firstName} ${lastName}`.trim() || "Your name"}
                           </h2>
                           <span className="inline-flex items-center gap-1.5 rounded-full bg-rayo-green/10 px-3 py-1 text-xs font-semibold text-rayo-green">
                             <Check size={11} />
                             Verified
                           </span>
                         </div>
-                        <p className="mt-1 text-sm text-rayo-green/60">{email}</p>
-                        <p className="mt-0.5 text-sm text-rayo-green/50">{phone}</p>
+                        <p className="mt-1 text-sm text-rayo-green/60">{profileLoading ? " " : email}</p>
+                        {phone && <p className="mt-0.5 text-sm text-rayo-green/50">{phone}</p>}
                       </div>
                     </div>
-
-                    <button className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl border border-rayo-green/15 px-5 text-sm font-medium text-rayo-green transition-all hover:border-rayo-green/30 hover:bg-rayo-beige">
-                      <PenLine size={14} />
-                      Edit Profile
-                    </button>
                   </div>
                 </section>
 
@@ -268,78 +360,102 @@ export default function SettingsPage() {
                     </p>
                   </div>
 
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <label className="mb-2 block text-sm font-medium text-rayo-green">
-                        First Name
-                      </label>
-                      <input
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        className="h-12 w-full rounded-2xl border border-rayo-green/10 bg-rayo-beige/30 px-4 text-rayo-green outline-none transition-all placeholder:text-rayo-green/40 focus:border-rayo-green/30 focus:ring-2 focus:ring-rayo-green/10"
-                      />
+                  {profileLoading ? (
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className="h-12 rounded-2xl bg-rayo-beige/60 animate-pulse" />
+                      ))}
                     </div>
+                  ) : (
+                    <>
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div>
+                          <label className="mb-2 block text-sm font-medium text-rayo-green">
+                            First Name
+                          </label>
+                          <input
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                            className="h-12 w-full rounded-2xl border border-rayo-green/10 bg-rayo-beige/30 px-4 text-rayo-green outline-none transition-all placeholder:text-rayo-green/40 focus:border-rayo-green/30 focus:ring-2 focus:ring-rayo-green/10"
+                          />
+                        </div>
 
-                    <div>
-                      <label className="mb-2 block text-sm font-medium text-rayo-green">
-                        Last Name
-                      </label>
-                      <input
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        className="h-12 w-full rounded-2xl border border-rayo-green/10 bg-rayo-beige/30 px-4 text-rayo-green outline-none transition-all focus:border-rayo-green/30 focus:ring-2 focus:ring-rayo-green/10"
-                      />
-                    </div>
+                        <div>
+                          <label className="mb-2 block text-sm font-medium text-rayo-green">
+                            Last Name
+                          </label>
+                          <input
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                            className="h-12 w-full rounded-2xl border border-rayo-green/10 bg-rayo-beige/30 px-4 text-rayo-green outline-none transition-all focus:border-rayo-green/30 focus:ring-2 focus:ring-rayo-green/10"
+                          />
+                        </div>
 
-                    <div>
-                      <label className="mb-2 block text-sm font-medium text-rayo-green">
-                        Email Address
-                      </label>
-                      <div className="relative">
-                        <input
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          className="h-12 w-full rounded-2xl border border-rayo-green/10 bg-rayo-beige/30 pl-10 pr-4 text-rayo-green outline-none transition-all focus:border-rayo-green/30 focus:ring-2 focus:ring-rayo-green/10"
-                        />
-                        <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-rayo-green/40" />
+                        <div>
+                          <label className="mb-2 block text-sm font-medium text-rayo-green">
+                            Email Address
+                          </label>
+                          <div className="relative">
+                            <input
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                              className="h-12 w-full rounded-2xl border border-rayo-green/10 bg-rayo-beige/30 pl-10 pr-4 text-rayo-green outline-none transition-all focus:border-rayo-green/30 focus:ring-2 focus:ring-rayo-green/10"
+                            />
+                            <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-rayo-green/40" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="mb-2 flex items-center gap-2 text-sm font-medium text-rayo-green">
+                            Phone Number
+                            <span className="text-[11px] font-normal text-rayo-green/40">(not saved yet)</span>
+                          </label>
+                          <input
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            placeholder="+234 800 000 0000"
+                            className="h-12 w-full rounded-2xl border border-rayo-green/10 bg-rayo-beige/30 px-4 text-rayo-green outline-none transition-all focus:border-rayo-green/30 focus:ring-2 focus:ring-rayo-green/10"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="mb-2 flex items-center gap-2 text-sm font-medium text-rayo-green">
+                            Income Source
+                            <span className="text-[11px] font-normal text-rayo-green/40">(not saved yet)</span>
+                          </label>
+                          <input
+                            value={incomeSource}
+                            onChange={(e) => setIncomeSource(e.target.value)}
+                            placeholder="e.g. Salary"
+                            className="h-12 w-full rounded-2xl border border-rayo-green/10 bg-rayo-beige/30 px-4 text-rayo-green outline-none transition-all focus:border-rayo-green/30 focus:ring-2 focus:ring-rayo-green/10"
+                          />
+                        </div>
                       </div>
-                    </div>
 
-                    <div>
-                      <label className="mb-2 block text-sm font-medium text-rayo-green">
-                        Phone Number
-                      </label>
-                      <input
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="h-12 w-full rounded-2xl border border-rayo-green/10 bg-rayo-beige/30 px-4 text-rayo-green outline-none transition-all focus:border-rayo-green/30 focus:ring-2 focus:ring-rayo-green/10"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="mb-2 block text-sm font-medium text-rayo-green">
-                        Income Source
-                      </label>
-                      <input
-                        defaultValue="Salary"
-                        className="h-12 w-full rounded-2xl border border-rayo-green/10 bg-rayo-beige/30 px-4 text-rayo-green outline-none transition-all focus:border-rayo-green/30 focus:ring-2 focus:ring-rayo-green/10"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="mt-6 flex justify-end">
-                    <button
-                      onClick={handleProfileSave}
-                      className={cn(
-                        "inline-flex h-11 items-center gap-2 rounded-2xl px-6 text-sm font-medium text-white transition-all",
-                        profileSaved ? "bg-rayo-green/70" : "bg-rayo-green hover:bg-rayo-green/90"
+                      {profileError && (
+                        <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                          {profileError}
+                        </div>
                       )}
-                    >
-                      {profileSaved ? (
-                        <><Check size={15} /> Saved!</>
-                      ) : "Save Changes"}
-                    </button>
-                  </div>
+
+                      <div className="mt-6 flex justify-end">
+                        <button
+                          onClick={handleProfileSave}
+                          disabled={profileSaving}
+                          className={cn(
+                            "inline-flex h-11 items-center gap-2 rounded-2xl px-6 text-sm font-medium text-white transition-all disabled:opacity-60",
+                            profileSaved ? "bg-rayo-green/70" : "bg-rayo-green hover:bg-rayo-green/90"
+                          )}
+                        >
+                          {profileSaving ? (
+                            <><Loader2 size={15} className="animate-spin" /> Saving...</>
+                          ) : profileSaved ? (
+                            <><Check size={15} /> Saved!</>
+                          ) : "Save Changes"}
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </section>
 
                 {/* KYC banner */}
@@ -365,20 +481,23 @@ export default function SettingsPage() {
             {/* ── SECURITY ── */}
             {activeSection === "security" && (
               <section className="rounded-[28px] border border-rayo-green/5 bg-white p-6 shadow-sm">
-                <div className="mb-7 flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-rayo-green text-white">
-                    <ShieldCheck size={20} />
+                <div className="mb-7 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-rayo-green text-white">
+                      <ShieldCheck size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-rayo-green">Security Preferences</h3>
+                      <p className="text-sm text-rayo-green/60">
+                        Manage your password and 2-step verification methods.
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-rayo-green">Security Preferences</h3>
-                    <p className="text-sm text-rayo-green/60">
-                      Manage your password and 2-step verification methods.
-                    </p>
-                  </div>
+                  <ComingSoonBadge />
                 </div>
 
                 {/* 2FA */}
-                <div className="mb-8 flex items-start justify-between gap-6 rounded-2xl border border-rayo-green/5 bg-rayo-beige/40 p-5">
+                <div className="mb-8 flex items-start justify-between gap-6 rounded-2xl border border-rayo-green/5 bg-rayo-beige/40 p-5 opacity-60">
                   <div>
                     <p className="font-semibold text-rayo-green">Two-Factor Authentication (2FA)</p>
                     <p className="mt-1 text-sm leading-relaxed text-rayo-green/60">
@@ -386,9 +505,10 @@ export default function SettingsPage() {
                     </p>
                   </div>
                   <button
-                    onClick={() => setTwoFactor((v) => !v)}
+                    disabled
+                    title="Coming soon"
                     className={cn(
-                      "relative mt-0.5 h-7 w-12 shrink-0 rounded-full transition-all duration-300",
+                      "relative mt-0.5 h-7 w-12 shrink-0 cursor-not-allowed rounded-full transition-all duration-300",
                       twoFactor ? "bg-rayo-green" : "bg-rayo-green/20"
                     )}
                   >
@@ -469,12 +589,22 @@ export default function SettingsPage() {
                             {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
                           </button>
                         </div>
+                        {confirmPassword.length > 0 && confirmPassword !== newPassword && (
+                          <p className="mt-1.5 text-xs text-red-500">Passwords don't match</p>
+                        )}
                       </div>
                     </div>
                   </div>
 
-                  <div className="mt-6 flex justify-end">
-                    <button className="inline-flex h-11 items-center gap-2 rounded-2xl bg-rayo-green px-6 text-sm font-medium text-white transition-all hover:bg-rayo-green/90">
+                  <div className="mt-6 flex items-center justify-end gap-3">
+                    <p className="text-xs text-rayo-green/40">
+                      Password changes will be enabled once the backend endpoint ships.
+                    </p>
+                    <button
+                      disabled
+                      title="Coming soon"
+                      className="inline-flex h-11 cursor-not-allowed items-center gap-2 rounded-2xl bg-rayo-green px-6 text-sm font-medium text-white opacity-50"
+                    >
                       Update Password
                     </button>
                   </div>
@@ -485,19 +615,24 @@ export default function SettingsPage() {
             {/* ── NOTIFICATIONS ── */}
             {activeSection === "notifications" && (
               <section className="rounded-[28px] border border-rayo-green/5 bg-white p-6 shadow-sm">
-                <div className="mb-7 flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-rayo-green/5 text-rayo-green">
-                    <Bell size={20} />
-                  </div>
+                <div className="mb-5 flex items-center justify-between gap-4 rounded-2xl border border-rayo-green/10 bg-rayo-beige/40 p-4">
                   <div>
-                    <h3 className="text-lg font-semibold text-rayo-green">Notifications</h3>
-                    <p className="text-sm text-rayo-green/60">
-                      Choose what updates you want to receive.
+                    <p className="font-medium text-rayo-green">Browser Notifications</p>
+                    <p className="mt-0.5 text-sm text-rayo-green/60">
+                      Get real-time alerts on this device, even when Rayo isn't open.
                     </p>
+                    {pushError && <p className="mt-1 text-xs text-red-500">{pushError}</p>}
                   </div>
+                  <button
+                    onClick={handleEnablePush}
+                    disabled={pushBusy || pushEnabled}
+                    className="h-10 shrink-0 rounded-xl bg-rayo-green px-4 text-xs font-semibold text-white disabled:opacity-60"
+                  >
+                    {pushEnabled ? "Enabled" : pushBusy ? "Enabling…" : "Enable"}
+                  </button>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-3 opacity-60">
                   {[
                     { key: "budgetAlerts",    label: "Budget Alerts",      desc: "Get notified when you're close to a budget limit."       },
                     { key: "weeklyReport",    label: "Weekly Report",      desc: "Receive a summary of your weekly financial activity."    },
@@ -516,9 +651,10 @@ export default function SettingsPage() {
                           <p className="mt-0.5 text-sm text-rayo-green/60">{desc}</p>
                         </div>
                         <button
-                          onClick={() => toggleNotification(key as keyof typeof notifications)}
+                          disabled
+                          title="Coming soon"
                           className={cn(
-                            "relative h-7 w-12 shrink-0 rounded-full transition-all duration-300",
+                            "relative h-7 w-12 shrink-0 cursor-not-allowed rounded-full transition-all duration-300",
                             on ? "bg-rayo-green" : "bg-rayo-green/20"
                           )}
                         >
@@ -555,76 +691,93 @@ export default function SettingsPage() {
                   Changing your budget method will affect how your categories and spending limits are calculated going forward. Existing transactions won't be affected.
                 </div>
 
-                <div className="space-y-4">
-                  {budgetMethods.map((method) => {
-                    const Icon = method.icon;
-                    const active = selectedMethod === method.id;
+                {!budgetMethodLoaded ? (
+                  <div className="space-y-4">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="h-24 rounded-[20px] bg-rayo-beige/60 animate-pulse" />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {budgetMethods.map((method) => {
+                      const Icon = method.icon;
+                      const active = selectedMethod === method.id;
 
-                    return (
-                      <button
-                        key={method.id}
-                        onClick={() => setSelectedMethod(method.id)}
-                        className={cn(
-                          "group w-full rounded-[20px] border p-5 text-left transition-all",
-                          active
-                            ? "border-rayo-green bg-rayo-green text-white shadow-lg shadow-rayo-green/10"
-                            : "border-rayo-green/10 hover:border-rayo-green/20 hover:bg-rayo-beige/40"
-                        )}
-                      >
-                        <div className="flex items-start gap-4">
-                          <div className={cn(
-                            "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition-all",
-                            active ? "bg-white/15" : "bg-rayo-green/5 text-rayo-green"
-                          )}>
-                            <Icon size={22} className={active ? "text-white" : ""} />
-                          </div>
-
-                          <div className="flex-1 min-w-0">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <p className={cn(
-                                "font-semibold",
-                                active ? "text-white" : "text-rayo-green"
-                              )}>
-                                {method.title}
-                              </p>
-                              <span className={cn(
-                                "rounded-full px-2 py-0.5 text-xs font-medium",
-                                active ? "bg-white/15 text-white" : "bg-rayo-orange/10 text-rayo-orange"
-                              )}>
-                                {method.subtitle}
-                              </span>
-                            </div>
-                            <p className={cn(
-                              "mt-1 text-sm leading-relaxed",
-                              active ? "text-white/80" : "text-rayo-green/60"
-                            )}>
-                              {method.description}
-                            </p>
-                          </div>
-
-                          <div className={cn(
-                            "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-all",
+                      return (
+                        <button
+                          key={method.id}
+                          onClick={() => setSelectedMethod(method.id)}
+                          className={cn(
+                            "group w-full rounded-[20px] border p-5 text-left transition-all",
                             active
-                              ? "border-white bg-white"
-                              : "border-rayo-green/20"
-                          )}>
-                            {active && <Check size={13} className="text-rayo-green" />}
+                              ? "border-rayo-green bg-rayo-green text-white shadow-lg shadow-rayo-green/10"
+                              : "border-rayo-green/10 hover:border-rayo-green/20 hover:bg-rayo-beige/40"
+                          )}
+                        >
+                          <div className="flex items-start gap-4">
+                            <div className={cn(
+                              "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition-all",
+                              active ? "bg-white/15" : "bg-rayo-green/5 text-rayo-green"
+                            )}>
+                              <Icon size={22} className={active ? "text-white" : ""} />
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <p className={cn(
+                                  "font-semibold",
+                                  active ? "text-white" : "text-rayo-green"
+                                )}>
+                                  {method.title}
+                                </p>
+                                <span className={cn(
+                                  "rounded-full px-2 py-0.5 text-xs font-medium",
+                                  active ? "bg-white/15 text-white" : "bg-rayo-orange/10 text-rayo-orange"
+                                )}>
+                                  {method.subtitle}
+                                </span>
+                              </div>
+                              <p className={cn(
+                                "mt-1 text-sm leading-relaxed",
+                                active ? "text-white/80" : "text-rayo-green/60"
+                              )}>
+                                {method.description}
+                              </p>
+                            </div>
+
+                            <div className={cn(
+                              "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-all",
+                              active
+                                ? "border-white bg-white"
+                                : "border-rayo-green/20"
+                            )}>
+                              {active && <Check size={13} className="text-rayo-green" />}
+                            </div>
                           </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {budgetError && (
+                  <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    {budgetError}
+                  </div>
+                )}
 
                 <div className="mt-6 flex justify-end">
                   <button
                     onClick={handleBudgetSave}
+                    disabled={budgetSaving || !budgetMethodLoaded}
                     className={cn(
-                      "inline-flex h-11 items-center gap-2 rounded-2xl px-6 text-sm font-medium text-white transition-all",
+                      "inline-flex h-11 items-center gap-2 rounded-2xl px-6 text-sm font-medium text-white transition-all disabled:opacity-60",
                       budgetSaved ? "bg-rayo-green/70" : "bg-rayo-green hover:bg-rayo-green/90"
                     )}
                   >
-                    {budgetSaved ? (
+                    {budgetSaving ? (
+                      <><Loader2 size={15} className="animate-spin" /> Saving...</>
+                    ) : budgetSaved ? (
                       <><Check size={15} /> Saved!</>
                     ) : "Save Budget Method"}
                   </button>

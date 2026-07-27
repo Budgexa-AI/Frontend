@@ -1,14 +1,6 @@
 // lib/data-service.ts
-import { getDashboardData, getCurrentUser, getAiInsights, askAi } from "@/lib/api-client";
 import { mockDashboardData, mockUser, mockAiConversations } from "@/lib/mock-data";
 import { AiConversation, AiMessage, Category, TransactionFilters, TransactionListResponse } from "./types/src";
-import {
-  listTransactions,
-  createTransaction,
-  updateTransaction,
-  deleteTransaction,
-  deleteMultipleTransactions,
-} from "@/lib/api-client";
 import { mockTransactions, mockCategorySpending, MOCK_SAVINGS_GOALS } from "@/lib/mock-data";
 import {
   fetchSavingsGoals as apiFetchSavingsGoals,
@@ -16,9 +8,20 @@ import {
   updateSavingsGoal as apiUpdateSavingsGoal,
   deleteSavingsGoal as apiDeleteSavingsGoal,
   fetchCategories as apiFetchCategories,
+  listTransactions,
+  createTransaction,
+  updateTransaction,
+  deleteTransaction,
+  deleteMultipleTransactions,
+  getDashboardData, 
+  getCurrentUser, 
+  getAiInsights, 
+  askAi, 
+  fetchNotificationPreferences as apiFetchNotification,
   type SavingsGoalRow,
   type CreateSavingsGoalPayload,
   type UpdateSavingsGoalPayload,
+  NotificationPreferences,
 } from "@/lib/api-client";
 
 const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";

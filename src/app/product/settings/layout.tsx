@@ -1,10 +1,10 @@
 "use client";
 
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
-import { getCurrentUser, UserProfile } from "@/lib/api-client/src";
+import { type UserProfile, getCurrentUser } from "@/lib/api-client";
 import { useEffect, useState } from "react";
 
-export default function FinanceLayout({
+export default function SettingsLayout({
   children,
 }: {
   children: React.ReactNode;
