@@ -6,21 +6,18 @@ import {
   Star, MoreHorizontal, TrendingUp, ChevronRight, Target, BarChart3,
   Trash2, Loader2, RefreshCcw, AlertCircle,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency, formatCurrencyCompact } from "@/lib/utils";
 import Link from "next/link";
 import {
   fetchSavingsGoals,
   deleteSavingsGoal,
 } from "@/lib/data-service";
 import type { SavingsGoalRow } from "@/lib/api-client";
+import { useCurrentUser } from "@/hooks/useUser";
 
 // ─────────────────────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────────────────────
-
-const fmt  = (n: number) => "₦" + n.toLocaleString("en-NG");
-const fmtM = (n: number) =>
-  "₦" + (n >= 1_000_000 ? (n / 1_000_000).toFixed(2) + "M" : (n / 1_000).toFixed(0) + "k");
 
 /** Format "YYYY-MM-DD" → "Dec 2026" */
 function fmtDeadline(iso: string): string {
@@ -178,6 +175,8 @@ export default function SavingsGoalsPage() {
   const [openMenuId, setOpenMenuId]   = useState<number | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<SavingsGoalRow | null>(null);
   const [deleting, setDeleting]       = useState(false);
+  const { profile } = useCurrentUser();
+  const currency = profile?.currency ?? "NGN";
   const menuRef = useRef<HTMLDivElement>(null);
 
   // ── Close menu on outside click ───────────────────────────
@@ -271,8 +270,8 @@ export default function SavingsGoalsPage() {
         {/* ── Summary cards ── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <SummaryCard label="Total Goals"   value={loading ? "—" : String(goals.length)} sub="Active goals"     bg="bg-rayo-beige-light" icon={<Target     size={14} className="text-rayo-green"   />} />
-          <SummaryCard label="Total Saved"   value={loading ? "—" : fmtM(totalSaved)}     sub="Across all goals" bg="bg-emerald-50"      icon={<PiggyBank  size={14} className="text-emerald-600" />} />
-          <SummaryCard label="Total Target"  value={loading ? "—" : fmtM(totalTarget)}    sub="Goal amount"      bg="bg-blue-50"         icon={<TrendingUp size={14} className="text-blue-500"    />} />
+          <SummaryCard label="Total Saved"   value={loading ? "—" : formatCurrencyCompact(totalSaved, currency)}  sub="Across all goals" bg="bg-emerald-50"      icon={<PiggyBank  size={14} className="text-emerald-600" />} />
+          <SummaryCard label="Total Target"  value={loading ? "—" : formatCurrencyCompact(totalTarget, currency)} sub="Goal amount"      bg="bg-blue-50"         icon={<TrendingUp size={14} className="text-blue-500"    />} />
           <SummaryCard label="Avg. Progress" value={loading ? "—" : `${avgProgress}%`}    sub="Across all goals" bg="bg-orange-50"       icon={<BarChart3  size={14} className="text-orange-500"  />} />
         </div>
 
@@ -297,8 +296,8 @@ export default function SavingsGoalsPage() {
               <div className="flex flex-col items-center justify-center">
                 <div className="h-28 w-28"><OverallDonut percentage={avgProgress} /></div>
                 <div className="text-center mt-3">
-                  <p className="text-xl font-bold text-rayo-green">{fmt(totalSaved)}</p>
-                  <p className="text-xs text-rayo-green/45 mt-1">of {fmt(totalTarget)}</p>
+                  <p className="text-xl font-bold text-rayo-green">{formatCurrency(totalSaved, currency)}</p>
+                  <p className="text-xs text-rayo-green/45 mt-1">of {formatCurrency(totalTarget, currency)}</p>
                 </div>
               </div>
 
@@ -365,7 +364,7 @@ export default function SavingsGoalsPage() {
                       />
                     </div>
                     <p className="text-[11px] text-rayo-green/50 font-medium truncate">
-                      {fmt(goal.currentAmount)} / {fmt(goal.targetAmount)}
+                      {formatCurrency(goal.currentAmount, currency)} / {formatCurrency(goal.targetAmount, currency)}
                     </p>
                   </div>
 

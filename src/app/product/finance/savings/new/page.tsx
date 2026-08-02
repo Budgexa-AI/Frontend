@@ -24,10 +24,11 @@ import {
   Loader2,
 } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { createSavingsGoal } from "@/lib/api-client/src/client";
 import { fetchCategories } from "@/lib/data-service";
 import type { Category } from "@/lib/types/src";
+import { useCurrentUser } from "@/hooks/useUser";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Goal Templates
@@ -77,9 +78,6 @@ const GOAL_TYPE_TO_SLUG: Record<string, string> = {
 
 // Helpers
 
-const fmt = (n: number) =>
-  "₦" + n.toLocaleString("en-NG");
-
 const formatDate = (date: string) =>
   new Date(date).toLocaleDateString(
     "en-NG",
@@ -95,6 +93,8 @@ const formatDate = (date: string) =>
 export default function CreateSavingsGoalPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const { profile } = useCurrentUser();
+  const currency = profile?.currency ?? "NGN";
 
   const [selectedGoalType, setSelectedGoalType] =
     useState("car");
@@ -188,9 +188,19 @@ export default function CreateSavingsGoalPage() {
 
     try {
       await createSavingsGoal({
-        name:        goalName,
-        targetAmount: targetAmount,
-        deadline:    targetDate,           // already "YYYY-MM-DD"
+        name:          goalName,
+        targetAmount:  targetAmount,
+        // Was missing entirely — the schema's `currentAmount` column defaults
+        // to "0" if this isn't sent, so every goal silently started at zero
+        // regardless of what was typed into "Initial Deposit" above.
+        currentAmount: initialDeposit,
+        deadline:      targetDate,           // already "YYYY-MM-DD"
+        // No goalType selector exists in this UI yet (group/ajo logic isn't
+        // built), so every goal created here is personal. Set it explicitly
+        // rather than relying on the schema default, so this stays correct
+        // even if a GROUP/AJO picker gets added later and someone forgets
+        // to wire this field through.
+        goalType:      "PERSONAL",
         ...(selectedCategoryId
           ? { categoryId: selectedCategoryId }
           : {
@@ -540,8 +550,9 @@ export default function CreateSavingsGoalPage() {
                         , you need to save at
                         least{" "}
                         <span className="font-semibold text-rayo-green">
-                          {fmt(
-                            suggestedMonthly
+                          {formatCurrency(
+                            suggestedMonthly,
+                            currency
                           )}
                         </span>{" "}
                         per month.
@@ -715,8 +726,9 @@ export default function CreateSavingsGoalPage() {
                             label:
                               "Target Amount",
                             value:
-                              fmt(
-                                targetAmount
+                              formatCurrency(
+                                targetAmount,
+                                currency
                               ),
                           },
                           {
@@ -760,8 +772,9 @@ export default function CreateSavingsGoalPage() {
                             </p>
 
                             <p className="text-sm font-bold text-rayo-green mt-1">
-                              {fmt(
-                                initialDeposit
+                              {formatCurrency(
+                                initialDeposit,
+                                currency
                               )}
                             </p>
                           </div>
@@ -773,8 +786,9 @@ export default function CreateSavingsGoalPage() {
                             </p>
 
                             <p className="text-sm font-bold text-rayo-green mt-1">
-                              {fmt(
-                                monthlyContribution
+                              {formatCurrency(
+                                monthlyContribution,
+                                currency
                               )}
                             </p>
                           </div>
@@ -802,15 +816,17 @@ export default function CreateSavingsGoalPage() {
                         <div className="flex items-center justify-between mt-2 text-xs text-rayo-green/45">
                           <span>
                             Saved So Far:{" "}
-                            {fmt(
-                              initialDeposit
+                            {formatCurrency(
+                              initialDeposit,
+                              currency
                             )}
                           </span>
 
                           <span>
                             Remaining:{" "}
-                            {fmt(
-                              remaining
+                            {formatCurrency(
+                              remaining,
+                              currency
                             )}
                           </span>
                         </div>
@@ -829,24 +845,27 @@ export default function CreateSavingsGoalPage() {
                               label:
                                 "Total Goal Amount",
                               value:
-                                fmt(
-                                  targetAmount
+                                formatCurrency(
+                                  targetAmount,
+                                  currency
                                 ),
                             },
                             {
                               label:
                                 "Initial Deposit",
                               value:
-                                fmt(
-                                  initialDeposit
+                                formatCurrency(
+                                  initialDeposit,
+                                  currency
                                 ),
                             },
                             {
                               label:
                                 "Monthly Contribution",
                               value:
-                                fmt(
-                                  monthlyContribution
+                                formatCurrency(
+                                  monthlyContribution,
+                                  currency
                                 ),
                             },
                             {

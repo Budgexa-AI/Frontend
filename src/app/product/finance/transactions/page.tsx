@@ -4,14 +4,12 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Plus, Search, TrendingUp, ChevronLeft, ChevronRight, Trash2, Pencil,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import Link from "next/link";
 import { fetchTransactions, deleteTransaction, fetchCategories } from "@/lib/data-service";
 import type { AiInsight, Category, Transaction } from "@/lib/types/src";
 import { getAiInsights } from "@/lib/api-client/src/index";
-
-const fmt = (n: number) =>
-  `${n < 0 ? "-" : ""}₦${Math.abs(n).toLocaleString("en-NG")}`;
+import { useCurrentUser } from "@/hooks/useUser";
 
 // Delete Confirm Modal
 
@@ -65,6 +63,8 @@ export default function TransactionsPage() {
   const [error, setError]           = useState<string | null>(null);
   const [search, setSearch]         = useState("");
   const [typeFilter, setTypeFilter] = useState<"" | "income" | "expense">("");
+  const { profile } = useCurrentUser();
+  const currency = profile?.currency ?? "NGN";
   const limit = 10;
 
   const [deleteTarget, setDeleteTarget] = useState<Transaction | null>(null);
@@ -142,6 +142,10 @@ export default function TransactionsPage() {
   const balance       = totalIncome - totalExpenses;
   const totalPages    = Math.ceil(total / limit);
 
+  // Signed formatting (e.g. "-₦4,500") matching the old `fmt` helper's behavior
+  const fmtSigned = (n: number) =>
+    n < 0 ? `-${formatCurrency(Math.abs(n), currency)}` : formatCurrency(n, currency);
+
   async function handleDelete() {
     if (!deleteTarget) return;
     try {
@@ -201,16 +205,16 @@ export default function TransactionsPage() {
             <div className="mt-4 space-y-4 text-sm">
               <div className="flex justify-between items-center">
                 <span className="text-rayo-green/60">Income</span>
-                <span className="text-emerald-600 font-bold">{fmt(totalIncome)}</span>
+                <span className="text-emerald-600 font-bold">{fmtSigned(totalIncome)}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-rayo-green/60">Expenses</span>
-                <span className="text-red-500 font-bold">{fmt(totalExpenses)}</span>
+                <span className="text-red-500 font-bold">{fmtSigned(totalExpenses)}</span>
               </div>
               <div className="border-t border-rayo-ash pt-3 flex justify-between items-center">
                 <span className="font-medium text-rayo-green/80">Net Balance</span>
                 <span className={cn("font-bold text-lg", balance >= 0 ? "text-rayo-green" : "text-red-500")}>
-                  {fmt(balance)}
+                  {fmtSigned(balance)}
                 </span>
               </div>
             </div>
@@ -316,7 +320,7 @@ export default function TransactionsPage() {
                       </span>
 
                       <p className={cn("text-sm font-bold", t.type === "income" ? "text-emerald-600" : "text-red-500")}>
-                        {t.type === "income" ? "+" : "-"}{fmt(Number(t.amount))}
+                        {t.type === "income" ? "+" : "-"}{formatCurrency(Number(t.amount), currency)}
                       </p>
 
                       {/* ── Actions: always visible on hover, never clipped ── */}
@@ -363,7 +367,7 @@ export default function TransactionsPage() {
                       </div>
                       <div className="flex flex-col items-end gap-2 shrink-0">
                         <p className={cn("text-sm font-bold", t.type === "income" ? "text-emerald-600" : "text-red-500")}>
-                          {t.type === "income" ? "+" : "-"}{fmt(Number(t.amount))}
+                          {t.type === "income" ? "+" : "-"}{formatCurrency(Number(t.amount), currency)}
                         </p>
                         <div className="flex items-center gap-1.5">
                           <Link

@@ -5,12 +5,13 @@ import { detectCategory } from "@/lib/category";
 import type { AddTransactionFormValues } from "@/lib/validations";
 import { Lightbulb, MessageCircle, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 interface AIInsightPanelProps {
   values: Partial<AddTransactionFormValues>;
   selectedCategoryLabel?: string | null;
   selectedCategoryEmoji?: string | null;
+  currency?: string;
 }
 
 const CONFIDENCE_STYLES = {
@@ -29,6 +30,7 @@ export function AIInsightPanel({
   values,
   selectedCategoryLabel,
   selectedCategoryEmoji,
+  currency = "NGN",
 }: AIInsightPanelProps) {
   const suggestion = useMemo(
     () => detectCategory(values.description ?? "", values.merchant ?? ""),
@@ -107,14 +109,12 @@ export function AIInsightPanel({
   }, [values.description, values.merchant, suggestion, displayedCategory]);
 
   const displayAmount = values.amount
-    ? `₦${parseFloat(values.amount.replace(/,/g, "") || "0").toLocaleString(
-        "en-NG",
-        {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }
-      )}`
-    : "₦0.00";
+    ? formatCurrency(
+        parseFloat(values.amount.replace(/,/g, "") || "0"),
+        currency,
+        { useCurrencyDecimals: true }
+      )
+    : formatCurrency(0, currency, { useCurrencyDecimals: true });
 
   const displayDate = values.date
     ? new Date(values.date).toLocaleDateString("en-NG", {

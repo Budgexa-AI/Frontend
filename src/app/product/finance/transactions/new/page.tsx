@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { cn } from "@/lib/utils";
+import { cn, getCurrencySymbol } from "@/lib/utils";
 import { addTransactionSchema, type AddTransactionFormValues } from "@/lib/validations";
 import { detectCategory } from "@/lib/category";
 import { createTransaction } from "@/lib/data-service";
@@ -14,6 +14,7 @@ import { Sparkles, Search, ChevronDown, Plus, Check } from "lucide-react";
 import { PAYMENT_METHODS, BANKS } from "@/lib/mock-data";
 import { Category } from "@/lib/types/src";
 import { CategoryPicker, type CategoryPickerValue } from "@/components/product/CategoryPicker";
+import { useCurrentUser } from "@/hooks/useUser";
 
 // ─────────────────────────────────────────────────────────────
 // Page
@@ -26,6 +27,8 @@ export default function AddTransactionPage() {
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<CategoryPickerValue>(null);
   const [categoryError, setCategoryError] = useState<string | null>(null);
+  const { profile } = useCurrentUser();
+  const currency = profile?.currency ?? "NGN";
 
   useEffect(() => {
     fetchCategories()
@@ -157,7 +160,9 @@ export default function AddTransactionPage() {
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-rayo-green">Amount <span className="text-red-500">*</span></label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 select-none">₦</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 select-none">
+                    {getCurrencySymbol(currency)}
+                  </span>
                   <input {...register("amount")} type="text" inputMode="decimal" placeholder="0.00"
                     className={cn("w-full rounded-lg border bg-white py-2.5 pl-7 pr-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-200", errors.amount ? "border-red-300" : "border-gray-200")}
                   />
@@ -267,6 +272,7 @@ export default function AddTransactionPage() {
           <div className="order-2">
             <AIInsightPanel
               values={watched}
+              currency={currency}
               selectedCategoryLabel={
                 selectedCategory?.type === "existing"
                   ? selectedCategory.category.name

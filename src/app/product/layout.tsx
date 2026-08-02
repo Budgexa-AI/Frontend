@@ -1,13 +1,12 @@
-export const dynamic = "force-dynamic";
+import ProductShell from "@/components/product/ProductShell";
+import { getCurrentUserServer } from "@/lib/server/current-user";
 
-export default function ProductLayout({
+export default async function SettingLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <>
-      {children}
-    </>
-  );
+  const profile = await getCurrentUserServer();
+
+  return <ProductShell initialProfile={profile}>{children}</ProductShell>;
 }

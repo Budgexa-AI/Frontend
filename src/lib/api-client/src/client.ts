@@ -17,6 +17,8 @@ export interface UserProfile {
   name?: string;
   avatarUrl?: string;
   plan?: string;
+  country?: string;
+  currency?: string;
 }
 
 export interface BudgetRow {
@@ -93,6 +95,8 @@ function normalizeProfile(payload: any): UserProfile {
       source.name ?? source.fullName ?? source.full_name ?? undefined,
     avatarUrl: source.profileImage ?? undefined,
     plan: source.plan ?? undefined,
+    country: source.country ?? undefined,
+    currency: source.currency ?? undefined,
   };
 }
 
@@ -679,6 +683,8 @@ export async function completeOnboarding(data: {
   incomeSource: string;
   financialGoals: string[];
   categories: string[];
+  country: string;
+  currency: string;
 }): Promise<{ success: boolean; error?: string }> {
   console.log("Onboarding data:", data);
   const res = await fetch(proxyPath("/onboarding"), {
@@ -693,6 +699,8 @@ export async function completeOnboarding(data: {
       financialGoals: data.financialGoals,
       goals: data.financialGoals,
       categories: data.categories,
+      country: data.country,
+      currency: data.currency,
     }),
   });
 
@@ -1003,6 +1011,8 @@ export interface CreateSavingsGoalPayload {
   name: string;
   targetAmount: number;
   currentAmount?: number;
+  goalType?: "PERSONAL" | "GROUP" | "AJO";
+  categoryId?: number;
   deadline: string;        
 }
 
@@ -1067,6 +1077,49 @@ export async function fetchCategories(): Promise<Category[]> {
   if (!res.ok) throw new Error("Failed to fetch categories");
   const json = await readJsonResponse<any>(res);
   return Array.isArray(json) ? json : (json.data ?? []);
+}
+
+// Contact page
+export interface ContactRequest {
+  name: string;
+  email: string;
+  category: "bug" | "inquiry" | "feature" | "billing" | "other";
+  subject: string;
+  message: string;
+}
+
+export interface ContactResponse {
+  success: boolean;
+  error?: string;
+}
+
+export async function submitContactMessage(data: ContactRequest): Promise<ContactResponse> {
+  const endpoint = proxyPath("/contact");
+  logApiEvent("contact submit request", { endpoint, payload: { ...data, email: "[redacted]" } });
+
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: createHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const contentType = res.headers.get("content-type") || "";
+    const responseBody = contentType.includes("application/json")
+      ? await res.json().catch(() => null)
+      : await res.text().catch(() => "");
+    const errorMessage = extractErrorMessage(responseBody, `Failed to send message (${res.status})`);
+    logApiError("contact submit backend error", {
+      endpoint,
+      status: res.status,
+      statusText: res.statusText,
+      body: responseBody || "<empty>",
+    });
+    throw new Error(errorMessage);
+  }
+
+  return readJsonResponse<ContactResponse>(res);
 }
 
 // Error Handling Helper

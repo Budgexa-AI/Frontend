@@ -20,8 +20,10 @@ export default function InsightsPage() {
   const [showInfo, setShowInfo] = useState(false);
   const router = useRouter();
 
-  useEffect(() => window.scrollTo(0, 0), []); // Scroll to top on page load
-  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []); // Scroll to top on page load
+
   const [insights, setInsights] = useState<AiInsight[]>([]);
 
   useEffect(() => {
