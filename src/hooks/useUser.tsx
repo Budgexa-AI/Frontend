@@ -12,6 +12,17 @@ export function useCurrentUser() {
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(!context);
 
+    useEffect(() => {
+        if (context) {
+            return;
+        }
+
+        fetchCurrentUser()
+            .then(setProfile)
+            .catch(() => setProfile(null))
+            .finally(() => setLoading(false));
+    }, [context]);
+
     if (context) {
         return {
             profile: context.profile,
@@ -19,13 +30,6 @@ export function useCurrentUser() {
             setProfile: context.setProfile,
         };
     }
-
-    useEffect(() => {
-        fetchCurrentUser()
-            .then(setProfile)
-            .catch(() => setProfile(null))
-            .finally(() => setLoading(false));
-    }, []);
 
     return { profile, loading, setProfile };
 }
