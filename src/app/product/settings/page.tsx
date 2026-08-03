@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Bell,
   BriefcaseBusiness,
+  Bug,
   Check,
   ChevronRight,
   Eye,
@@ -20,6 +21,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useCurrentUser } from "@/hooks/useUser";
 
 // ─────────────────────────────────────────────────────────────
 // TYPES
@@ -71,14 +73,16 @@ const navItems: { id: Section; label: string }[] = [
 // ─────────────────────────────────────────────────────────────
 
 export default function SettingsPage() {
+  const { profile } = useCurrentUser();
   const [activeSection, setActiveSection] = useState<Section>("profile");
   const [mobileNavOpen, setMobileNavOpen]  = useState(false);
 
   // Profile state
-  const [firstName,   setFirstName]   = useState("Sarah");
-  const [lastName,    setLastName]    = useState("Jenkins");
-  const [email,       setEmail]       = useState("sarah.j@techflow.com");
-  const [phone,       setPhone]       = useState("+234 800 000 0000");
+  const [firstName,   setFirstName]   = useState("");
+  const [lastName,    setLastName]    = useState("");
+  const [email,       setEmail]       = useState("");
+  const [phone,       setPhone]       = useState("");
+  const [incomeSource, setIncomeSource] = useState("");
   const [profileSaved, setProfileSaved] = useState(false);
 
   // Security state
@@ -102,6 +106,29 @@ export default function SettingsPage() {
   // Budget state
   const [selectedMethod, setSelectedMethod] = useState("envelope");
   const [budgetSaved,    setBudgetSaved]    = useState(false);
+
+  useEffect(() => {
+    const profileData = profile as (typeof profile & {
+      firstName?: string;
+      lastName?: string;
+      fullName?: string;
+      phone?: string;
+      phoneNumber?: string;
+      incomeSource?: string;
+    }) | null;
+
+    const displayName =
+      profileData?.fullName?.trim() ||
+      profileData?.name?.trim() ||
+      "";
+    const nameParts = displayName.split(/\s+/).filter(Boolean);
+
+    setFirstName(profileData?.firstName || nameParts[0] || "");
+    setLastName(profileData?.lastName || nameParts.slice(1).join(" "));
+    setEmail(profileData?.email || "");
+    setPhone(profileData?.phone || profileData?.phoneNumber || "");
+    setIncomeSource(profileData?.incomeSource || "");
+  }, [profile]);
 
   // ── Handlers ──────────────────────────────────────────────
 
@@ -142,13 +169,13 @@ export default function SettingsPage() {
 
           {/* ── SIDEBAR ── */}
           <aside className="w-full lg:sticky lg:top-6 lg:w-64 lg:shrink-0">
-            <div className="rounded-[28px] border border-rayo-green/5 bg-white p-4 shadow-sm">
+            <div className="rounded-[28px] border border-rayo-green/5 bg-white p-4 shadow-sm mt-5">
 
               {/* Profile card */}
               <div className="mb-4 flex items-center gap-3 rounded-2xl bg-rayo-beige/60 p-4">
                 <div className="relative">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-rayo-green text-white text-lg font-semibold">
-                    {firstName[0]}{lastName[0]}
+                    {firstName?.[0] || lastName?.[0] || "?"}
                   </div>
                   <button className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-rayo-orange text-white shadow-sm">
                     <PenLine size={10} />
@@ -184,6 +211,13 @@ export default function SettingsPage() {
                       {item.label}
                     </button>
                   ))}
+                  <Link
+                    href="/contact?category=bug"
+                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-rayo-green/70 transition-all hover:bg-rayo-beige hover:text-rayo-green"
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-rayo-green/30" />
+                    Report a Problem
+                  </Link>
                 </nav>
               </div>
 
@@ -218,6 +252,12 @@ export default function SettingsPage() {
                     {item.label}
                   </button>
                 ))}
+                <Link
+                  href="/contact?category=bug"
+                  className="shrink-0 rounded-full border border-rayo-green/10 px-3 py-1.5 text-xs font-medium text-rayo-green/70 transition-all hover:bg-rayo-beige"
+                >
+                  Report a Problem
+                </Link>
               </div>
             </div>
 
@@ -230,7 +270,7 @@ export default function SettingsPage() {
                     <div className="flex items-center gap-4">
                       <div className="relative shrink-0">
                         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-rayo-green text-white text-2xl font-semibold">
-                          {firstName[0]}{lastName[0]}
+                                {firstName?.[0] || lastName?.[0] || "?"}
                         </div>
                         <button className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-rayo-orange text-white shadow-md transition-all hover:scale-105">
                           <PenLine size={13} />
@@ -321,7 +361,8 @@ export default function SettingsPage() {
                         Income Source
                       </label>
                       <input
-                        defaultValue="Salary"
+                        value={incomeSource}
+                        onChange={(e) => setIncomeSource(e.target.value)}
                         className="h-12 w-full rounded-2xl border border-rayo-green/10 bg-rayo-beige/30 px-4 text-rayo-green outline-none transition-all focus:border-rayo-green/30 focus:ring-2 focus:ring-rayo-green/10"
                       />
                     </div>
@@ -343,7 +384,7 @@ export default function SettingsPage() {
                 </section>
 
                 {/* KYC banner */}
-                <section className="flex flex-col gap-4 rounded-[28px] border border-rayo-green/10 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+                {/* <section className="flex flex-col gap-4 rounded-[28px] border border-rayo-green/10 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-4">
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-rayo-green/10 text-rayo-green">
                       <ShieldCheck size={22} />
@@ -358,7 +399,7 @@ export default function SettingsPage() {
                   <button className="shrink-0 text-sm font-semibold text-rayo-green transition-colors hover:text-rayo-orange">
                     View Documents
                   </button>
-                </section>
+                </section> */}
               </>
             )}
 
@@ -631,6 +672,7 @@ export default function SettingsPage() {
                 </div>
               </section>
             )}
+
           </div>
         </div>
       </div>

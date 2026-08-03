@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import RayoLogo from "@/components/icons/RayoLogo";
+import { fetchCurrentUser } from "@/lib/data-service";
 
 const NAV_LINKS = [
   { label: "Features",     href: "/#features" },
@@ -14,15 +15,24 @@ const NAV_LINKS = [
   { label: "About",        href: "/about" },
 ];
 
+type AuthState = "checking" | "authenticated" | "anonymous";
+
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled]     = useState(false);
+  const [authState, setAuthState]   = useState<AuthState>("checking");
   const pathname = usePathname();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    fetchCurrentUser()
+      .then(() => setAuthState("authenticated"))
+      .catch(() => setAuthState("anonymous"));
   }, []);
 
   const isActive = (href: string) => {
@@ -76,22 +86,36 @@ export default function Navbar() {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-4">
-            <div className="hidden md:flex items-center gap-4">
+            {authState === "authenticated" ? (
               <a
-                href={"/auth/login"}
-                className="btn-secondary text-sm px-5 py-2.5 hover:bg-rayo-beige/60 hover:text-rayo-green transition-colors"
-                rel="noopener noreferrer"
-              >
-                Log In
-              </a>
-              <a
-                href={"/auth/signup"}
+                href="/product/dashboard"
                 className="btn-primary text-sm px-5 py-2.5"
-                rel="noopener noreferrer"
               >
-                Sign Up
+                Dashboard
               </a>
-            </div>
+            ) : authState === "anonymous" ? (
+              <div className="flex items-center gap-4">
+                <a
+                  href={"/auth/login"}
+                  className="btn-secondary text-sm px-5 py-2.5 hover:bg-rayo-beige/60 hover:text-rayo-green transition-colors"
+                  rel="noopener noreferrer"
+                >
+                  Log In
+                </a>
+
+                <a
+                  href={"/auth/signup"}
+                  className="btn-primary text-sm px-5 py-2.5"
+                  rel="noopener noreferrer"
+                >
+                  Sign Up
+                </a>
+              </div>
+            ) : (
+              // "checking" — reserve the space so the header doesn't jump
+              // once auth state resolves
+              <div className="h-9 w-24" />
+            )}
           </div>
 
           {/* Mobile hamburger */}
@@ -127,20 +151,29 @@ export default function Navbar() {
             );
           })}
           <div className="flex flex-col gap-3 pt-4">
-            <a
-              href={"/auth/login"}
-              className="btn-secondary text-center hover:bg-rayo-beige/60 hover:text-rayo-green transition-colors"
-              rel="noopener noreferrer"
-            >
-              Log In
-            </a>
-            <a
-              href={"/auth/signup"}
-              className="btn-primary text-center"
-              rel="noopener noreferrer"
-            >
-              Sign Up
-            </a>
+            {authState === "authenticated" ? (
+              <a href="/product/dashboard" className="btn-primary text-center">
+                Dashboard
+              </a>
+            ) : (
+              <>
+                <a
+                  href={"/auth/login"}
+                  className="btn-secondary text-center hover:bg-rayo-beige/60 hover:text-rayo-green transition-colors"
+                  rel="noopener noreferrer"
+                >
+                  Log In
+                </a>
+
+                <a
+                  href={"/auth/signup"}
+                  className="btn-primary text-center"
+                  rel="noopener noreferrer"
+                >
+                  Sign Up
+                </a>
+              </>
+            )}
           </div>
         </div>
       )}

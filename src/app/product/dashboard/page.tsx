@@ -18,11 +18,12 @@ import {
   TrendingUp,
   Wallet,
 } from "lucide-react";
-import { formatNaira } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 import { getCategoryColor } from "@/lib/chart-colors";
 import { useRouter } from "next/navigation";
 import type { DashboardState, AiInsight as DBAiInsight } from "@/lib/types/src";
-import { fetchCurrentUser, fetchDashboardData } from "@/lib/data-service";
+import { fetchDashboardData } from "@/lib/data-service";
+import { useCurrentUser } from "@/hooks/useUser";
 
 // ─────────────────────────────────────────────────────────────
 // HELPERS
@@ -48,9 +49,11 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 function DonutChart({
   spending,
   totalExpenses,
+  currency,
 }: {
   spending: Array<{ label: string; amount: number; pct: number; color: string }>;
   totalExpenses: number;
+  currency: string;
 }) {
   let cumulative = 0;
 
@@ -84,7 +87,7 @@ function DonutChart({
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <p className="text-xs text-rayo-beige/80">Expenses</p>
           <h3 className="mt-1 text-2xl font-bold tracking-tight text-white">
-            ₦{Math.round(totalExpenses / 1000)}k
+            {formatCurrency(Math.round(totalExpenses / 1000), currency)}k
           </h3>
         </div>
       </div>
@@ -115,7 +118,8 @@ export default function DashboardPage() {
   const [showBalance, setShowBalance] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
+  const { profile } = useCurrentUser();
+  const currency = profile?.currency ?? "NGN";
   const [data, setData] = useState<DashboardState>({
     totalBalance: 0,
     totalIncome: 0,
@@ -140,12 +144,8 @@ export default function DashboardPage() {
       try {
         setLoading(true);
         setError(null);
-        const user = await fetchCurrentUser();
-        setUserId(user.id);
-        
         const dashboardData = await fetchDashboardData();
-        console.log("[Dashboard] Fetched dashboard data:", dashboardData);
-        
+
         setData({
           totalBalance:       dashboardData.totalBalance,
           totalIncome:        dashboardData.totalIncome,
@@ -328,7 +328,7 @@ export default function DashboardPage() {
                   <h3 className="mt-2 text-3xl font-bold tracking-tight text-rayo-green">
                     {typeof item.value === "number"
                       ? showBalance
-                        ? formatNaira(item.value)
+                        ? formatCurrency(item.value, currency)
                         : "•••••"
                       : item.value}
                   </h3>
@@ -375,7 +375,7 @@ export default function DashboardPage() {
                   {loading ? (
                     <div className="h-48 w-48 animate-pulse rounded-full bg-rayo-beige" />
                   ) : spending.length > 0 ? (
-                    <DonutChart spending={spending} totalExpenses={data.monthlyExpenses} />
+                    <DonutChart spending={spending} totalExpenses={data.monthlyExpenses} currency={currency} />
                   ) : (
                     <div className="flex h-48 w-48 items-center justify-center rounded-full bg-rayo-ash text-sm text-rayo-green/50">
                       No data yet
@@ -401,7 +401,7 @@ export default function DashboardPage() {
                           <div>
                             <p className="text-sm font-semibold text-rayo-green">{item.label}</p>
                             <p className="mt-1 text-xs text-rayo-green/55">
-                              {formatNaira(item.amount)} • {item.pct}%
+                              {formatCurrency(item.amount, currency)} • {item.pct}%
                             </p>
                           </div>
                         </div>
@@ -477,7 +477,7 @@ export default function DashboardPage() {
                                 </span>
                               </div>
                               <p className="mt-1 text-xs text-rayo-green/55">
-                                {formatNaira(item.remaining)} remaining
+                                {formatCurrency(item.remaining, currency)} remaining
                               </p>
                             </div>
                             <p className="text-sm font-semibold text-rayo-green/60">
@@ -550,7 +550,7 @@ export default function DashboardPage() {
                           }`}
                         >
                           {tx.type === "income" ? "+" : "-"}
-                          {formatNaira(Number(tx.amount))}
+                          {formatCurrency(Number(tx.amount), currency)}
                         </p>
                       </div>
                     </div>
@@ -620,7 +620,7 @@ export default function DashboardPage() {
                             }`}
                           >
                             {tx.type === "income" ? "+" : "-"}
-                            {formatNaira(Number(tx.amount))}
+                            {formatCurrency(Number(tx.amount), currency)}
                           </td>
                           <td className="py-4 text-right">
                             <button className="text-rayo-green/50 transition-colors hover:text-rayo-green">
@@ -668,7 +668,9 @@ export default function DashboardPage() {
                         <div>
                           <p className="font-medium text-rayo-green">{goal.title}</p>
                           <p className="mt-1 text-xs text-rayo-green/60">
-                            {goal.target === 0 ? "Target not configured" : `${formatNaira(goal.current)} / ${formatNaira(goal.target)}`}
+                            {goal.target === 0
+                              ? "Target not configured"
+                              : `${formatCurrency(goal.current, currency)} / ${formatCurrency(goal.target, currency)}`}
                           </p>
                         </div>
                         <p className="text-sm font-semibold text-rayo-green">{goal.pct}%</p>

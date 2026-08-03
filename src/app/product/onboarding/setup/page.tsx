@@ -15,6 +15,10 @@ import {
   Wallet,
   X,
 } from "lucide-react";
+import {
+  getCurrencySymbol,
+} from "@/lib/utils";
+import { defaultCurrencyForCountry, getCurrencyDefinition, SUPPORTED_COUNTRIES } from "@/lib/currency";
 
 const defaultCategories = [
   "Food",
@@ -58,24 +62,59 @@ export default function FinancialSetupPage() {
     "Emergency Fund",
   ]);
 
+  // ── Country / currency ────────────────────────────────────
+  const [countryCode, setCountryCode] = useState("NG");
+  const [currencyCode, setCurrencyCode] = useState(
+    defaultCurrencyForCountry("NG")
+  );
+
+  const countryOptions = useMemo(() => {
+    const regionNames =
+      typeof Intl !== "undefined" && "DisplayNames" in Intl
+        ? new Intl.DisplayNames(["en"], { type: "region" })
+        : null;
+
+    return SUPPORTED_COUNTRIES.map((code: any) => ({
+      code,
+      name: regionNames?.of(code) ?? code,
+    })).sort((a, b) => a.name.localeCompare(b.name));
+  }, []);
+
+  function handleCountryChange(code: string) {
+    setCountryCode(code);
+    setCurrencyCode(defaultCurrencyForCountry(code));
+  }
+
   const completionHref = useMemo(() => {
     const params = new URLSearchParams();
+    const hasCustomIncomeSource = selectedIncome.toLowerCase() === "other";
     params.set("level", level);
     params.set("method", method);
     params.set(
       "incomeSource",
-      selectedIncome === "other" ? customIncomeSource.trim() || "other" : selectedIncome
+      hasCustomIncomeSource ? customIncomeSource.trim() || "Other" : selectedIncome
     );
     params.set(
       "financialGoals",
       selectedGoals.map((goal) => goal.replace(/\s+Fund$/i, "")).join(",")
     );
     params.set("categories", categories.join(","));
+    params.set("country", countryCode);
+    params.set("currency", currencyCode);
 
     return `/product/onboarding/complete?${params.toString()}`;
-  }, [categories, customIncomeSource, level, method, selectedGoals, selectedIncome]);
+  }, [
+    categories,
+    customIncomeSource,
+    level,
+    method,
+    selectedGoals,
+    selectedIncome,
+    countryCode,
+    currencyCode,
+  ]);
 
-  const selectedIncomeDisplay = selectedIncome === "other"
+  const selectedIncomeDisplay = selectedIncome.toLowerCase() === "other"
     ? customIncomeSource.trim() || "Other"
     : selectedIncome;
 
@@ -162,31 +201,36 @@ export default function FinancialSetupPage() {
 
                 <div>
                   <h2 className="text-xl font-semibold text-rayo-green">
-                    Currency
+                    Country & Currency
                   </h2>
 
                   <p className="text-sm text-rayo-green/60">
-                    Your default financial currency
+                    We'll use this to set your default currency
                   </p>
                 </div>
               </div>
 
-              <button className="flex h-14 w-full items-center justify-between rounded-2xl border border-rayo-green/10 px-5 text-left transition-all hover:border-rayo-green/20">
-                <div>
-                  <p className="font-medium text-rayo-green">
-                    Nigerian Naira
-                  </p>
-
-                  <p className="text-sm text-rayo-green/50">
-                    ₦ NGN
-                  </p>
-                </div>
-
+              <div className="relative">
+                <select
+                  value={countryCode}
+                  onChange={(e) => handleCountryChange(e.target.value)}
+                  className="h-14 w-full appearance-none rounded-2xl border border-rayo-green/10 bg-white px-5 pr-12 text-left font-medium text-rayo-green outline-none transition-all hover:border-rayo-green/20 focus:border-rayo-green/30"
+                >
+                  {countryOptions.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
                 <ChevronRight
                   size={18}
-                  className="text-rayo-green/40"
+                  className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 rotate-90 text-rayo-green/40"
                 />
-              </button>
+              </div>
+
+              <p className="mt-3 text-sm text-rayo-green/50">
+                {getCurrencyDefinition(currencyCode).name} · {getCurrencySymbol(currencyCode)} {currencyCode}
+              </p>
             </section>
 
             {/* INCOME */}
@@ -376,6 +420,11 @@ export default function FinancialSetupPage() {
                 <PreviewRow
                   label="Experience Level"
                   value="Beginner"
+                />
+
+                <PreviewRow
+                  label="Currency"
+                  value={`${currencyCode} (${getCurrencySymbol(currencyCode)})`}
                 />
 
                 <PreviewRow

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import DateRange from "@/components/ui/DateRange";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency, getCurrencySymbol } from "@/lib/utils";
 import {
   Plus, Pencil, Trash2, ArrowUpRight, Wallet, TrendingUp,
   PiggyBank, Sparkles, Loader2, RefreshCcw, X, Check,
@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { Budget, Category } from "@/lib/types/src";
 import { CategoryPicker, CategoryPickerValue } from "@/components/product/CategoryPicker";
 import { fetchCategories } from "@/lib/data-service";
+import { useCurrentUser } from "@/hooks/useUser";
 
 // Constants
 
@@ -38,8 +39,6 @@ function getCategoryColor(index: number) {
 }
 
 // Helpers
-
-const fmt = (n: number) => "₦" + n.toLocaleString("en-NG");
 
 function ProgressBar({ value, color }: { value: number; color: string }) {
   const isOver = value > 100;
@@ -109,6 +108,7 @@ function DeleteModal({
 interface BudgetModalProps {
   initial?: Budget;
   categories: Category[];
+  currency: string;
   onClose: () => void;
   onSave: (payload: {
     name: string;
@@ -120,7 +120,7 @@ interface BudgetModalProps {
   }) => Promise<void>;
 }
 
-function BudgetModal({ initial, categories, onClose, onSave }: BudgetModalProps) {
+function BudgetModal({ initial, categories, currency, onClose, onSave }: BudgetModalProps) {
   const [name, setName] = useState(initial?.name ?? "");
   const [selectedCategory, setSelectedCategory] = useState<CategoryPickerValue>(
     initial?.categoryId
@@ -206,7 +206,9 @@ function BudgetModal({ initial, categories, onClose, onSave }: BudgetModalProps)
           <div>
             <label className="block text-xs font-medium text-rayo-green/60 mb-1.5">Monthly Limit</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-rayo-green/40 font-medium">₦</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-rayo-green/40 font-medium">
+                {getCurrencySymbol(currency)}
+              </span>
               <input
                 value={limitStr}
                 onChange={(e) => {
@@ -246,6 +248,8 @@ export default function BudgetPage() {
   const [budgets, setBudgets]     = useState<Budget[]>([]);
   const [loading, setLoading]     = useState(true);
   const [errorMsg, setErrorMsg]   = useState<string | null>(null);
+  const { profile } = useCurrentUser();
+  const currency = profile?.currency ?? "NGN";
 
   // undefined = closed, null = create, Budget = edit
   const [modalTarget, setModalTarget]   = useState<Budget | null | undefined>(undefined);
@@ -316,6 +320,7 @@ export default function BudgetPage() {
         <BudgetModal
           initial={modalTarget ?? undefined}
           categories={categories}
+          currency={currency}
           onClose={() => setModalTarget(undefined)}
           onSave={handleSave}
         />
@@ -353,24 +358,6 @@ export default function BudgetPage() {
                 </div>
               </div>
 
-              {/* Tabs */}
-              {/* <div className="flex overflow-x-auto border-b border-rayo-ash bg-white/60 backdrop-blur-sm rounded-t-xl">
-                {TABS.map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={cn(
-                      "px-4 py-3 text-sm whitespace-nowrap border-b-2 transition",
-                      activeTab === tab
-                        ? "border-rayo-green text-rayo-green font-medium"
-                        : "border-transparent text-rayo-green/40"
-                    )}
-                  >
-                    {tab}
-                  </button>
-                ))}
-              </div> */}
-
               {errorMsg && (
                 <div className="p-4 bg-red-50 border border-red-100 rounded-xl text-sm text-red-600 flex items-center gap-2">
                   {errorMsg}
@@ -382,9 +369,9 @@ export default function BudgetPage() {
 
               {/* Summary Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
-                <SummaryCard label="Budgeted"    value={fmt(totalBudgeted)}  sub="Total allocation"            icon={<Wallet      size={16} className="text-rayo-green"  />} />
-                <SummaryCard label="Spent"       value={fmt(totalSpent)}     sub={`${avgUsed}% of budget used`} icon={<ArrowUpRight size={16} className="text-rayo-red"    />} />
-                <SummaryCard label="Remaining"   value={fmt(totalRemaining)} sub="Across all categories"       icon={<PiggyBank   size={16} className="text-emerald-600" />} />
+                <SummaryCard label="Budgeted"    value={formatCurrency(totalBudgeted, currency)}  sub="Total allocation"            icon={<Wallet      size={16} className="text-rayo-green"  />} />
+                <SummaryCard label="Spent"       value={formatCurrency(totalSpent, currency)}     sub={`${avgUsed}% of budget used`} icon={<ArrowUpRight size={16} className="text-rayo-red"    />} />
+                <SummaryCard label="Remaining"   value={formatCurrency(totalRemaining, currency)} sub="Across all categories"       icon={<PiggyBank   size={16} className="text-emerald-600" />} />
                 <SummaryCard
                   label="Over Budget"
                   value={String(overBudgetCount)}
@@ -434,8 +421,8 @@ export default function BudgetPage() {
                                 {b.rollover && <p className="text-[11px] text-rayo-green/40">Rollover enabled</p>}
                               </div>
                             </div>
-                            <span className="text-sm text-rayo-green">{fmt(b.monthlyLimit)}</span>
-                            <span className="text-sm text-rayo-green">{fmt(b.totalSpent)}</span>
+                            <span className="text-sm text-rayo-green">{formatCurrency(b.monthlyLimit, currency)}</span>
+                            <span className="text-sm text-rayo-green">{formatCurrency(b.totalSpent, currency)}</span>
                             <div className="flex items-center gap-3 pr-4">
                               <ProgressBar value={b.percentUsed} color={color} />
                               <span className={cn("text-xs w-10 text-right", isOver ? "text-red-500 font-medium" : "text-rayo-green/60")}>
@@ -443,7 +430,7 @@ export default function BudgetPage() {
                               </span>
                             </div>
                             <span className={cn("text-sm font-medium", b.remaining >= 0 ? "text-emerald-600" : "text-red-500")}>
-                              {fmt(b.remaining)}
+                              {formatCurrency(b.remaining, currency)}
                             </span>
                             {/* Actions always at root level — not nested inside overflow containers */}
                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition w-16 justify-end">
@@ -485,10 +472,10 @@ export default function BudgetPage() {
                             </div>
                             <ProgressBar value={b.percentUsed} color={color} />
                             <div className="grid grid-cols-3 text-xs text-rayo-green/60">
-                              <span>{fmt(b.monthlyLimit)}</span>
-                              <span>{fmt(b.totalSpent)}</span>
+                              <span>{formatCurrency(b.monthlyLimit, currency)}</span>
+                              <span>{formatCurrency(b.totalSpent, currency)}</span>
                               <span className={cn("text-right font-medium", b.remaining >= 0 ? "text-emerald-600" : "text-red-500")}>
-                                {fmt(b.remaining)}
+                                {formatCurrency(b.remaining, currency)}
                               </span>
                             </div>
                           </div>

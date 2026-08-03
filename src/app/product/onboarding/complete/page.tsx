@@ -14,6 +14,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { completeOnboarding } from "@/lib/api-client/src/client";
+import { defaultCurrencyForCountry } from "@/lib/currency";
 
 const METHOD_LABELS: Record<string, string> = {
   envelope: "Envelope Budgeting",
@@ -45,7 +46,10 @@ export default function OnboardingCompletePage() {
 
   const level = searchParams.get("level") || "beginner";
   const method = searchParams.get("method") || "envelope";
-  const incomeSource = searchParams.get("incomeSource") || "Salary";
+  const incomeSource =
+    searchParams.get("incomeSource") ||
+    searchParams.get("otherIncomeSource") ||
+    "Salary";
 
   const financialGoals = useMemo(
     () =>
@@ -76,6 +80,9 @@ export default function OnboardingCompletePage() {
   const normalizedMethodForBackend = BACKEND_METHODS[method] ?? method;
   const normalizedLevelForBackend = BACKEND_LEVELS[level] ?? level;
 
+  const country = searchParams.get("country") || "NG";
+  const currency = defaultCurrencyForCountry(country);
+
   const levelLabel = useMemo(() => level[0].toUpperCase() + level.slice(1), [level]);
 
   async function handleComplete() {
@@ -89,6 +96,8 @@ export default function OnboardingCompletePage() {
         incomeSource,
         financialGoals,
         categories,
+        country,
+        currency,
       });
 
       router.push("/product/dashboard");
@@ -179,14 +188,6 @@ export default function OnboardingCompletePage() {
               >
                 {saving ? <Loader2 size={18} className="animate-spin" /> : "Finish Setup"}
                 {!saving && <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => router.push("/product/dashboard")}
-                className="inline-flex h-14 items-center justify-center rounded-2xl px-6 text-base font-medium text-rayo-green/60 transition-all hover:bg-rayo-green/5 hover:text-rayo-green"
-              >
-                Skip onboarding
               </button>
             </div>
           </div>
