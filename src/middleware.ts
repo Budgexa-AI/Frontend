@@ -4,8 +4,6 @@ import { NextResponse, type NextRequest } from "next/server";
 const PROTECTED_ROUTES = ["/product"];
 const AUTH_ROUTES = ["/auth/login", "/auth/signup"];
 
-const IS_DEV = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
-
 async function isValidAuthToken(request: NextRequest, token: string): Promise<boolean> {
   try {
     const response = await fetch(new URL("/api/v1/auth/me", request.url), {
@@ -22,7 +20,6 @@ async function isValidAuthToken(request: NextRequest, token: string): Promise<bo
 }
 
 export async function middleware(request: NextRequest) {
-  if (IS_DEV) return NextResponse.next({ request });
 
   const { pathname } = request.nextUrl;
 

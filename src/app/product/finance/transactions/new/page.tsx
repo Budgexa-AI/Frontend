@@ -7,14 +7,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { cn, getCurrencySymbol } from "@/lib/utils";
 import { addTransactionSchema, type AddTransactionFormValues } from "@/lib/validations";
 import { detectCategory } from "@/lib/category";
-import { createTransaction } from "@/lib/data-service";
+import { createTransaction, scanReceiptForTransaction } from "@/lib/data-service";
 import { fetchCategories } from "@/lib/data-service";
 import { AIInsightPanel } from "@/components/ai/InsightPanel";
-import { Sparkles, Search, ChevronDown, Plus, Check } from "lucide-react";
+import { Sparkles, Search, ChevronDown, Plus, Check, ChevronRight, CheckCircle2, RefreshCcw } from "lucide-react";
 import { PAYMENT_METHODS, BANKS } from "@/lib/mock-data";
 import { Category } from "@/lib/types/src";
 import { CategoryPicker, type CategoryPickerValue } from "@/components/product/CategoryPicker";
 import { useCurrentUser } from "@/hooks/useUser";
+import type { ScanReceiptResult, ScannedTransactionReview } from "@/lib/api-client";
+import { ReceiptUpload } from "@/components/ai/RecieptUpload";
 
 // ─────────────────────────────────────────────────────────────
 // Page
@@ -29,6 +31,15 @@ export default function AddTransactionPage() {
   const [categoryError, setCategoryError] = useState<string | null>(null);
   const { profile } = useCurrentUser();
   const currency = profile?.currency ?? "NGN";
+
+  // ── Receipt scan state ──────────────────────────────────────
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanError, setScanError] = useState<string | null>(null);
+  const [scanResult, setScanResult] = useState<ScanReceiptResult | null>(null);
+  const [reviewIndex, setReviewIndex] = useState(0);
+  // Kept so a failed scan can be retried without asking the person to
+  // re-select the file from their device.
+  const [lastFile, setLastFile] = useState<File | null>(null);
 
   useEffect(() => {
     fetchCategories()
@@ -75,6 +86,77 @@ export default function AddTransactionPage() {
     }
   }, [selectedCategory, suggestedCategory]);
 
+  // ── Prefill the form from a needsReview item ────────────────
+  function applyReviewItem(item: ScannedTransactionReview) {
+    setValue("direction", item.type === "income" ? "Income" : "Expense");
+    setValue("amount", String(item.amount));
+    if (item.date) setValue("date", item.date.slice(0, 10));
+    if (item.description) setValue("description", item.description);
+    if (item.merchant) setValue("merchant", item.merchant);
+    if (item.institution) setValue("institution", item.institution);
+
+    if (item.categorySlug) {
+      const matched = categories.find((c) => c.slug === item.categorySlug);
+      if (matched) {
+        setSelectedCategory({ type: "existing", category: matched });
+      }
+    }
+  }
+
+  async function runScan(file: File) {
+    setIsScanning(true);
+    setScanError(null);
+    setScanResult(null);
+
+    try {
+      const result = await scanReceiptForTransaction(file);
+      setScanResult(result);
+      setReviewIndex(0);
+
+      if (result.needsReview.length > 0) {
+        applyReviewItem(result.needsReview[0]);
+      } else if (result.created.length > 0) {
+        setTimeout(() => {
+          router.push("/product/finance/transactions");
+          router.refresh();
+        }, 100);
+      }
+    } catch (error) {
+      setScanError(
+        error instanceof Error ? error.message : "Failed to scan receipt. Please try again or enter it manually."
+      );
+    } finally {
+      setIsScanning(false);
+    }
+  }
+
+  async function handleFileSelect(file: File | null) {
+    if (!file) {
+      // User removed the selected receipt — nothing to scan, clear prior results.
+      setLastFile(null);
+      setScanResult(null);
+      setScanError(null);
+      return;
+    }
+
+    setLastFile(file);
+    await runScan(file);
+  }
+
+  async function handleRetryScan() {
+    if (!lastFile) return;
+    await runScan(lastFile);
+  }
+
+  function goToNextReviewItem() {
+    if (!scanResult) return;
+    const nextIndex = reviewIndex + 1;
+    if (nextIndex < scanResult.needsReview.length) {
+      setReviewIndex(nextIndex);
+      applyReviewItem(scanResult.needsReview[nextIndex]);
+    }
+  }
+
   async function onSubmit(data: AddTransactionFormValues) {
     if (!selectedCategory) {
       setCategoryError("Please select or create a category");
@@ -108,6 +190,14 @@ export default function AddTransactionPage() {
             };
 
       await createTransaction(payload as any);
+
+      // If there are more scanned items still waiting for review, stay on
+      // this page and move to the next one instead of navigating away.
+      if (scanResult && reviewIndex + 1 < scanResult.needsReview.length) {
+        goToNextReviewItem();
+        return;
+      }
+
       router.push("/product/finance/transactions");
       router.refresh();
     } catch (error) {
@@ -117,6 +207,8 @@ export default function AddTransactionPage() {
     }
   }
 
+  const remainingReviewCount = scanResult ? scanResult.needsReview.length - reviewIndex - 1 : 0;
+
   return (
     <div className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
@@ -124,6 +216,69 @@ export default function AddTransactionPage() {
         <div className="mb-6">
           <h1 className="text-2xl font-semibold tracking-tight text-rayo-green">Add Transaction</h1>
           <p className="mt-1 text-sm text-rayo-green/70">Record your income or expense to keep track of your finances.</p>
+        </div>
+
+        {/* ── Receipt scanner ── */}
+        <div className="mb-6 rounded-2xl border border-rayo-ash bg-white p-6 shadow-sm">
+          <div className="mb-4 flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-rayo-sage-dark" />
+            <h2 className="text-sm font-semibold text-rayo-green">Scan a receipt (optional)</h2>
+          </div>
+
+          <ReceiptUpload onFileSelect={handleFileSelect} />
+
+          {isScanning && (
+            <div className="mt-4 flex items-center gap-2 text-sm text-rayo-green/70">
+              <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              Analyzing receipt...
+            </div>
+          )}
+
+          {scanError && (
+            <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              <span>{scanError}</span>
+              {lastFile && (
+                <button
+                  type="button"
+                  onClick={handleRetryScan}
+                  disabled={isScanning}
+                  className="flex shrink-0 items-center gap-1.5 rounded-lg border border-red-300 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-50"
+                >
+                  <RefreshCcw size={12} />
+                  Retry
+                </button>
+              )}
+            </div>
+          )}
+
+          {scanResult && scanResult.created.length > 0 && (
+            <div className="mt-4 flex items-start gap-2 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+              <CheckCircle2 size={16} className="mt-0.5 shrink-0" />
+              <span>
+                {scanResult.created.length === 1
+                  ? "1 transaction was automatically added."
+                  : `${scanResult.created.length} transactions were automatically added.`}
+              </span>
+            </div>
+          )}
+
+          {scanResult && scanResult.needsReview.length > 0 && (
+            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              <p>
+                We prefilled the form below from your receipt, but a few details need
+                your confirmation: {scanResult.needsReview[reviewIndex].reasons.join(", ")}.
+              </p>
+              {remainingReviewCount > 0 && (
+                <p className="mt-1 text-xs text-amber-700">
+                  {remainingReviewCount} more transaction{remainingReviewCount === 1 ? "" : "s"} from this receipt
+                  {remainingReviewCount === 1 ? " is" : " are"} waiting after this one — save this one to continue.
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         <form noValidate onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">
@@ -262,6 +417,8 @@ export default function AddTransactionPage() {
                 className="flex flex-[2] items-center justify-center gap-2 rounded-xl bg-rayo-green py-2.5 text-sm font-medium text-white transition hover:bg-rayo-green-dark active:scale-[0.99] disabled:opacity-60">
                 {isSubmitting ? (
                   <><svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>Saving...</>
+                ) : remainingReviewCount > 0 ? (
+                  <>Save & Continue <ChevronRight size={16} /></>
                 ) : (
                   <><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>Save Transaction</>
                 )}

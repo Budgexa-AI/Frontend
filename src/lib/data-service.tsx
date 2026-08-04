@@ -1,6 +1,5 @@
 // lib/data-service.ts
-import { getDashboardData, getCurrentUser, getAiInsights, askAi } from "@/lib/api-client";
-import { mockDashboardData, mockUser, mockAiConversations } from "@/lib/mock-data";
+import { getDashboardData, getCurrentUser, getAiInsights, askAi, scanReceipt } from "@/lib/api-client";
 import { AiConversation, AiMessage, Category, TransactionFilters, TransactionListResponse } from "./types/src";
 import {
   listTransactions,
@@ -9,7 +8,6 @@ import {
   deleteTransaction as apiDeleteTransaction,
   deleteMultipleTransactions as apiDeleteMultipleTransactions,
 } from "@/lib/api-client";
-import { mockTransactions, mockCategorySpending, MOCK_SAVINGS_GOALS } from "@/lib/mock-data";
 import {
   fetchSavingsGoals as apiFetchSavingsGoals,
   createSavingsGoal as apiCreateSavingsGoal,
@@ -20,8 +18,6 @@ import {
   type CreateSavingsGoalPayload,
   type UpdateSavingsGoalPayload,
 } from "@/lib/api-client";
-
-const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
 
 type CacheEntry<T> = {
   value?: T;
@@ -92,40 +88,24 @@ if (typeof window !== "undefined") {
 }
 
 export async function fetchCurrentUser() {
-  if (USE_MOCK) return mockUser;
   return withCache("current-user", 5 * 60 * 1000, getCurrentUser);
 }
 
 export async function fetchDashboardData() {
-  if (USE_MOCK) return mockDashboardData;
   return withCache("dashboard-data", 30 * 1000, getDashboardData);
 }
 
 export async function fetchAiInsights() {
-  if (USE_MOCK) return [];
-  // AI insights hit the LLM on the backend — the slowest, most expensive
-  // call in this file. Backend now caches the generated result too, but
-  // caching here also avoids the network round-trip entirely on repeat
-  // calls within the same tab.
   return withCache("ai-insights", 60 * 1000, getAiInsights);
 }
 
 export async function sendAiMessage(payload: { question: string }) {
-  if (USE_MOCK) {
-    await new Promise((r) => setTimeout(r, 800));
-    return {
-      reply: "Omo, this is mock mode o. Connect to backend to get the real gist.",
-      conversationId: "mock-conv-1",
-    };
-  }
-
   const result = await askAi({ question: payload.question });
   invalidateCache("ai-insights");
   return result;
 }
 
 export function getInitialConversations(): AiConversation[] {
-  if (USE_MOCK) return mockAiConversations;
   return [];
 }
 
@@ -133,14 +113,6 @@ export function getInitialConversations(): AiConversation[] {
 export async function fetchTransactions(
   filters?: TransactionFilters
 ): Promise<TransactionListResponse> {
-  if (USE_MOCK) {
-    return {
-      transactions: mockTransactions as any,
-      total: mockTransactions.length,
-      page: 1,
-      limit: 10,
-    };
-  }
   return listTransactions(filters);
 }
 
@@ -174,10 +146,6 @@ export async function deleteMultipleTransactions(...args: Parameters<typeof apiD
 
 // Savings Goals
 export async function fetchSavingsGoals(): Promise<SavingsGoalRow[]> {
-  if (USE_MOCK) {
-    await new Promise((r) => setTimeout(r, 400));
-    return MOCK_SAVINGS_GOALS;
-  }
   return withCache("savings-goals", 60 * 1000, apiFetchSavingsGoals);
 }
 
@@ -207,6 +175,14 @@ export async function deleteSavingsGoal(id: number): Promise<void> {
 }
 
 export async function fetchCategories(): Promise<Category[]> {
-  if (USE_MOCK) return [];
   return withCache("categories", 10 * 60 * 1000, apiFetchCategories);
+}
+
+export async function scanReceiptForTransaction(file: File) {
+  const result = await scanReceipt(file);
+  if (result.created.length > 0) {
+    invalidateCache("dashboard-data");
+    invalidateCache("ai-insights");
+  }
+  return result;
 }

@@ -55,12 +55,18 @@ async function proxyRequest(
   headers.delete("accept-encoding");
   headers.delete("host");
   headers.delete("content-length");
-  headers.delete("if-none-match");        // ← was on forwardHeaders (unused)
-  headers.delete("if-modified-since");    // ← was on forwardHeaders (unused)
+  headers.delete("if-none-match");
+  headers.delete("if-modified-since");
   headers.delete("cache-control");
 
   const hasBody = !["GET", "HEAD"].includes(request.method.toUpperCase());
-  const body = hasBody ? await request.text() : undefined;
+  // Read as ArrayBuffer, not text — .text() forces a UTF-8 decode of the
+  // entire body, which silently corrupts binary payloads (multipart file
+  // uploads, images, etc.) by substituting invalid byte sequences with the
+  // U+FFFD replacement character. ArrayBuffer preserves every byte exactly,
+  // and works identically for JSON bodies too (JSON is valid UTF-8, so
+  // nothing changes for existing endpoints).
+  const body = hasBody ? await request.arrayBuffer() : undefined;
 
   console.info("[proxy] forwarding request", {
     method: request.method,
@@ -73,7 +79,10 @@ async function proxyRequest(
       headers,
       body,
       redirect: "manual",
-    });
+      // Required by the fetch spec when passing a body with certain
+      // request configurations in Node's fetch implementation.
+      duplex: hasBody ? "half" : undefined,
+    } as RequestInit);
 
     // 304 means "use your cache" — backend has no body to send.
     // Treat it as a 200 with empty data so the dashboard doesn't crash.

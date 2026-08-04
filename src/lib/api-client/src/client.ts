@@ -1122,6 +1122,52 @@ export async function submitContactMessage(data: ContactRequest): Promise<Contac
   return readJsonResponse<ContactResponse>(res);
 }
 
+// Receipt Scanner API
+export interface ScannedTransactionReview {
+  amount: number;
+  type: "income" | "expense";
+  description: string | null;
+  merchant: string | null;
+  date: string | null; // ISO date, or null if the scan couldn't determine one
+  categorySlug: string | null;
+  institution: string | null;
+  reasons: string[];
+}
+
+export interface ScanReceiptResult {
+  created: unknown[];
+  needsReview: ScannedTransactionReview[];
+}
+
+export async function scanReceipt(file: File): Promise<ScanReceiptResult> {
+  const formData = new FormData();
+  formData.append("receipt", file);
+
+  const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+
+  const res = await fetch(proxyPath("/transactions/scan"), {
+    method: "POST",
+    credentials: "include",
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const contentType = res.headers.get("content-type") || "";
+    const responseBody = contentType.includes("application/json")
+      ? await res.json().catch(() => null)
+      : await res.text().catch(() => "");
+    throw new Error(extractErrorMessage(responseBody, `Receipt scan failed (${res.status})`));
+  }
+
+  const data = await readJsonResponse<any>(res);
+  const inner = data.data ?? data;
+  return {
+    created: inner.created ?? [],
+    needsReview: inner.needsReview ?? [],
+  };
+}
+
 // Error Handling Helper
 
 export function handleApiError(error: any): string {
