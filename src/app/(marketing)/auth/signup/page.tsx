@@ -137,7 +137,7 @@ export default function SignUpPage() {
       } else if (isNewUser === "true") {
         router.replace("/product/onboarding/welcome");
       } else {
-        router.replace("/product/onboarding/welcome");
+        router.replace("/product/dashboard");
       }
     }
 
@@ -169,7 +169,8 @@ export default function SignUpPage() {
       message.includes("verified") ||
       message.includes("unverified") ||
       message.includes("email verification") ||
-      message.includes("confirmation")
+      message.includes("confirmation") ||
+      message.includes("registered") 
     );
   }
 
