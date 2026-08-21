@@ -3,7 +3,7 @@ import type { Account, Transaction, SavingsGoal, AiInsight, UserProfile, AiConve
 
 export const mockUser: UserProfile = {
   id: "1",
-  email: "test@rayo.app",
+  email: "test@Budgexa.app",
   name: "Test User",
   profileImage: "",
   envelopeBased: true,

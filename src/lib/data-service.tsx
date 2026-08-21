@@ -14,6 +14,8 @@ import {
   updateSavingsGoal as apiUpdateSavingsGoal,
   deleteSavingsGoal as apiDeleteSavingsGoal,
   fetchCategories as apiFetchCategories,
+  validateBetaToken as apiValidateBetaToken,
+  logout as apiLogout,
   type SavingsGoalRow,
   type CreateSavingsGoalPayload,
   type UpdateSavingsGoalPayload,
@@ -68,8 +70,15 @@ function withCache<T>(key: string, ttlMs: number, fetcher: () => Promise<T>): Pr
   return promise;
 }
 
-function invalidateCache(key: string) {
+export function invalidateCache(key: string) {
   sharedCache.delete(key);
+}
+
+export function seedCache<T>(key: string, value: T, ttlMs: number) {
+  sharedCache.set(key, {
+    value,
+    expiresAt: Date.now() + ttlMs,
+  });
 }
 
 // Periodically sweep expired, non-in-flight entries so the Map doesn't grow
@@ -184,5 +193,25 @@ export async function scanReceiptForTransaction(file: File) {
     invalidateCache("dashboard-data");
     invalidateCache("ai-insights");
   }
+  return result;
+}
+
+// Beta testers
+export async function validateBetaToken(token: string) {
+  const result = await apiValidateBetaToken({ token });
+
+  if (result.success && result.token && typeof document !== "undefined") {
+    const maxAgeSeconds = 60 * 60 * 24 * 30; // 30 days
+    document.cookie = `beta_access=${result.token}; path=/; max-age=${maxAgeSeconds}; SameSite=Lax`;
+  }
+
+  return result;
+}
+
+// Logout
+export async function logoutUser() {
+  const result = await apiLogout();
+  invalidateCache("current-user");
+  invalidateCache("dashboard-data");
   return result;
 }

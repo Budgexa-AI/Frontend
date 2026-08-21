@@ -50,7 +50,7 @@ function resolveIcon(name: string): { Icon: React.ElementType; bg: string } {
   const key = name.split(" ")[0].toLowerCase();
   return {
     Icon: ICON_MAP[key] ?? PiggyBank,
-    bg:   ICON_BG_MAP[key] ?? "bg-rayo-beige-light text-rayo-green",
+    bg:   ICON_BG_MAP[key] ?? "bg-Budgexa-beige-light text-Budgexa-green",
   };
 }
 
@@ -75,9 +75,9 @@ function SummaryCard({ icon, label, value, sub, bg }: {
       <div className={cn("h-7 w-7 rounded-lg flex items-center justify-center mb-2", bg)}>
         {icon}
       </div>
-      <p className="text-[10px] font-medium uppercase tracking-wide text-rayo-green/40">{label}</p>
-      <p className="text-[24px] font-bold text-rayo-green leading-none mt-1">{value}</p>
-      <p className="text-[11px] text-rayo-green/45 mt-1">{sub}</p>
+      <p className="text-[10px] font-medium uppercase tracking-wide text-Budgexa-green/40">{label}</p>
+      <p className="text-[24px] font-bold text-Budgexa-green leading-none mt-1">{value}</p>
+      <p className="text-[11px] text-Budgexa-green/45 mt-1">{sub}</p>
     </div>
   );
 }
@@ -114,14 +114,14 @@ function DeleteModal({ name, onCancel, onConfirm, deleting }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4">
       <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-        <h3 className="text-base font-semibold text-rayo-green">Delete goal?</h3>
-        <p className="mt-2 text-sm text-rayo-green/60">
-          The <span className="font-medium text-rayo-green">"{name}"</span> goal will be permanently removed. This cannot be undone.
+        <h3 className="text-base font-semibold text-Budgexa-green">Delete goal?</h3>
+        <p className="mt-2 text-sm text-Budgexa-green/60">
+          The <span className="font-medium text-Budgexa-green">"{name}"</span> goal will be permanently removed. This cannot be undone.
         </p>
         <div className="mt-6 flex gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 rounded-xl border border-rayo-green/10 py-2.5 text-sm font-medium text-rayo-green transition hover:bg-rayo-beige"
+            className="flex-1 rounded-xl border border-Budgexa-green/10 py-2.5 text-sm font-medium text-Budgexa-green transition hover:bg-Budgexa-beige"
           >
             Cancel
           </button>
@@ -245,12 +245,12 @@ export default function SavingsGoalsPage() {
         {/* ── Header ── */}
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-[28px] font-bold text-rayo-green tracking-tight">Savings Goals</h1>
-            <p className="text-sm text-rayo-green/50 mt-1">Track your progress and achieve your financial dreams.</p>
+            <h1 className="text-[28px] font-bold text-Budgexa-green tracking-tight">Savings Goals</h1>
+            <p className="text-sm text-Budgexa-green/50 mt-1">Track your progress and achieve your financial dreams.</p>
           </div>
           <Link
             href="/product/finance/savings/new"
-            className="h-10 px-4 rounded-xl bg-rayo-green text-white text-sm font-medium hover:bg-rayo-green-dark transition-colors flex items-center gap-2 shrink-0"
+            className="h-10 px-4 rounded-xl bg-Budgexa-green text-white text-sm font-medium hover:bg-Budgexa-green-dark transition-colors flex items-center gap-2 shrink-0"
           >
             <Plus size={14} /> New Goal
           </Link>
@@ -269,7 +269,7 @@ export default function SavingsGoalsPage() {
 
         {/* ── Summary cards ── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <SummaryCard label="Total Goals"   value={loading ? "—" : String(goals.length)} sub="Active goals"     bg="bg-rayo-beige-light" icon={<Target     size={14} className="text-rayo-green"   />} />
+          <SummaryCard label="Total Goals"   value={loading ? "—" : String(goals.length)} sub="Active goals"     bg="bg-Budgexa-beige-light" icon={<Target     size={14} className="text-Budgexa-green"   />} />
           <SummaryCard label="Total Saved"   value={loading ? "—" : formatCurrencyCompact(totalSaved, currency)}  sub="Across all goals" bg="bg-emerald-50"      icon={<PiggyBank  size={14} className="text-emerald-600" />} />
           <SummaryCard label="Total Target"  value={loading ? "—" : formatCurrencyCompact(totalTarget, currency)} sub="Goal amount"      bg="bg-blue-50"         icon={<TrendingUp size={14} className="text-blue-500"    />} />
           <SummaryCard label="Avg. Progress" value={loading ? "—" : `${avgProgress}%`}    sub="Across all goals" bg="bg-orange-50"       icon={<BarChart3  size={14} className="text-orange-500"  />} />
@@ -278,40 +278,40 @@ export default function SavingsGoalsPage() {
         {/* ── Overview ── */}
         <div className="bg-white rounded-2xl border border-[#EFEFE8] p-5">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-rayo-green">Goals Overview</h2>
-            <button className="flex items-center gap-1 text-xs font-medium text-rayo-green/50 hover:text-rayo-green transition-colors">
+            <h2 className="text-lg font-semibold text-Budgexa-green">Goals Overview</h2>
+            <button className="flex items-center gap-1 text-xs font-medium text-Budgexa-green/50 hover:text-Budgexa-green transition-colors">
               View Analytics <ChevronRight size={13} />
             </button>
           </div>
 
           {loading ? (
-            <div className="flex items-center justify-center h-32 text-rayo-green/30">
+            <div className="flex items-center justify-center h-32 text-Budgexa-green/30">
               <Loader2 size={22} className="animate-spin" />
             </div>
           ) : goals.length === 0 ? (
-            <p className="text-sm text-rayo-green/40 text-center py-8">No savings goals yet. Create your first one!</p>
+            <p className="text-sm text-Budgexa-green/40 text-center py-8">No savings goals yet. Create your first one!</p>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-8">
               {/* Donut */}
               <div className="flex flex-col items-center justify-center">
                 <div className="h-28 w-28"><OverallDonut percentage={avgProgress} /></div>
                 <div className="text-center mt-3">
-                  <p className="text-xl font-bold text-rayo-green">{formatCurrency(totalSaved, currency)}</p>
-                  <p className="text-xs text-rayo-green/45 mt-1">of {formatCurrency(totalTarget, currency)}</p>
+                  <p className="text-xl font-bold text-Budgexa-green">{formatCurrency(totalSaved, currency)}</p>
+                  <p className="text-xs text-Budgexa-green/45 mt-1">of {formatCurrency(totalTarget, currency)}</p>
                 </div>
               </div>
 
               {/* Progress list */}
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-rayo-green/45 mb-5">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-Budgexa-green/45 mb-5">
                   Progress by Goal
                 </p>
                 <div className="space-y-4">
                   {goals.map((g) => (
                     <div key={g.id}>
                       <div className="flex items-center justify-between mb-1.5">
-                        <p className="text-xs font-medium text-rayo-green">{g.name}</p>
-                        <p className="text-xs font-semibold text-rayo-green">{g.percentComplete}%</p>
+                        <p className="text-xs font-medium text-Budgexa-green">{g.name}</p>
+                        <p className="text-xs font-semibold text-Budgexa-green">{g.percentComplete}%</p>
                       </div>
                       <div className="h-1.5 rounded-full bg-[#EEF0EA] overflow-hidden">
                         <div
@@ -330,14 +330,14 @@ export default function SavingsGoalsPage() {
         {/* ── Goals List ── */}
         <div className="bg-white rounded-2xl border border-[#EFEFE8] overflow-hidden">
           <div className="px-5 pt-5 pb-4 border-b border-[#EFEFE8]">
-            <h2 className="text-lg font-semibold text-rayo-green">All Goals</h2>
+            <h2 className="text-lg font-semibold text-Budgexa-green">All Goals</h2>
           </div>
 
           <div className="divide-y divide-[#F1F3EE]">
             {loading ? (
               <><GoalRowSkeleton /><GoalRowSkeleton /><GoalRowSkeleton /></>
             ) : goals.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 gap-3 text-rayo-green/35">
+              <div className="flex flex-col items-center justify-center py-16 gap-3 text-Budgexa-green/35">
                 <PiggyBank size={32} />
                 <p className="text-sm">You have no savings goals yet.</p>
               </div>
@@ -351,8 +351,8 @@ export default function SavingsGoalsPage() {
 
                   {/* Name */}
                   <div className="w-44 shrink-0">
-                    <p className="text-sm font-semibold text-rayo-green leading-tight">{goal.name}</p>
-                    <p className="text-[11px] text-rayo-green/40 mt-0.5">{fmtDeadline(goal.deadline)}</p>
+                    <p className="text-sm font-semibold text-Budgexa-green leading-tight">{goal.name}</p>
+                    <p className="text-[11px] text-Budgexa-green/40 mt-0.5">{fmtDeadline(goal.deadline)}</p>
                   </div>
 
                   {/* Progress bar */}
@@ -363,32 +363,32 @@ export default function SavingsGoalsPage() {
                         style={{ width: `${Math.min(goal.percentComplete, 100)}%`, background: "#3E7B3E" }}
                       />
                     </div>
-                    <p className="text-[11px] text-rayo-green/50 font-medium truncate">
+                    <p className="text-[11px] text-Budgexa-green/50 font-medium truncate">
                       {formatCurrency(goal.currentAmount, currency)} / {formatCurrency(goal.targetAmount, currency)}
                     </p>
                   </div>
 
                   {/* Percentage */}
                   <div className="w-10 shrink-0 text-center">
-                    <p className="text-sm font-semibold text-rayo-green">{goal.percentComplete}%</p>
+                    <p className="text-sm font-semibold text-Budgexa-green">{goal.percentComplete}%</p>
                   </div>
 
                   {/* Target date */}
                   <div className="w-20 shrink-0 text-right">
-                    <p className="text-[10px] uppercase tracking-wide text-rayo-green/35">Target</p>
-                    <p className="text-xs font-medium text-rayo-green mt-0.5">{fmtDeadline(goal.deadline)}</p>
+                    <p className="text-[10px] uppercase tracking-wide text-Budgexa-green/35">Target</p>
+                    <p className="text-xs font-medium text-Budgexa-green mt-0.5">{fmtDeadline(goal.deadline)}</p>
                   </div>
 
                   {/* Menu */}
                   <div className="relative" ref={goal.id === openMenuId ? menuRef : undefined}>
                     <button
                       onClick={() => setOpenMenuId(openMenuId === goal.id ? null : goal.id)}
-                      className="p-1.5 rounded-lg text-rayo-green/30 hover:text-rayo-green hover:bg-rayo-beige transition-colors shrink-0"
+                      className="p-1.5 rounded-lg text-Budgexa-green/30 hover:text-Budgexa-green hover:bg-Budgexa-beige transition-colors shrink-0"
                     >
                       <MoreHorizontal size={15} />
                     </button>
                     {openMenuId === goal.id && (
-                      <div className="absolute right-0 mt-1 bg-white rounded-lg shadow-md border border-rayo-ash z-50 min-w-[120px]">
+                      <div className="absolute right-0 mt-1 bg-white rounded-lg shadow-md border border-Budgexa-ash z-50 min-w-[120px]">
                         <button
                           onClick={() => { setDeleteTarget(goal); setOpenMenuId(null); }}
                           className="w-full px-4 py-2 text-left text-sm font-medium text-red-600 hover:bg-red-50 flex items-center gap-3 rounded-lg"
@@ -406,7 +406,7 @@ export default function SavingsGoalsPage() {
           <div className="p-4 border-t border-[#EFEFE8]">
             <Link
               href="/product/finance/savings/new"
-              className="w-full h-11 rounded-xl border border-dashed border-rayo-green text-sm font-medium text-rayo-green/60 hover:bg-[#FAFBF8] transition-colors flex items-center justify-center gap-2"
+              className="w-full h-11 rounded-xl border border-dashed border-Budgexa-green text-sm font-medium text-Budgexa-green/60 hover:bg-[#FAFBF8] transition-colors flex items-center justify-center gap-2"
             >
               <Plus size={14} /> Create New Goal
             </Link>

@@ -5,7 +5,7 @@ const FEATURES = [
     icon: Bot,
     title: "AI Financial Copilot",
     description:
-      "Chat with Rayo about your money. Ask questions about your spending, savings, budgets, and financial habits, and receive personalized guidance based on your own financial data.",
+      "Chat with Budgexa about your money. Ask questions about your spending, savings, budgets, and financial habits, and receive personalized guidance based on your own financial data.",
     cta: "See how it works",
     href: "#how-it-works",
   },
@@ -41,18 +41,18 @@ export default function FeaturesSection() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section label */}
         <div className="text-center mb-4">
-          <span className="inline-flex items-center gap-2 rounded-full border border-rayo-orange/25 bg-rayo-orange/10 px-4 py-1.5 text-xs font-semibold text-rayo-orange uppercase tracking-widest">
+          <span className="inline-flex items-center gap-2 rounded-full border border-Budgexa-orange/25 bg-Budgexa-orange/10 px-4 py-1.5 text-xs font-semibold text-Budgexa-orange uppercase tracking-widest">
             ✦ The Future of Finance
           </span>
         </div>
 
         {/* Heading */}
-        <h2 className="text-center font-display font-black text-4xl sm:text-5xl lg:text-6xl text-rayo-green mb-4 text-balance">
+        <h2 className="text-center font-display font-black text-4xl sm:text-5xl lg:text-6xl text-Budgexa-green mb-4 text-balance">
           Financial freedom designed for{" "}
-          <span className="text-rayo-orange">the next generation.</span>
+          <span className="text-Budgexa-orange">the next generation.</span>
         </h2>
-        <p className="text-center text-rayo-green/60 text-lg max-w-2xl mx-auto mb-16">
-          Rayo AI isn&apos;t just a bank — it&apos;s your personal financial strategist.
+        <p className="text-center text-Budgexa-green/60 text-lg max-w-2xl mx-auto mb-16">
+          Budgexa isn&apos;t just a bank — it&apos;s your personal financial strategist.
           Discover the tools built to help you save, spend, and grow smarter.
         </p>
 
@@ -61,25 +61,25 @@ export default function FeaturesSection() {
           {FEATURES.map(({ icon: Icon, title, description, cta, href }) => (
             <div key={title} className="feature-card group">
               {/* Icon */}
-              <div className="mb-4 h-10 w-10 rounded-xl bg-rayo-green/10 flex items-center justify-center transition-colors group-hover:bg-rayo-green">
+              <div className="mb-4 h-10 w-10 rounded-xl bg-Budgexa-green/10 flex items-center justify-center transition-colors group-hover:bg-Budgexa-green">
                 <Icon
                   size={20}
-                  className="text-rayo-green transition-colors group-hover:text-white"
+                  className="text-Budgexa-green transition-colors group-hover:text-white"
                 />
               </div>
 
               {/* Content */}
-              <h3 className="font-display font-bold text-xl text-rayo-green mb-2">
+              <h3 className="font-display font-bold text-xl text-Budgexa-green mb-2">
                 {title}
               </h3>
-              <p className="text-sm text-rayo-green/60 leading-relaxed mb-5">
+              <p className="text-sm text-Budgexa-green/60 leading-relaxed mb-5">
                 {description}
               </p>
 
               {/* CTA link */}
               <a
                 href={href}
-                className="inline-flex items-center gap-1 text-sm font-semibold text-rayo-green hover:text-rayo-orange transition-colors group/link"
+                className="inline-flex items-center gap-1 text-sm font-semibold text-Budgexa-green hover:text-Budgexa-orange transition-colors group/link"
               >
                 {cta}
                 <ArrowRight

@@ -28,27 +28,27 @@ export default function HeroSection() {
           {/* Left — copy */}
           <div>
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-rayo-orange/30 bg-rayo-orange/10 px-4 py-1.5 mb-6 animate-fade-in">
-              <span className="h-2 w-2 rounded-full bg-rayo-orange animate-pulse2" />
-              <span className="text-xs font-semibold text-rayo-orange tracking-wide uppercase">
+            <div className="inline-flex items-center gap-2 rounded-full border border-Budgexa-orange/30 bg-Budgexa-orange/10 px-4 py-1.5 mb-6 animate-fade-in">
+              <span className="h-2 w-2 rounded-full bg-Budgexa-orange animate-pulse2" />
+              <span className="text-xs font-semibold text-Budgexa-orange tracking-wide uppercase">
                 {/* Now available for early access */}
                 Now accepting signups for early access
               </span>
             </div>
 
             <h1
-              className="font-display font-black text-5xl sm:text-6xl lg:text-7xl text-rayo-green leading-[1.05] mb-6 animate-slide-up"
+              className="font-display font-black text-5xl sm:text-6xl lg:text-7xl text-Budgexa-green leading-[1.05] mb-6 animate-slide-up"
             >
               Your AI
               <br />
-              <span className="text-rayo-orange">Financial</span>
+              <span className="text-Budgexa-orange">Financial</span>
               <br />
               Copilot
             </h1>
 
-            <p className="text-rayo-green/70 text-lg leading-relaxed mb-8 max-w-lg animate-slide-up-delay">
+            <p className="text-Budgexa-green/70 text-lg leading-relaxed mb-8 max-w-lg animate-slide-up-delay">
               All your money in one place, powered by AI.
-              Rayo helps you budget smarter, save automatically, and track spending confidently.
+              Budgexa helps you budget smarter, save automatically, and track spending confidently.
             </p>
 
             {/* CTAs */}
@@ -61,7 +61,7 @@ export default function HeroSection() {
                 />
               </Link>
               <button className="btn-secondary text-base px-8 py-3.5 gap-2">
-                <Play size={15} className="fill-rayo-green" />
+                <Play size={15} className="fill-Budgexa-green" />
                 See Demo
               </button>
             </div>
@@ -72,15 +72,15 @@ export default function HeroSection() {
                 {["SJ", "MT", "ER"].map((initials) => (
                   <span
                     key={initials}
-                    className="h-8 w-8 rounded-full border-2 border-rayo-beige bg-rayo-green/20 flex items-center justify-center text-xs font-bold text-rayo-green"
+                    className="h-8 w-8 rounded-full border-2 border-Budgexa-beige bg-Budgexa-green/20 flex items-center justify-center text-xs font-bold text-Budgexa-green"
                   >
                     {initials}
                   </span>
                 ))}
               </div>
-              <p className="text-sm text-rayo-green/60">
+              <p className="text-sm text-Budgexa-green/60">
                 Trusted by{" "}
-                <span className="font-semibold text-rayo-green">10,000+</span>{" "}
+                <span className="font-semibold text-Budgexa-green">10,000+</span>{" "}
                 Gen Z savers
               </p>
             </div> */}
@@ -94,9 +94,9 @@ export default function HeroSection() {
               ].map(({ icon: Icon, label }) => (
                 <div
                   key={label}
-                  className="flex items-center gap-2 text-xs text-rayo-green/60"
+                  className="flex items-center gap-2 text-xs text-Budgexa-green/60"
                 >
-                  <Icon size={14} className="text-rayo-orange" />
+                  <Icon size={14} className="text-Budgexa-orange" />
                   {label}
                 </div>
               ))}

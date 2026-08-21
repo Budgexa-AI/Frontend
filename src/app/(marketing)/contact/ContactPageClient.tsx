@@ -5,6 +5,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod/v4";
 import { cn } from "@/lib/utils";
+import { getStoredUser, isAuthenticated } from "@/lib/auth-client";
 import { fetchCurrentUser } from "@/lib/data-service";
 import { submitContactMessage } from "@/lib/api-client";
 import {
@@ -65,6 +66,13 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
   const message = watch("message");
 
   useEffect(() => {
+    const stored = getStoredUser();
+    if (stored?.fullName) setValue("name", stored.fullName);
+    if (stored?.email) setValue("email", stored.email);
+
+    // Only hit the API if we have a token but no cached profile fields.
+    if (!isAuthenticated() || (stored?.fullName && stored?.email)) return;
+
     fetchCurrentUser()
       .then((user) => {
         if (user.name) setValue("name", user.name);
@@ -91,16 +99,16 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
     return (
       <div className="min-h-screen flex items-center justify-center px-5">
         <div className="max-w-md w-full text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-rayo-green/5 text-rayo-green">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-Budgexa-green/5 text-Budgexa-green">
             <CheckCircle2 size={32} />
           </div>
-          <h1 className="mt-6 text-2xl font-bold text-rayo-green">Message sent</h1>
-          <p className="mt-2 text-rayo-green/60">
+          <h1 className="mt-6 text-2xl font-bold text-Budgexa-green">Message sent</h1>
+          <p className="mt-2 text-Budgexa-green/60">
             Thanks for reaching out. We'll get back to you as soon as we can.
           </p>
           <button
             onClick={() => setSubmitted(false)}
-            className="mt-6 inline-flex items-center justify-center rounded-full border border-rayo-green/20 px-5 py-2.5 text-sm font-medium text-rayo-green hover:bg-rayo-ash transition-colors"
+            className="mt-6 inline-flex items-center justify-center rounded-full border border-Budgexa-green/20 px-5 py-2.5 text-sm font-medium text-Budgexa-green hover:bg-Budgexa-ash transition-colors"
           >
             Send another message
           </button>
@@ -113,14 +121,14 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
     <div className="min-h-screen px-5 py-16 md:py-24">
       <div className="mx-auto max-w-2xl">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 rounded-full border border-rayo-orange/20 bg-rayo-orange/5 px-4 py-2 text-sm font-medium text-rayo-orange mb-6">
+          <div className="inline-flex items-center gap-2 rounded-full border border-Budgexa-orange/20 bg-Budgexa-orange/5 px-4 py-2 text-sm font-medium text-Budgexa-orange mb-6">
             <Mail size={16} />
             We're here to help
           </div>
-          <h1 className="font-display text-4xl md:text-5xl font-black text-rayo-green leading-tight">
+          <h1 className="font-display text-4xl md:text-5xl font-black text-Budgexa-green leading-tight">
             Get in touch
           </h1>
-          <p className="mt-4 text-rayo-green/60 text-lg">
+          <p className="mt-4 text-Budgexa-green/60 text-lg">
             Found a bug, have a question, or just want to say hi? Drop us a message below.
           </p>
         </div>
@@ -128,10 +136,10 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
         <form
           noValidate
           onSubmit={handleSubmit(onSubmit)}
-          className="rounded-3xl border border-rayo-ash bg-white p-6 md:p-8 shadow-sm space-y-6"
+          className="rounded-3xl border border-Budgexa-ash bg-white p-6 md:p-8 shadow-sm space-y-6"
         >
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-rayo-green/50 mb-3">
+            <label className="block text-xs font-semibold uppercase tracking-wide text-Budgexa-green/50 mb-3">
               What's this about?
             </label>
             <Controller
@@ -150,8 +158,8 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
                         className={cn(
                           "flex flex-col items-center gap-1.5 rounded-2xl border px-3 py-3 text-xs font-medium transition-all",
                           active
-                            ? "border-rayo-green bg-rayo-green text-white"
-                            : "border-rayo-ash text-rayo-green/60 hover:border-rayo-green/30"
+                            ? "border-Budgexa-green bg-Budgexa-green text-white"
+                            : "border-Budgexa-ash text-Budgexa-green/60 hover:border-Budgexa-green/30"
                         )}
                       >
                         <Icon size={16} />
@@ -166,7 +174,7 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-medium text-rayo-green">
+              <label className="text-xs font-medium text-Budgexa-green">
                 Name <span className="text-red-500">*</span>
               </label>
               <input
@@ -174,7 +182,7 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
                 type="text"
                 placeholder="Your name"
                 className={cn(
-                  "w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-300 focus:border-rayo-green/40 focus:ring-2 focus:ring-rayo-green/10",
+                  "w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-300 focus:border-Budgexa-green/40 focus:ring-2 focus:ring-Budgexa-green/10",
                   errors.name ? "border-red-300" : "border-gray-200"
                 )}
               />
@@ -182,7 +190,7 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-medium text-rayo-green">
+              <label className="text-xs font-medium text-Budgexa-green">
                 Email <span className="text-red-500">*</span>
               </label>
               <input
@@ -190,7 +198,7 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
                 type="email"
                 placeholder="you@example.com"
                 className={cn(
-                  "w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-300 focus:border-rayo-green/40 focus:ring-2 focus:ring-rayo-green/10",
+                  "w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-300 focus:border-Budgexa-green/40 focus:ring-2 focus:ring-Budgexa-green/10",
                   errors.email ? "border-red-300" : "border-gray-200"
                 )}
               />
@@ -199,7 +207,7 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium text-rayo-green">
+            <label className="text-xs font-medium text-Budgexa-green">
               Subject <span className="text-red-500">*</span>
             </label>
             <input
@@ -207,7 +215,7 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
               type="text"
               placeholder="Short summary of your message"
               className={cn(
-                "w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-300 focus:border-rayo-green/40 focus:ring-2 focus:ring-rayo-green/10",
+                "w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-300 focus:border-Budgexa-green/40 focus:ring-2 focus:ring-Budgexa-green/10",
                 errors.subject ? "border-red-300" : "border-gray-200"
               )}
             />
@@ -215,7 +223,7 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium text-rayo-green">
+            <label className="text-xs font-medium text-Budgexa-green">
               Message <span className="text-red-500">*</span>
             </label>
             <textarea
@@ -224,7 +232,7 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
               maxLength={2000}
               placeholder="Tell us what's going on — the more detail, the faster we can help."
               className={cn(
-                "w-full resize-none rounded-xl border bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-300 focus:border-rayo-green/40 focus:ring-2 focus:ring-rayo-green/10",
+                "w-full resize-none rounded-xl border bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-300 focus:border-Budgexa-green/40 focus:ring-2 focus:ring-Budgexa-green/10",
                 errors.message ? "border-red-300" : "border-gray-200"
               )}
             />
@@ -247,7 +255,7 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-rayo-orange py-3.5 text-sm font-semibold text-white transition-all hover:bg-rayo-orange/90 disabled:opacity-60"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-Budgexa-orange py-3.5 text-sm font-semibold text-white transition-all hover:bg-Budgexa-orange/90 disabled:opacity-60"
           >
             {isSubmitting ? (
               <>

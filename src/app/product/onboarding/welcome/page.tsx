@@ -24,7 +24,7 @@ export default function WelcomeSetupPage() {
 
               <div>
                 <h2 className="text-xl font-semibold tracking-tight text-[#254F22]">
-                  Rayo
+                  Budgexa
                 </h2>
 
                 <p className="text-sm text-[#254F22]/60">

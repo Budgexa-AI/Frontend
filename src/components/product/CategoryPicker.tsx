@@ -44,9 +44,9 @@ export function CategoryPicker({ categories, value, onChange }: Props) {
             onChange({ type: "existing", category: next });
           }}
           className={cn(
-            "w-full rounded-xl border bg-white px-4 py-3 pr-10 text-sm text-rayo-green outline-none transition",
-            "focus:border-rayo-green focus:ring-2 focus:ring-rayo-green/20",
-            selectedCategory ? "border-rayo-green/30" : "border-gray-200"
+            "w-full rounded-xl border bg-white px-4 py-3 pr-10 text-sm text-Budgexa-green outline-none transition",
+            "focus:border-Budgexa-green focus:ring-2 focus:ring-Budgexa-green/20",
+            selectedCategory ? "border-Budgexa-green/30" : "border-gray-200"
           )}
         >
           <option value="">Select a category</option>
@@ -72,14 +72,14 @@ export function CategoryPicker({ categories, value, onChange }: Props) {
             onChange(null);
           }
         }}
-        className="self-start text-xs font-medium text-rayo-orange transition-colors hover:underline"
+        className="self-start text-xs font-medium text-Budgexa-orange transition-colors hover:underline"
       >
         {showCustom ? "Hide custom category" : "Create custom category"}
       </button>
 
       {/* Custom category input */}
       {showCustom && (
-        <div className="rounded-xl border border-rayo-orange/30 bg-rayo-orange/5 p-3 flex flex-col gap-2">
+        <div className="rounded-xl border border-Budgexa-orange/30 bg-Budgexa-orange/5 p-3 flex flex-col gap-2">
           <p className="text-xs text-gray-500">
             Name your category and pick which group it belongs to.
           </p>
@@ -88,12 +88,12 @@ export function CategoryPicker({ categories, value, onChange }: Props) {
             placeholder="e.g. Hair Care, Asoebi, Church offering"
             value={customName}
             onChange={(e) => setCustomName(e.target.value)}
-            className="rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-rayo-green focus:ring-2 focus:ring-rayo-green/20"
+            className="rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-Budgexa-green focus:ring-2 focus:ring-Budgexa-green/20"
           />
           <select
             value={selectedParent}
             onChange={(e) => setSelectedParent(e.target.value)}
-            className="rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-rayo-green"
+            className="rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-Budgexa-green"
           >
             <option value="">Which group does this fall under?</option>
             {systemOnly.map((cat) => (
@@ -113,7 +113,7 @@ export function CategoryPicker({ categories, value, onChange }: Props) {
                   parentSlug: selectedParent,
                 })
               }
-              className="rounded-lg bg-rayo-green px-3 py-1.5 text-xs font-medium text-white"
+              className="rounded-lg bg-Budgexa-green px-3 py-1.5 text-xs font-medium text-white"
             >
               Use "{customName.trim()}"
             </button>
@@ -123,7 +123,7 @@ export function CategoryPicker({ categories, value, onChange }: Props) {
 
       {/* Selected custom category confirmation */}
       {value?.type === "custom" && (
-        <p className="text-xs text-rayo-green/70">
+        <p className="text-xs text-Budgexa-green/70">
           ✓ "{value.name}" will be saved as a custom category under {
             systemOnly.find((c) => c.slug === value.parentSlug)?.name ?? value.parentSlug
           } and available next time.

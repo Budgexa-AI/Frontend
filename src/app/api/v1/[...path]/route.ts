@@ -68,10 +68,12 @@ async function proxyRequest(
   // nothing changes for existing endpoints).
   const body = hasBody ? await request.arrayBuffer() : undefined;
 
-  console.info("[proxy] forwarding request", {
-    method: request.method,
-    target: pathUrl.toString(),
-  });
+  if (process.env.NODE_ENV !== "production") {
+    console.info("[proxy] forwarding request", {
+      method: request.method,
+      target: pathUrl.toString(),
+    });
+  }
 
   try {
     const response = await fetch(targetUrl, {

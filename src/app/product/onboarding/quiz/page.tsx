@@ -363,7 +363,7 @@ export default function FinancialQuizPage() {
             {/* FOOTER NOTE */}
             <div className="mt-8 rounded-2xl border border-[#F5824A]/10 bg-[#F5824A]/5 p-4">
               <p className="text-sm leading-relaxed text-[#254F22]/70">
-                Your experience level isn’t permanent. Rayo adapts as
+                Your experience level isn’t permanent. Budgexa adapts as
                 your financial habits improve over time.
               </p>
             </div>

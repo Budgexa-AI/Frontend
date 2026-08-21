@@ -21,6 +21,7 @@ import {
 
 import { cn } from "@/lib/utils";
 import RayoLogo from "../icons/RayoLogo";
+import { logoutUser } from "@/lib/data-service";
 
 const NAV = [
   { label: "Dashboard", href: "/product/dashboard", icon: LayoutDashboard },
@@ -58,7 +59,13 @@ export default function DashboardSidebar({ profile }: Props) {
     profile?.plan?.toLowerCase?.() === "pro" ||
     profile?.plan?.toLowerCase?.() === "premium";
 
-  function handleLogOut() {
+  async function handleLogOut() {
+    try {
+      await logoutUser();
+    } catch {
+      // Swallow — see comment above.
+    }
+  
     localStorage.removeItem("authToken");
     document.cookie = "authToken=; path=/; max-age=0";
     router.push("/auth/login");
@@ -73,7 +80,7 @@ export default function DashboardSidebar({ profile }: Props) {
             <RayoLogo size={24} className="text-primary-foreground" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-foreground text-rayo-green">Rayo AI</h2>
+            <h2 className="text-lg font-bold text-foreground text-Budgexa-green">Budgexa</h2>
             <p className="text-xs text-muted-foreground">
               Your Path to Financial Freedom
             </p>
@@ -99,7 +106,7 @@ export default function DashboardSidebar({ profile }: Props) {
                 onClick={() => setMobileOpen(false)}
                 className={cn(
                   "group flex items-center justify-between rounded-2xl px-4 py-3 transition-all",
-                  active ? "bg-card shadow-card" : "hover:bg-rayo-beige/60"
+                  active ? "bg-card shadow-card" : "hover:bg-Budgexa-beige/60"
                 )}
               >
                 <div className="flex items-center gap-3">
@@ -160,7 +167,7 @@ export default function DashboardSidebar({ profile }: Props) {
             "flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 transition-all",
             pathname.startsWith("/product/settings")
               ? "bg-card shadow-card"
-              : "hover:bg-rayo-beige/60"
+              : "hover:bg-Budgexa-beige/60"
           )}
         >
           <div className={cn(
@@ -181,12 +188,12 @@ export default function DashboardSidebar({ profile }: Props) {
 
         <button
           onClick={handleLogOut}
-          className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 transition-all hover:bg-rayo-alert/10 group"
+          className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 transition-all hover:bg-Budgexa-alert/10 group"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-rayo-alert/10 text-rayo-alert group-hover:bg-rayo-alert/20 transition-all">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-Budgexa-alert/10 text-Budgexa-alert group-hover:bg-Budgexa-alert/20 transition-all">
             <LogOut size={16} />
           </div>
-          <span className="text-sm font-medium text-rayo-alert">Log out</span>
+          <span className="text-sm font-medium text-Budgexa-alert">Log out</span>
         </button>
 
         <button className="flex w-full items-center gap-3 rounded-2xl p-3 hover:bg-card mt-1">
@@ -215,7 +222,7 @@ export default function DashboardSidebar({ profile }: Props) {
   return (
     <>
       {/* DESKTOP */}
-      <aside className="hidden lg:flex w-60 flex-col border-r border-border bg-rayo-beige-light">
+      <aside className="hidden lg:flex w-60 flex-col border-r border-border bg-Budgexa-beige-light">
         <SidebarContent />
       </aside>
 
@@ -234,7 +241,7 @@ export default function DashboardSidebar({ profile }: Props) {
             className="absolute inset-0 bg-black/40"
             onClick={() => setMobileOpen(false)}
           />
-          <aside className="absolute left-0 top-0 h-full w-80 shadow-card-lg bg-rayo-beige-light border-r border-border flex flex-col">
+          <aside className="absolute left-0 top-0 h-full w-80 shadow-card-lg bg-Budgexa-beige-light border-r border-border flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-border">
               <p className="font-semibold">Menu</p>
               <button

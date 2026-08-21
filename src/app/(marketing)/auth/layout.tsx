@@ -3,7 +3,7 @@ import { Suspense } from "react";
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
-      <div className="min-h-screen flex flex-col bg-rayo-beige">
+      <div className="min-h-screen flex flex-col bg-Budgexa-beige">
         {/* Minimal header */}
         <header className="px-6 py-5"></header>
 

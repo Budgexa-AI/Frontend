@@ -41,7 +41,7 @@ function InputField({
 }) {
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-semibold text-rayo-green mb-1.5">
+      <label htmlFor={id} className="block text-sm font-semibold text-Budgexa-green mb-1.5">
         {label}
       </label>
       <div className="relative">
@@ -52,9 +52,9 @@ function InputField({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           className={cn(
-            "w-full rounded-xl border bg-white px-4 py-3 text-sm text-rayo-green placeholder:text-rayo-green/30",
-            "transition-all outline-none focus:ring-2 focus:ring-rayo-green/30",
-            error ? "border-rayo-alert" : "border-rayo-beige-dark focus:border-rayo-green",
+            "w-full rounded-xl border bg-white px-4 py-3 text-sm text-Budgexa-green placeholder:text-Budgexa-green/30",
+            "transition-all outline-none focus:ring-2 focus:ring-Budgexa-green/30",
+            error ? "border-Budgexa-alert" : "border-Budgexa-beige-dark focus:border-Budgexa-green",
             suffix && "pr-11"
           )}
         />
@@ -62,7 +62,7 @@ function InputField({
           <div className="absolute right-3 top-1/2 -translate-y-1/2">{suffix}</div>
         )}
       </div>
-      {error && <p className="mt-1.5 text-xs text-rayo-alert">{error}</p>}
+      {error && <p className="mt-1.5 text-xs text-Budgexa-alert">{error}</p>}
     </div>
   );
 }
@@ -79,19 +79,19 @@ function PasswordRequirements({ password }: { password: string }) {
   return (
     <div className={cn(
       "mt-2.5 rounded-xl border p-3 space-y-2",
-      allMet ? "bg-rayo-green/5 border-rayo-green/20" : "bg-rayo-alert/5 border-rayo-alert/20"
+      allMet ? "bg-Budgexa-green/5 border-Budgexa-green/20" : "bg-Budgexa-alert/5 border-Budgexa-alert/20"
     )}>
-      <p className="text-xs font-medium text-rayo-green/70 mb-2">Password requirements:</p>
+      <p className="text-xs font-medium text-Budgexa-green/70 mb-2">Password requirements:</p>
       {requirements.map((req) => (
         <div key={req.label} className="flex items-center gap-2">
           {req.met ? (
-            <Check size={14} className="text-rayo-green flex-shrink-0" />
+            <Check size={14} className="text-Budgexa-green flex-shrink-0" />
           ) : (
-            <X size={14} className="text-rayo-alert flex-shrink-0" />
+            <X size={14} className="text-Budgexa-alert flex-shrink-0" />
           )}
           <span className={cn(
             "text-xs",
-            req.met ? "text-rayo-green" : "text-rayo-alert"
+            req.met ? "text-Budgexa-green" : "text-Budgexa-alert"
           )}>
             {req.label}
           </span>
@@ -227,16 +227,16 @@ export default function SignUpPage() {
 
   return (
     <div className="w-full max-w-md">
-      <div className="rounded-3xl bg-white border border-rayo-beige-dark shadow-card-lg p-8">
-        <h1 className="font-display font-bold text-3xl text-rayo-green mb-1">
+      <div className="rounded-3xl bg-white border border-Budgexa-beige-dark shadow-card-lg p-8">
+        <h1 className="font-display font-bold text-3xl text-Budgexa-green mb-1">
           Create your account
         </h1>
-        <p className="text-sm text-rayo-green/60 mb-8">
+        <p className="text-sm text-Budgexa-green/60 mb-8">
           Join 1,000+ smart savers. It&apos;s free.
         </p>
 
         {serverError && (
-          <div className="mb-5 rounded-xl bg-rayo-alert/10 border border-rayo-alert/20 px-4 py-3 text-sm text-rayo-alert">
+          <div className="mb-5 rounded-xl bg-Budgexa-alert/10 border border-Budgexa-alert/20 px-4 py-3 text-sm text-Budgexa-alert">
             {serverError}
           </div>
         )}
@@ -271,7 +271,7 @@ export default function SignUpPage() {
               <button
                 type="button"
                 onClick={() => setShowPwd((s) => !s)}
-                className="text-rayo-green/40 hover:text-rayo-green transition-colors"
+                className="text-Budgexa-green/40 hover:text-Budgexa-green transition-colors"
               >
                 {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -293,7 +293,7 @@ export default function SignUpPage() {
             disabled={loading || googleLoading}
             className={cn(
               "btn-primary w-full py-3.5 text-base disabled:opacity-60 disabled:cursor-not-allowed",
-              Object.keys(errors).length > 0 && "ring-2 ring-rayo-alert"
+              Object.keys(errors).length > 0 && "ring-2 ring-Budgexa-alert"
             )}
           >
             {loading ? (
@@ -306,10 +306,10 @@ export default function SignUpPage() {
           {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-rayo-beige-dark"></div>
+              <div className="w-full border-t border-Budgexa-beige-dark"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-rayo-green/60">Or continue with</span>
+              <span className="px-2 bg-white text-Budgexa-green/60">Or continue with</span>
             </div>
           </div>
 
@@ -319,8 +319,8 @@ export default function SignUpPage() {
             onClick={handleGoogleSignUp}
             disabled={loading || googleLoading}
             className={cn(
-              "w-full rounded-xl border border-rayo-beige-dark bg-white px-4 py-3 flex items-center justify-center gap-2",
-              "text-sm font-medium text-rayo-green transition-all hover:bg-rayo-beige-light",
+              "w-full rounded-xl border border-Budgexa-beige-dark bg-white px-4 py-3 flex items-center justify-center gap-2",
+              "text-sm font-medium text-Budgexa-green transition-all hover:bg-Budgexa-beige-light",
               "disabled:opacity-60 disabled:cursor-not-allowed"
             )}
           >
@@ -332,11 +332,11 @@ export default function SignUpPage() {
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-rayo-green/60">
+        <p className="mt-6 text-center text-sm text-Budgexa-green/60">
           Already have an account?{" "}
           <Link
             href="/auth/login"
-            className="font-semibold text-rayo-green hover:text-rayo-orange transition-colors"
+            className="font-semibold text-Budgexa-green hover:text-Budgexa-orange transition-colors"
           >
             Log in
           </Link>

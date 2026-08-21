@@ -53,19 +53,22 @@ const API_PROXY_PREFIX = "/api/v1";
  */
 function getAppBaseUrl(): string {
   if (typeof window !== "undefined") {
-    // Client-side: relative URLs work fine
+    // Client-side: relative URLs go through the Next.js proxy.
     return "";
   }
 
-  // Server-side: must use absolute URL so Node's fetch can resolve it.
-  // Set NEXT_PUBLIC_APP_URL=https://rayo.vercel.app in Vercel env vars.
+  // Server-side: talk to the backend directly and skip the self-proxy hop.
+  const backendUrl = process.env.BACKEND_URL;
+  if (backendUrl) {
+    return backendUrl.replace(/\/$/, "");
+  }
+
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
   if (appUrl) {
     return appUrl.replace(/\/$/, "");
   }
 
-  // Fallback for local dev
-  return "http://localhost:3000";
+  return "http://localhost:3001";
 }
 
 function proxyPath(path: string): string {
@@ -126,6 +129,7 @@ async function apiFetch(
 }
 
 function logApiEvent(message: string, payload?: unknown) {
+  if (process.env.NODE_ENV === "production") return;
   if (payload === undefined) {
     console.info(`[api-client] ${message}`);
     return;
@@ -1166,6 +1170,92 @@ export async function scanReceipt(file: File): Promise<ScanReceiptResult> {
     created: inner.created ?? [],
     needsReview: inner.needsReview ?? [],
   };
+}
+
+// Beta Testers 
+
+export interface ValidateBetaTokenRequest {
+  token: string;
+}
+
+export interface ValidateBetaTokenResponse {
+  success: boolean;
+  token?: string;
+  label?: string;
+  error?: string;
+}
+
+export async function validateBetaToken(
+  data: ValidateBetaTokenRequest
+): Promise<ValidateBetaTokenResponse> {
+  const endpoint = proxyPath("/beta/validate");
+  logApiEvent("validate beta token request", {
+    endpoint,
+    payload: { token: "[redacted]" },
+  });
+
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: createHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const contentType = res.headers.get("content-type") || "";
+    const responseBody = contentType.includes("application/json")
+      ? await res.json().catch(() => null)
+      : await res.text().catch(() => "");
+    const errorMessage = extractErrorMessage(
+      responseBody,
+      `Beta token validation failed (${res.status})`
+    );
+    logApiError("validate beta token backend error", {
+      endpoint,
+      status: res.status,
+      statusText: res.statusText,
+      body: responseBody || "<empty>",
+    });
+    return { success: false, error: errorMessage };
+  }
+
+  return readJsonResponse<ValidateBetaTokenResponse>(res);
+}
+
+// Logout
+
+export interface LogoutResponse {
+  success: boolean;
+  error?: string;
+}
+
+export async function logout(): Promise<LogoutResponse> {
+  const endpoint = proxyPath("/logout");
+  logApiEvent("logout request", { endpoint });
+
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: createHeaders(),
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    const contentType = res.headers.get("content-type") || "";
+    const responseBody = contentType.includes("application/json")
+      ? await res.json().catch(() => null)
+      : await res.text().catch(() => "");
+    const errorMessage = extractErrorMessage(responseBody, `Logout failed (${res.status})`);
+    logApiError("logout backend error", {
+      endpoint,
+      status: res.status,
+      statusText: res.statusText,
+      body: responseBody || "<empty>",
+    });
+
+    return { success: false, error: errorMessage };
+  }
+
+  return { success: true };
 }
 
 // Error Handling Helper

@@ -2,22 +2,24 @@
 
 import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
-import { useCurrentUser } from "@/hooks/useUser";
-import type { UserProfile } from "@/lib/api-client";
 import { ProductUserProvider } from "./ProductUserProvider";
 
-function ProductShellContent({ children }: { children: ReactNode }) {
+function ProductShellContent({
+  sidebar,
+  children,
+}: {
+  sidebar: ReactNode;
+  children: ReactNode;
+}) {
   const pathname = usePathname();
-  const { profile } = useCurrentUser();
   const showSidebar = !pathname.startsWith("/product/onboarding");
 
   return (
-    <div className="min-h-screen bg-rayo-beige flex">
-      {showSidebar && <DashboardSidebar profile={profile ?? undefined} />}
+    <div className="min-h-screen bg-Budgexa-beige flex">
+      {showSidebar && sidebar}
 
       <div className="flex-1 flex flex-col min-w-0">
-        <main className="flex-1 px-3 sm:px-4 lg:px-6 pb-10 overflow-auto scrollbar-thin bg-rayo-beige">
+        <main className="flex-1 px-3 sm:px-4 lg:px-6 pb-10 overflow-auto scrollbar-thin bg-Budgexa-beige">
           {children}
         </main>
       </div>
@@ -26,15 +28,15 @@ function ProductShellContent({ children }: { children: ReactNode }) {
 }
 
 export default function ProductShell({
-  initialProfile,
+  sidebar,
   children,
 }: {
-  initialProfile: UserProfile | null;
+  sidebar: ReactNode;
   children: ReactNode;
 }) {
   return (
-    <ProductUserProvider initialProfile={initialProfile}>
-      <ProductShellContent>{children}</ProductShellContent>
+    <ProductUserProvider initialProfile={null}>
+      <ProductShellContent sidebar={sidebar}>{children}</ProductShellContent>
     </ProductUserProvider>
   );
 }

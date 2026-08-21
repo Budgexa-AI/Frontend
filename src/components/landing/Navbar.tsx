@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import RayoLogo from "@/components/icons/RayoLogo";
-import { fetchCurrentUser } from "@/lib/data-service";
+import { isAuthenticated } from "@/lib/auth-client";
 
 const NAV_LINKS = [
   { label: "Features",     href: "/#features" },
@@ -30,9 +30,7 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    fetchCurrentUser()
-      .then(() => setAuthState("authenticated"))
-      .catch(() => setAuthState("anonymous"));
+    setAuthState(isAuthenticated() ? "authenticated" : "anonymous");
   }, []);
 
   const isActive = (href: string) => {
@@ -46,7 +44,7 @@ export default function Navbar() {
       className={cn(
         "fixed top-0 inset-x-0 z-50 transition-all duration-300",
         scrolled
-          ? "bg-rayo-beige/95 backdrop-blur-md shadow-sm border-b border-rayo-beige-dark"
+          ? "bg-Budgexa-beige/95 backdrop-blur-md shadow-sm border-b border-Budgexa-beige-dark"
           : "bg-transparent"
       )}
     >
@@ -55,11 +53,11 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-rayo-green group-hover:scale-105 transition-transform">
-              <RayoLogo className="text-rayo-beige" size={26} />
+            <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-Budgexa-green group-hover:scale-105 transition-transform">
+              <RayoLogo className="text-Budgexa-beige" size={26} />
             </div>
-            <span className="font-display font-bold text-rayo-green text-2xl tracking-tight">
-              Rayo AI
+            <span className="font-display font-bold text-Budgexa-green text-2xl tracking-tight">
+              Budgexa
             </span>
           </Link>
 
@@ -74,8 +72,8 @@ export default function Navbar() {
                   className={cn(
                     "text-sm font-medium transition-colors pb-0.5",
                     active
-                      ? "text-rayo-green font-semibold border-b-2 border-rayo-orange"
-                      : "text-rayo-green/70 hover:text-rayo-green border-b-2 border-transparent"
+                      ? "text-Budgexa-green font-semibold border-b-2 border-Budgexa-orange"
+                      : "text-Budgexa-green/70 hover:text-Budgexa-green border-b-2 border-transparent"
                   )}
                 >
                   {label}
@@ -94,23 +92,12 @@ export default function Navbar() {
                 Dashboard
               </a>
             ) : authState === "anonymous" ? (
-              <div className="flex items-center gap-4">
-                <a
-                  href={"/auth/login"}
-                  className="btn-secondary text-sm px-5 py-2.5 hover:bg-rayo-beige/60 hover:text-rayo-green transition-colors"
-                  rel="noopener noreferrer"
-                >
-                  Log In
-                </a>
-
-                <a
-                  href={"/auth/signup"}
-                  className="btn-primary text-sm px-5 py-2.5"
-                  rel="noopener noreferrer"
-                >
-                  Sign Up
-                </a>
-              </div>
+              <a
+                href="/waitlist"
+                className="btn-primary text-sm px-5 py-2.5"
+              >
+                Join Waitlist
+              </a>
             ) : (
               // "checking" — reserve the space so the header doesn't jump
               // once auth state resolves
@@ -120,7 +107,7 @@ export default function Navbar() {
 
           {/* Mobile hamburger */}
           <button
-            className="md:hidden p-2 rounded-lg text-rayo-green"
+            className="md:hidden p-2 rounded-lg text-Budgexa-green"
             onClick={() => setMobileOpen((o) => !o)}
             aria-label="Toggle menu"
           >
@@ -131,7 +118,7 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden bg-rayo-beige border-t border-rayo-beige-dark px-4 pb-6 pt-2 space-y-1 animate-slide-up">
+        <div className="md:hidden bg-Budgexa-beige border-t border-Budgexa-beige-dark px-4 pb-6 pt-2 space-y-1 animate-slide-up">
           {NAV_LINKS.map(({ label, href }) => {
             const active = isActive(href);
             return (
@@ -142,8 +129,8 @@ export default function Navbar() {
                 className={cn(
                   "flex items-center text-base font-medium py-2.5 border-l-4 pl-3 transition-colors",
                   active
-                    ? "border-rayo-orange text-rayo-green font-semibold"
-                    : "border-transparent text-rayo-green/70 hover:text-rayo-green"
+                    ? "border-Budgexa-orange text-Budgexa-green font-semibold"
+                    : "border-transparent text-Budgexa-green/70 hover:text-Budgexa-green"
                 )}
               >
                 {label}
@@ -156,23 +143,9 @@ export default function Navbar() {
                 Dashboard
               </a>
             ) : (
-              <>
-                <a
-                  href={"/auth/login"}
-                  className="btn-secondary text-center hover:bg-rayo-beige/60 hover:text-rayo-green transition-colors"
-                  rel="noopener noreferrer"
-                >
-                  Log In
-                </a>
-
-                <a
-                  href={"/auth/signup"}
-                  className="btn-primary text-center"
-                  rel="noopener noreferrer"
-                >
-                  Sign Up
-                </a>
-              </>
+              <a href="/waitlist" className="btn-primary text-center">
+                Join Waitlist
+              </a>
             )}
           </div>
         </div>

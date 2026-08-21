@@ -10,8 +10,8 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        /* ── Rayo Brand Palette ── */
-        rayo: {
+        /* ── Budgexa Brand Palette ── */
+        Budgexa: {
           green:          "#254F22",
           orange:         "#F5824A",
           alert:          "#A03A13",
@@ -31,9 +31,9 @@ const config: Config = {
 
           /* ── Smart Stash / Sage palette ── */
           sage: {
-            DEFAULT:  "#CBE8C3",   // card bg — bg-rayo-sage
-            dark:     "#3D8C3A",   // header icon circle — bg-rayo-sage-dark
-            mid:      "#A8CBA1",   // row icon circle — bg-rayo-sage-mid
+            DEFAULT:  "#CBE8C3",   // card bg — bg-Budgexa-sage
+            dark:     "#3D8C3A",   // header icon circle — bg-Budgexa-sage-dark
+            mid:      "#A8CBA1",   // row icon circle — bg-Budgexa-sage-mid
             label:    "#3d6b38",  
           },
         },
@@ -70,12 +70,10 @@ const config: Config = {
         },
       },
       fontFamily: {
-        display: ["var(--font-display)", "sans-serif"], 
-        body:    ["var(--font-dm-sans)", "sans-serif"],
-        mono:    ["'JetBrains Mono'", "monospace"],
-        roboto:  ["'Roboto'", "sans-serif"],
-        poppins: ["'Poppins'", "sans-serif"],
-        lato:    ["'Lato'", "sans-serif"],
+        display: ["var(--font-display)", "sans-serif"],
+        body:    ["var(--font-body)", "sans-serif"],
+        mono:    ["var(--font-mono)", "monospace"],
+        poppins: ["var(--font-display)", "sans-serif"],
       },
       borderRadius: {
         lg:   "var(--radius)",

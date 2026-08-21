@@ -54,12 +54,12 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="w-full max-w-md">
-      <div className="rounded-3xl bg-white border border-rayo-beige-dark shadow-card-lg p-8">
-        <h1 className="font-display font-bold text-3xl text-rayo-green mb-1">Set a new password</h1>
-        <p className="text-sm text-rayo-green/60 mb-8">Use the link from your email to create a new password.</p>
+      <div className="rounded-3xl bg-white border border-Budgexa-beige-dark shadow-card-lg p-8">
+        <h1 className="font-display font-bold text-3xl text-Budgexa-green mb-1">Set a new password</h1>
+        <p className="text-sm text-Budgexa-green/60 mb-8">Use the link from your email to create a new password.</p>
 
         {serverError && (
-          <div className="mb-5 rounded-xl bg-rayo-alert/10 border border-rayo-alert/20 px-4 py-3 text-sm text-rayo-alert">
+          <div className="mb-5 rounded-xl bg-Budgexa-alert/10 border border-Budgexa-alert/20 px-4 py-3 text-sm text-Budgexa-alert">
             {serverError}
           </div>
         )}
@@ -72,29 +72,29 @@ export default function ResetPasswordPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="password" className="block text-sm font-semibold text-rayo-green mb-1.5">New password</label>
+            <label htmlFor="password" className="block text-sm font-semibold text-Budgexa-green mb-1.5">New password</label>
             <div className="relative">
               <input
                 id="password"
                 type={showPwd ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-xl border border-rayo-beige-dark bg-white px-4 py-3 pr-11 text-sm text-rayo-green transition-all outline-none focus:ring-2 focus:ring-rayo-green/30 focus:border-rayo-green"
+                className="w-full rounded-xl border border-Budgexa-beige-dark bg-white px-4 py-3 pr-11 text-sm text-Budgexa-green transition-all outline-none focus:ring-2 focus:ring-Budgexa-green/30 focus:border-Budgexa-green"
               />
-              <button type="button" onClick={() => setShowPwd((s) => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-rayo-green/40 hover:text-rayo-green transition-colors">
+              <button type="button" onClick={() => setShowPwd((s) => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-Budgexa-green/40 hover:text-Budgexa-green transition-colors">
                 {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
           </div>
 
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-semibold text-rayo-green mb-1.5">Confirm password</label>
+            <label htmlFor="confirmPassword" className="block text-sm font-semibold text-Budgexa-green mb-1.5">Confirm password</label>
             <input
               id="confirmPassword"
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full rounded-xl border border-rayo-beige-dark bg-white px-4 py-3 text-sm text-rayo-green transition-all outline-none focus:ring-2 focus:ring-rayo-green/30 focus:border-rayo-green"
+              className="w-full rounded-xl border border-Budgexa-beige-dark bg-white px-4 py-3 text-sm text-Budgexa-green transition-all outline-none focus:ring-2 focus:ring-Budgexa-green/30 focus:border-Budgexa-green"
             />
           </div>
 
@@ -103,8 +103,8 @@ export default function ResetPasswordPage() {
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-rayo-green/60">
-          <Link href="/auth/login" className="font-semibold text-rayo-green hover:text-rayo-orange transition-colors">
+        <p className="mt-6 text-center text-sm text-Budgexa-green/60">
+          <Link href="/auth/login" className="font-semibold text-Budgexa-green hover:text-Budgexa-orange transition-colors">
             Back to login
           </Link>
         </p>

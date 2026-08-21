@@ -214,21 +214,21 @@ export default function AddTransactionPage() {
       <div className="mx-auto max-w-5xl">
 
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold tracking-tight text-rayo-green">Add Transaction</h1>
-          <p className="mt-1 text-sm text-rayo-green/70">Record your income or expense to keep track of your finances.</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-Budgexa-green">Add Transaction</h1>
+          <p className="mt-1 text-sm text-Budgexa-green/70">Record your income or expense to keep track of your finances.</p>
         </div>
 
         {/* ── Receipt scanner ── */}
-        <div className="mb-6 rounded-2xl border border-rayo-ash bg-white p-6 shadow-sm">
+        <div className="mb-6 rounded-2xl border border-Budgexa-ash bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-rayo-sage-dark" />
-            <h2 className="text-sm font-semibold text-rayo-green">Scan a receipt (optional)</h2>
+            <Sparkles className="h-4 w-4 text-Budgexa-sage-dark" />
+            <h2 className="text-sm font-semibold text-Budgexa-green">Scan a receipt (optional)</h2>
           </div>
 
           <ReceiptUpload onFileSelect={handleFileSelect} />
 
           {isScanning && (
-            <div className="mt-4 flex items-center gap-2 text-sm text-rayo-green/70">
+            <div className="mt-4 flex items-center gap-2 text-sm text-Budgexa-green/70">
               <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -282,21 +282,21 @@ export default function AddTransactionPage() {
         </div>
 
         <form noValidate onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">
-          <div className="order-1 rounded-2xl border border-rayo-ash bg-white p-6 shadow-sm">
+          <div className="order-1 rounded-2xl border border-Budgexa-ash bg-white p-6 shadow-sm">
 
             {/* Direction tabs — unchanged */}
             <Controller
               control={control}
               name="direction"
               render={({ field }) => (
-                <div className="mb-6 flex rounded-xl bg-rayo-ash p-1 gap-1">
+                <div className="mb-6 flex rounded-xl bg-Budgexa-ash p-1 gap-1">
                   {(["Expense", "Income"] as const).map((dir) => (
                     <button key={dir} type="button" onClick={() => field.onChange(dir)}
                       className={cn(
                         "flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition",
                         field.value === dir
                           ? dir === "Expense" ? "border-red-200 bg-red-100 text-red-600 shadow-sm" : "border-green-200 bg-green-100 text-green-700 shadow-sm"
-                          : dir === "Income" ? "text-rayo-grey hover:text-green-400" : "text-rayo-grey hover:text-red-500"
+                          : dir === "Income" ? "text-Budgexa-grey hover:text-green-400" : "text-Budgexa-grey hover:text-red-500"
                       )}
                     >
                       {dir === "Expense" ? (
@@ -313,7 +313,7 @@ export default function AddTransactionPage() {
             {/* Amount + Date — unchanged */}
             <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-rayo-green">Amount <span className="text-red-500">*</span></label>
+                <label className="text-xs font-medium text-Budgexa-green">Amount <span className="text-red-500">*</span></label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 select-none">
                     {getCurrencySymbol(currency)}
@@ -326,7 +326,7 @@ export default function AddTransactionPage() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-rayo-green">Date <span className="text-red-500">*</span></label>
+                <label className="text-xs font-medium text-Budgexa-green">Date <span className="text-red-500">*</span></label>
                 <input {...register("date")} type="date"
                   className={cn("w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-700 outline-none transition focus:border-gray-400 focus:ring-2 focus:ring-gray-200", errors.date ? "border-red-300" : "border-gray-200")}
                 />
@@ -336,7 +336,7 @@ export default function AddTransactionPage() {
 
             {/* Description — unchanged */}
             <div className="mb-5 flex flex-col gap-1.5">
-              <label className="text-xs font-medium text-rayo-green">What was this for? <span className="text-red-500">*</span></label>
+              <label className="text-xs font-medium text-Budgexa-green">What was this for? <span className="text-red-500">*</span></label>
               <textarea {...register("description")} rows={3} maxLength={150}
                 placeholder="E.g., Lunch at Chicken Republic, Rent payment, Data bundle"
                 className={cn("w-full resize-none rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-200", errors.description ? "border-red-300" : "border-gray-200")}
@@ -350,13 +350,13 @@ export default function AddTransactionPage() {
             {/* Merchant + Bill type — unchanged */}
             <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-rayo-green">Who was involved? (Merchant / Recipient)</label>
+                <label className="text-xs font-medium text-Budgexa-green">Who was involved? (Merchant / Recipient)</label>
                 <input {...register("merchant")} type="text" placeholder="E.g., Chicken Republic, MTN, Tobi"
                   className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-200"
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-rayo-green">Transaction Type <span className="font-normal text-gray-400">(Optional)</span></label>
+                <label className="text-xs font-medium text-Budgexa-green">Transaction Type <span className="font-normal text-gray-400">(Optional)</span></label>
                 <select {...register("billType")} className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-700 outline-none transition focus:border-gray-400 focus:ring-2 focus:ring-gray-200">
                   <option value="">Select type</option>
                   {PAYMENT_METHODS.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
@@ -366,8 +366,8 @@ export default function AddTransactionPage() {
 
             {/* ── Category picker ── */}
             <div className="mb-5 flex flex-col gap-1.5">
-              <label className="flex items-center gap-1.5 text-xs font-medium text-rayo-green">
-                <Sparkles className="h-4 w-4 text-rayo-sage-dark" />
+              <label className="flex items-center gap-1.5 text-xs font-medium text-Budgexa-green">
+                <Sparkles className="h-4 w-4 text-Budgexa-sage-dark" />
                 Category <span className="font-normal text-gray-400">*</span>
               </label>
 
@@ -384,7 +384,7 @@ export default function AddTransactionPage() {
               {categoryError && <p className="text-xs text-red-500">{categoryError}</p>}
 
               {selectedCategory?.type === "custom" && (
-                <p className="text-xs text-rayo-green/60">
+                <p className="text-xs text-Budgexa-green/60">
                   "{selectedCategory.name}" will be saved as a custom category under "Other" and available next time.
                 </p>
               )}
@@ -397,8 +397,8 @@ export default function AddTransactionPage() {
 
             {/* Institution — unchanged */}
             <div className="mb-5 flex flex-col gap-1.5">
-              <label className="flex items-center gap-1.5 text-xs font-medium text-rayo-green">🏦 Institution <span className="font-normal text-gray-400">(Optional)</span></label>
-              <select {...register("institution")} className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-rayo-grey outline-none transition focus:border-gray-400 focus:ring-2 focus:ring-gray-200">
+              <label className="flex items-center gap-1.5 text-xs font-medium text-Budgexa-green">🏦 Institution <span className="font-normal text-gray-400">(Optional)</span></label>
+              <select {...register("institution")} className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-Budgexa-grey outline-none transition focus:border-gray-400 focus:ring-2 focus:ring-gray-200">
                 <option value="">Select bank / institution</option>
                 {BANKS.map((b) => <option key={b} value={b}>{b}</option>)}
               </select>
@@ -410,11 +410,11 @@ export default function AddTransactionPage() {
 
             <div className="flex gap-3">
               <button type="button" onClick={() => router.back()} disabled={isSubmitting}
-                className="flex-1 rounded-xl border border-gray-200 bg-white py-2.5 text-sm font-medium text-gray-700 transition hover:bg-rayo-grey/20 active:scale-[0.99] disabled:opacity-50">
+                className="flex-1 rounded-xl border border-gray-200 bg-white py-2.5 text-sm font-medium text-gray-700 transition hover:bg-Budgexa-grey/20 active:scale-[0.99] disabled:opacity-50">
                 Cancel
               </button>
               <button type="submit" disabled={isSubmitting}
-                className="flex flex-[2] items-center justify-center gap-2 rounded-xl bg-rayo-green py-2.5 text-sm font-medium text-white transition hover:bg-rayo-green-dark active:scale-[0.99] disabled:opacity-60">
+                className="flex flex-[2] items-center justify-center gap-2 rounded-xl bg-Budgexa-green py-2.5 text-sm font-medium text-white transition hover:bg-Budgexa-green-dark active:scale-[0.99] disabled:opacity-60">
                 {isSubmitting ? (
                   <><svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>Saving...</>
                 ) : remainingReviewCount > 0 ? (
