@@ -1,7 +1,7 @@
 // File location: app/beta/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { validateBetaToken } from "@/lib/data-service";
 
@@ -16,7 +16,7 @@ function MetricSkeletonCard() {
   );
 }
 
-export default function BetaGatePage() {
+function BetaGateBody() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<"checking" | "invalid">("checking");
@@ -88,6 +88,28 @@ export default function BetaGatePage() {
         <p className="mt-6 text-center text-sm text-Budgexa-green/50">
           Checking your invite...
         </p>
+      </div>
+    </main>
+  );
+}
+
+export default function BetaGatePage() {
+  return (
+    <Suspense fallback={<BetaGateFallback />}>
+      <BetaGateBody />
+    </Suspense>
+  );
+}
+
+function BetaGateFallback() {
+  return (
+    <main className="min-h-screen bg-Budgexa-beige">
+      <div className="mx-auto w-full max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 pt-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <MetricSkeletonCard key={i} />
+          ))}
+        </section>
       </div>
     </main>
   );
