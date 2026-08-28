@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import {
@@ -91,6 +92,7 @@ const formatDate = (date: string) =>
 // Page
 
 export default function CreateSavingsGoalPage() {
+  const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const { profile } = useCurrentUser();

@@ -568,7 +568,7 @@ export function signInWithGoogle(redirectUrl: string, errorUrl: string) {
     `&errorUrl=${encodeURIComponent(errorUrl)}`;
 
   if (typeof window !== "undefined") {
-    router.push = googleOAuthUrl;
+    window.location.href = googleOAuthUrl;
   }
 }
 

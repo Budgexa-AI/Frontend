@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+
   typescript: {
     ignoreBuildErrors: false,
   },
@@ -20,7 +18,7 @@ const nextConfig = {
         pathname: "/storage/v1/object/public/**",
       },
     ],
-    domains: ["res.cloudinary.com"],
+
   },
   headers: async () => [
     {
