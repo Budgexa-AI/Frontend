@@ -64,6 +64,7 @@ export default function LoginPage() {
         oauth_cancelled: "Google sign-in was cancelled.",
         oauth_failed:    "Google sign-in failed. Please try again.",
       };
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reacting to OAuth redirect query params, not derivable during render
       setServerError(messages[oauthError] ?? "An error occurred during Google sign-in.");
     }
   }, [searchParams, router]);

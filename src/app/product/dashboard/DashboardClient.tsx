@@ -40,6 +40,19 @@ function deriveLatestInsight(insights?: DBAiInsight[]) {
 const RADIUS = 40;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
+function buildDonutSegments(
+  spending: Array<{ label: string; amount: number; pct: number; color: string }>
+) {
+  let cumulative = 0;
+  return spending.map((item) => {
+    const dash = (item.pct / 100) * CIRCUMFERENCE;
+    const gap = CIRCUMFERENCE - dash;
+    const offset = -(cumulative / 100) * CIRCUMFERENCE;
+    cumulative += item.pct;
+    return { ...item, dash, gap, offset };
+  });
+}
+
 function DonutChart({
   spending,
   totalExpenses,
@@ -49,33 +62,26 @@ function DonutChart({
   totalExpenses: number;
   currency: string;
 }) {
-  let cumulative = 0;
+  const segments = buildDonutSegments(spending);
 
   return (
     <div className="rounded-full bg-Budgexa-green p-5 shadow-inner">
       <div className="relative h-36 w-36">
         <svg viewBox="0 0 100 100" className="-rotate-90">
-          {spending.map((item, i) => {
-            const dash = (item.pct / 100) * CIRCUMFERENCE;
-            const gap = CIRCUMFERENCE - dash;
-            const offset = -(cumulative / 100) * CIRCUMFERENCE;
-            cumulative += item.pct;
-
-            return (
-              <circle
-                key={i}
-                cx="50"
-                cy="50"
-                r={RADIUS}
-                fill="none"
-                stroke={item.color}
-                strokeWidth="12"
-                strokeDasharray={`${dash} ${gap}`}
-                strokeDashoffset={offset}
-                strokeLinecap="round"
-              />
-            );
-          })}
+          {segments.map((seg, i) => (
+            <circle
+              key={i}
+              cx="50"
+              cy="50"
+              r={RADIUS}
+              fill="none"
+              stroke={seg.color}
+              strokeWidth="12"
+              strokeDasharray={`${seg.dash} ${seg.gap}`}
+              strokeDashoffset={seg.offset}
+              strokeLinecap="round"
+            />
+          ))}
         </svg>
 
         <div className="absolute inset-0 flex flex-col items-center justify-center">

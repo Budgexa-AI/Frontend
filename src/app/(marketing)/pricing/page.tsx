@@ -12,6 +12,7 @@ import {
   Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import PhoneMockCard from "@/components/landing/MockCard";
 
 type BillingPeriod = "monthly" | "yearly";
 
@@ -151,38 +152,9 @@ function PhoneMockup({ isMounted }: { isMounted: boolean }) {
         style={{ borderRadius: "62% 38% 55% 45% / 45% 55% 45% 55%" }}
       />
 
-      <div className="relative rounded-[2rem] border-4 border-Budgexa-green/80 bg-white p-3 shadow-xl">
-        <div className="mb-3 flex justify-center">
-          <div className="h-1.5 w-10 rounded-full bg-Budgexa-green/20" />
-        </div>
-
-        <p className="px-1 text-xs font-semibold text-Budgexa-green/70 mb-2">Overview</p>
-
-        <div className="mb-3 rounded-2xl bg-Budgexa-ash px-4 py-3">
-          <p className="text-2xl font-bold text-Budgexa-green">₦250,000</p>
-          <p className="text-xs text-Budgexa-green/50">Total Balance</p>
-        </div>
-
-        <div className="mb-3 rounded-2xl bg-Budgexa-ash px-4 py-3">
-          <div className="flex items-end justify-between">
-            <div>
-              <p className="text-xl font-bold text-Budgexa-green">₦120,500</p>
-              <p className="text-xs text-Budgexa-green/50">This Month · Spent</p>
-            </div>
-            <span className="text-xs font-semibold text-Budgexa-orange">+12%</span>
-          </div>
-        </div>
-
-        <div className="rounded-2xl bg-Budgexa-ash px-4 py-3">
-          <p className="text-xs font-semibold text-Budgexa-green/70 mb-2">Budgets</p>
-          <div className="flex items-center justify-between text-xs text-Budgexa-green/60 mb-1">
-            <span>Groceries</span>
-            <span>₦45,000 / ₦60,000</span>
-          </div>
-          <div className="h-1.5 w-full rounded-full bg-Budgexa-green/10">
-            <div className="h-1.5 w-3/4 rounded-full bg-Budgexa-orange" />
-          </div>
-        </div>
+      {/* phone mockup */}
+      <div className="flex justify-center lg:justify-end pt-12 mt-6 lg:mt-2">
+        <PhoneMockCard />
       </div>
 
       {/* floating dot accent */}
