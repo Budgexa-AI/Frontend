@@ -63,7 +63,7 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
     },
   });
 
-  const message = watch("message");
+  const message = useWatch({ control, name: "message" });
 
   useEffect(() => {
     const stored = getStoredUser();

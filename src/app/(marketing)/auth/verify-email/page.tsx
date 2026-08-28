@@ -50,7 +50,9 @@ export default function VerifyEmailPage() {
 
   // Show success message on initial load
   useEffect(() => {
-    setSuccessMessage("Verification code sent to your email!");
+    setTimeout(() => {
+        setSuccessMessage("Verification code sent to your email!");
+      }, 0);
     const timeout = setTimeout(() => setSuccessMessage(""), 5000);
     return () => clearTimeout(timeout);
   }, []);

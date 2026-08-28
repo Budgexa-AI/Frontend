@@ -275,7 +275,9 @@ export default function BudgetPage() {
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    setTimeout(() => { load(); }, 0);
+  }, [load]);
 
   async function handleSave(payload: {
     categoryId?: number;

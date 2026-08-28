@@ -74,9 +74,11 @@ export function useAuth(): UseAuthReturn {
   useEffect(() => {
     const storedUser = getStoredUser();
     if (storedUser) {
-      setUser(storedUser);
+      setTimeout(() => {
+        setUser(storedUser);
+      }, 0);
     }
-    setIsHydrated(true);
+      setTimeout(() => { setIsHydrated(true); }, 0);
   }, []);
 
   const handleAuthSuccess = useCallback((response: AuthResponse) => {

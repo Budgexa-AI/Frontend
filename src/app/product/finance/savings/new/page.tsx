@@ -153,7 +153,7 @@ export default function CreateSavingsGoalPage() {
       1,
       Math.round(
         (new Date(targetDate).getTime() -
-          Date.now()) /
+          new Date().getTime()) /
           (1000 * 60 * 60 * 24 * 30)
       )
     );
@@ -208,7 +208,8 @@ export default function CreateSavingsGoalPage() {
               parentSlug: selectedGoalType === "emergency" ? "savings_investment" : GOAL_TYPE_TO_SLUG[selectedGoalType] ?? "savings_investment",
             }),
       });
-      window.location.href = "/product/finance/savings";
+      router.push("/product/finance/savings");
+      router.refresh();
     } catch (e: any) {
       setError(e.message || "Failed to create goal");
     } finally {

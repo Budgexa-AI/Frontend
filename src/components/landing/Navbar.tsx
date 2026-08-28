@@ -36,7 +36,9 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    setAuthState(isAuthenticated() ? "authenticated" : "anonymous");
+    setTimeout(() => {
+        setAuthState(isAuthenticated() ? "authenticated" : "anonymous");
+      }, 0);
   }, []);
 
   const isActive = (href: string) => {

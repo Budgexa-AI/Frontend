@@ -25,7 +25,9 @@ function BetaGateBody() {
     const token = searchParams.get("token");
 
     if (!token) {
-      setStatus("invalid");
+      setTimeout(() => {
+        setStatus("invalid");
+      }, 0);
       return;
     }
 
