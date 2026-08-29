@@ -107,29 +107,6 @@ export default function SettingsPage() {
   const [selectedMethod, setSelectedMethod] = useState("envelope");
   const [budgetSaved,    setBudgetSaved]    = useState(false);
 
-  useEffect(() => {
-    const profileData = profile as (typeof profile & {
-      firstName?: string;
-      lastName?: string;
-      fullName?: string;
-      phone?: string;
-      phoneNumber?: string;
-      incomeSource?: string;
-    }) | null;
-
-    const displayName =
-      profileData?.fullName?.trim() ||
-      profileData?.name?.trim() ||
-      "";
-    const nameParts = displayName.split(/\s+/).filter(Boolean);
-
-    setFirstName(profileData?.firstName || nameParts[0] || "");
-    setLastName(profileData?.lastName || nameParts.slice(1).join(" "));
-    setEmail(profileData?.email || "");
-    setPhone(profileData?.phone || profileData?.phoneNumber || "");
-    setIncomeSource(profileData?.incomeSource || "");
-  }, [profile]);
-
   // ── Handlers ──────────────────────────────────────────────
 
   function handleProfileSave() {

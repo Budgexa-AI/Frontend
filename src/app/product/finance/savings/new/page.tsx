@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import {
@@ -91,6 +92,7 @@ const formatDate = (date: string) =>
 // Page
 
 export default function CreateSavingsGoalPage() {
+  const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const { profile } = useCurrentUser();
@@ -153,7 +155,7 @@ export default function CreateSavingsGoalPage() {
       1,
       Math.round(
         (new Date(targetDate).getTime() -
-          Date.now()) /
+          new Date().getTime()) /
           (1000 * 60 * 60 * 24 * 30)
       )
     );
@@ -208,7 +210,8 @@ export default function CreateSavingsGoalPage() {
               parentSlug: selectedGoalType === "emergency" ? "savings_investment" : GOAL_TYPE_TO_SLUG[selectedGoalType] ?? "savings_investment",
             }),
       });
-      window.location.href = "/product/finance/savings";
+      router.push("/product/finance/savings");
+      router.refresh();
     } catch (e: any) {
       setError(e.message || "Failed to create goal");
     } finally {

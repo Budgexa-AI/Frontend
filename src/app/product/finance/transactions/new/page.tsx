@@ -82,7 +82,9 @@ export default function AddTransactionPage() {
 
   useEffect(() => {
     if (!selectedCategory && suggestedCategory) {
-      setSelectedCategory({ type: "existing", category: suggestedCategory });
+      setTimeout(() => {
+        setSelectedCategory({ type: "existing", category: suggestedCategory });
+      }, 0);
     }
   }, [selectedCategory, suggestedCategory]);
 

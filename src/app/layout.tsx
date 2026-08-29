@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 // @ts-ignore: allow side-effect global CSS import without type declarations
 import "../styles/globals.css";
 import { dmSans, mono, poppins, fraunces } from "@/lib/fonts";
@@ -30,6 +30,12 @@ export function generateMetadata(): Metadata {
     other: {
       ...Sentry.getTraceData(),
     },
+  };
+}
+
+export function generateViewport(): Viewport {
+  return {
+    themeColor: "#254F22",
   };
 }
 

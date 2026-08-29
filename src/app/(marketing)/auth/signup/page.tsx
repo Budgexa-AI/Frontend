@@ -142,7 +142,9 @@ export default function SignUpPage() {
         oauth_cancelled: "Google sign-up was cancelled.",
         oauth_failed:    "Google sign-up failed. Please try again.",
       };
-      setServerError(messages[oauthError] ?? "An error occurred during Google sign-up.");
+      setTimeout(() => {
+        setServerError(messages[oauthError] ?? "An error occurred during Google sign-up.");
+      }, 0);
     }
   }, [searchParams, router]);
 

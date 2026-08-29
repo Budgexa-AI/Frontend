@@ -1,23 +1,7 @@
 import { cache } from "react";
-import type { UserProfile } from "@/lib/api-client";
+import { normalizeProfile, type UserProfile } from "@/lib/api-client";
 import { backendFetch, getAuthTokenFromCookies } from "./backend-fetch";
 
-function normalizeProfile(payload: any): UserProfile | null {
-  const source = payload?.data ?? payload?.profile ?? payload ?? {};
-  const id = source.id ?? source.userId ?? source.user_id ?? "";
-
-  if (!id && !source.email) return null;
-
-  return {
-    id,
-    email: source.email ?? undefined,
-    name: source.name ?? source.fullName ?? source.full_name ?? undefined,
-    avatarUrl: source.profileImage ?? undefined,
-    plan: source.plan ?? undefined,
-    country: source.country ?? undefined,
-    currency: source.currency ?? undefined,
-  };
-}
 
 /** Deduped per request — layout + page won't each hit /auth/me. */
 export const getCurrentUserServer = cache(async (): Promise<UserProfile | null> => {

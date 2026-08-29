@@ -204,7 +204,9 @@ export default function SavingsGoalsPage() {
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    setTimeout(() => { load(); }, 0);
+  }, [load]);
 
   // ── Delete ────────────────────────────────────────────────
   async function handleDelete() {

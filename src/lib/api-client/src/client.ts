@@ -15,10 +15,32 @@ export interface UserProfile {
   id: string;
   email?: string;
   name?: string;
+  firstName?: string;
+  lastName?: string;
   avatarUrl?: string;
   plan?: string;
   country?: string;
   currency?: string;
+  phone?: string;
+  incomeSource?: string;
+}
+
+export function normalizeProfile(payload: any): UserProfile {
+  const source = payload?.data ?? payload?.profile ?? payload ?? {};
+
+  return {
+    id: source.id ?? source.userId ?? source.user_id ?? "",
+    email: source.email ?? undefined,
+    name: source.name ?? source.fullName ?? source.full_name ?? undefined,
+    firstName: source.firstName ?? source.first_name ?? undefined,
+    lastName: source.lastName ?? source.last_name ?? undefined,
+    avatarUrl: source.profileImage ?? undefined,
+    plan: source.plan ?? undefined,
+    country: source.country ?? undefined,
+    currency: source.currency ?? undefined,
+    phone: source.phone ?? source.phoneNumber ?? undefined,
+    incomeSource: source.incomeSource ?? undefined,
+  };
 }
 
 export interface BudgetRow {
@@ -86,21 +108,6 @@ async function readJsonResponse<T>(res: Response): Promise<T> {
 
   const text = await res.text();
   return text as unknown as T;
-}
-
-function normalizeProfile(payload: any): UserProfile {
-  const source = payload?.data ?? payload?.profile ?? payload ?? {};
-
-  return {
-    id: source.id ?? source.userId ?? source.user_id ?? "",
-    email: source.email ?? undefined,
-    name:
-      source.name ?? source.fullName ?? source.full_name ?? undefined,
-    avatarUrl: source.profileImage ?? undefined,
-    plan: source.plan ?? undefined,
-    country: source.country ?? undefined,
-    currency: source.currency ?? undefined,
-  };
 }
 
 function createHeaders(extraHeaders?: HeadersInit, serverToken?: string | null): HeadersInit {

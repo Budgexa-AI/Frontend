@@ -61,22 +61,22 @@ export function AIInsightPanel({
 
   // 🧠 simulate assistant "thinking flow"
   useEffect(() => {
-    setIsThinking(true);
-
-    const baseMessages: Message[] = [
-      {
-        id: "sys",
-        type: "system",
-        content: "Budgexa Assistant is reviewing your transaction…",
-      },
-      {
-        id: "think",
-        type: "thinking",
-        content: "Analyzing patterns, merchant history, and description…",
-      },
-    ];
-
-    setMessages(baseMessages);
+    // Use setTimeout to avoid synchronous setState in effect
+    setTimeout(() => {
+      setIsThinking(true);
+      setMessages([
+        {
+          id: "sys",
+          type: "system",
+          content: "Budgexa Assistant is reviewing your transaction\u2026",
+        },
+        {
+          id: "think",
+          type: "thinking",
+          content: "Analyzing patterns, merchant history, and description\u2026",
+        },
+      ]);
+    }, 0);
 
     const t = setTimeout(() => {
       const finalMessages: Message[] = [

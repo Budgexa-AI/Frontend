@@ -4,21 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-
 import {
-  LayoutDashboard,
-  ArrowLeftRight,
-  PieChart,
-  Target,
-  Sparkles,
-  Settings,
-  Crown,
-  ChevronRight,
-  Menu,
-  X,
-  LogOut,
+  LayoutDashboard, ArrowLeftRight, PieChart, Target, Sparkles,
+  Settings, Crown, ChevronRight, Menu, X, LogOut,
 } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 import RayoLogo from "../icons/RayoLogo";
 import { logoutUser } from "@/lib/data-service";
@@ -31,47 +20,41 @@ const NAV = [
   { label: "Insights", href: "/product/finance/ai", icon: Sparkles },
 ];
 
-interface Props {
-  profile?: {
-    name?: string;
-    email?: string;
-    plan?: string;
-    avatarUrl?: string;
-  };
+function getNavDescription(label: string) {
+  switch (label) {
+    case "Dashboard": return "Your financial progress at a glance";
+    case "Transactions": return "Track every money movement";
+    case "Budget": return "Plan and control your spending";
+    case "Goals": return "Build toward financial milestones";
+    case "Insights": return "AI guidance to improve decisions";
+    case "Reports": return "Understand your financial patterns";
+    default: return "";
+  }
 }
 
-export default function DashboardSidebar({ profile }: Props) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  const name = profile?.name ?? profile?.email ?? "Test User";
-  const email = profile?.email ?? "user@example.com";
-
-  const initials = name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-
-  const isPro =
-    profile?.plan?.toLowerCase?.() === "pro" ||
-    profile?.plan?.toLowerCase?.() === "premium";
-
-  async function handleLogOut() {
-    try {
-      await logoutUser();
-    } catch {
-      // Swallow — see comment above.
-    }
-  
-    localStorage.removeItem("authToken");
-    document.cookie = "authToken=; path=/; max-age=0";
-    router.push("/auth/login");
-  }
-
-  const SidebarContent = () => (
+// ── Moved OUTSIDE DashboardSidebar so it's a stable component type
+// across renders (fixes react-hooks/static-components). Takes
+// everything it needs as props instead of closing over parent state.
+function SidebarContent({
+  pathname,
+  onNavigate,
+  isPro,
+  name,
+  email,
+  initials,
+  avatarUrl,
+  onLogOut,
+}: {
+  pathname: string;
+  onNavigate: () => void;
+  isPro: boolean;
+  name: string;
+  email: string;
+  initials: string;
+  avatarUrl?: string;
+  onLogOut: () => void;
+}) {
+  return (
     <>
       {/* LOGO */}
       <div className="px-6 pt-6">
@@ -81,9 +64,7 @@ export default function DashboardSidebar({ profile }: Props) {
           </div>
           <div>
             <h2 className="text-lg font-bold text-foreground text-Budgexa-green">Budgexa</h2>
-            <p className="text-xs text-muted-foreground">
-              Your Path to Financial Freedom
-            </p>
+            <p className="text-xs text-muted-foreground">Your Path to Financial Freedom</p>
           </div>
         </Link>
       </div>
@@ -91,9 +72,7 @@ export default function DashboardSidebar({ profile }: Props) {
       {/* NAV */}
       <div className="mt-8 flex-1 px-4">
         <div className="mb-3 px-3">
-          <p className="text-sm font-semibold uppercase tracking-sm text-muted-foreground">
-            Overview
-          </p>
+          <p className="text-sm font-semibold uppercase tracking-sm text-muted-foreground">Overview</p>
         </div>
 
         <nav className="space-y-1.5">
@@ -103,35 +82,24 @@ export default function DashboardSidebar({ profile }: Props) {
               <Link
                 key={href}
                 href={href}
-                onClick={() => setMobileOpen(false)}
+                onClick={onNavigate}
                 className={cn(
                   "group flex items-center justify-between rounded-2xl px-4 py-3 transition-all",
                   active ? "bg-card shadow-card" : "hover:bg-Budgexa-beige/60"
                 )}
               >
                 <div className="flex items-center gap-3">
-                  <div
-                    className={cn(
-                      "flex h-10 w-10 items-center justify-center rounded-lg transition-all",
-                      active
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-primary/10 text-primary group-hover:bg-primary/20"
-                    )}
-                  >
+                  <div className={cn(
+                    "flex h-10 w-10 items-center justify-center rounded-lg transition-all",
+                    active ? "bg-primary text-primary-foreground" : "bg-primary/10 text-primary group-hover:bg-primary/20"
+                  )}>
                     <Icon size={18} />
                   </div>
                   <div>
-                    <p
-                      className={cn(
-                        "text-sm font-medium",
-                        active ? "text-primary" : "text-foreground/70"
-                      )}
-                    >
+                    <p className={cn("text-sm font-medium", active ? "text-primary" : "text-foreground/70")}>
                       {label}
                     </p>
-                    <p className="text-[11px] text-muted-foreground">
-                      {getNavDescription(label)}
-                    </p>
+                    <p className="text-[11px] text-muted-foreground">{getNavDescription(label)}</p>
                   </div>
                 </div>
                 <ChevronRight size={16} className="text-muted-foreground" />
@@ -140,16 +108,13 @@ export default function DashboardSidebar({ profile }: Props) {
           })}
         </nav>
 
-        {/* PREMIUM */}
         {!isPro && (
           <div className="mt-8 rounded-3xl bg-primary p-5 text-primary-foreground">
             <div className="flex items-center gap-2 mb-4">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10">
                 <Crown size={18} />
               </div>
-              <p className="text-sm font-semibold leading-snug">
-                Unlock AI insights & unlimited goals.
-              </p>
+              <p className="text-sm font-semibold leading-snug">Unlock AI insights & unlimited goals.</p>
             </div>
             <button className="w-full rounded-3xl bg-accent py-3 text-sm font-semibold text-accent-foreground">
               Upgrade to Pro from ₦3,500
@@ -162,19 +127,15 @@ export default function DashboardSidebar({ profile }: Props) {
       <div className="border-t border-border p-4 space-y-1">
         <Link
           href="/product/settings"
-          onClick={() => setMobileOpen(false)}
+          onClick={onNavigate}
           className={cn(
             "flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 transition-all",
-            pathname.startsWith("/product/settings")
-              ? "bg-card shadow-card"
-              : "hover:bg-Budgexa-beige/60"
+            pathname.startsWith("/product/settings") ? "bg-card shadow-card" : "hover:bg-Budgexa-beige/60"
           )}
         >
           <div className={cn(
             "flex h-8 w-8 items-center justify-center rounded-xl transition-all",
-            pathname.startsWith("/product/settings")
-              ? "bg-primary text-primary-foreground"
-              : "bg-primary/10 text-primary"
+            pathname.startsWith("/product/settings") ? "bg-primary text-primary-foreground" : "bg-primary/10 text-primary"
           )}>
             <Settings size={16} />
           </div>
@@ -187,7 +148,7 @@ export default function DashboardSidebar({ profile }: Props) {
         </Link>
 
         <button
-          onClick={handleLogOut}
+          onClick={onLogOut}
           className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 transition-all hover:bg-Budgexa-alert/10 group"
         >
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-Budgexa-alert/10 text-Budgexa-alert group-hover:bg-Budgexa-alert/20 transition-all">
@@ -197,14 +158,8 @@ export default function DashboardSidebar({ profile }: Props) {
         </button>
 
         <button className="flex w-full items-center gap-3 rounded-2xl p-3 hover:bg-card mt-1">
-          {profile?.avatarUrl ? (
-            <Image
-              src={profile.avatarUrl}
-              className="h-12 w-12 rounded-2xl object-cover"
-              alt="User avatar"
-              width={48}
-              height={48}
-            />
+          {avatarUrl ? (
+            <Image src={avatarUrl} className="h-12 w-12 rounded-2xl object-cover" alt="User avatar" width={48} height={48} />
           ) : (
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground font-bold">
               {initials}
@@ -218,12 +173,48 @@ export default function DashboardSidebar({ profile }: Props) {
       </div>
     </>
   );
+}
+
+interface Props {
+  profile?: { name?: string; email?: string; plan?: string; avatarUrl?: string };
+}
+
+export default function DashboardSidebar({ profile }: Props) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const name = profile?.name ?? profile?.email ?? "Test User";
+  const email = profile?.email ?? "user@example.com";
+  const initials = name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+  const isPro = profile?.plan?.toLowerCase?.() === "pro" || profile?.plan?.toLowerCase?.() === "premium";
+
+  async function handleLogOut() {
+    try {
+      await logoutUser();
+    } catch {
+      // Swallow — logout should proceed client-side even if the API call fails.
+    }
+    localStorage.removeItem("authToken");
+    document.cookie = "authToken=; path=/; max-age=0";
+    router.push("/auth/login");
+  }
+
+  const sidebarProps = {
+    pathname,
+    isPro,
+    name,
+    email,
+    initials,
+    avatarUrl: profile?.avatarUrl,
+    onLogOut: handleLogOut,
+  };
 
   return (
     <>
       {/* DESKTOP */}
       <aside className="hidden lg:flex w-60 flex-col border-r border-border bg-Budgexa-beige-light">
-        <SidebarContent />
+        <SidebarContent {...sidebarProps} onNavigate={() => {}} />
       </aside>
 
       {/* MOBILE TRIGGER */}
@@ -237,10 +228,7 @@ export default function DashboardSidebar({ profile }: Props) {
       {/* MOBILE DRAWER */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="absolute inset-0 bg-black/40"
-            onClick={() => setMobileOpen(false)}
-          />
+          <div className="absolute inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
           <aside className="absolute left-0 top-0 h-full w-80 shadow-card-lg bg-Budgexa-beige-light border-r border-border flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-border">
               <p className="font-semibold">Menu</p>
@@ -252,23 +240,11 @@ export default function DashboardSidebar({ profile }: Props) {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto">
-              <SidebarContent />
+              <SidebarContent {...sidebarProps} onNavigate={() => setMobileOpen(false)} />
             </div>
           </aside>
         </div>
       )}
     </>
   );
-}
-
-function getNavDescription(label: string) {
-  switch (label) {
-    case "Dashboard": return "Your financial progress at a glance";
-    case "Transactions": return "Track every money movement";
-    case "Budget": return "Plan and control your spending";
-    case "Goals": return "Build toward financial milestones";
-    case "Insights": return "AI guidance to improve decisions";
-    case "Reports": return "Understand your financial patterns";
-    default: return "";
-  }
 }
