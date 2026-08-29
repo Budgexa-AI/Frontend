@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 // @ts-ignore: allow side-effect global CSS import without type declarations
 import "../styles/globals.css";
-import { dmSans, mono, poppins } from "@/lib/fonts";
+import { dmSans, mono, poppins, fraunces } from "@/lib/fonts";
 import * as Sentry from '@sentry/nextjs';
 
 export function generateMetadata(): Metadata {
@@ -37,7 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${dmSans.variable} ${mono.variable} ${poppins.variable} font-body min-h-screen bg-Budgexa-beige antialiased`}
+        className={`${dmSans.variable} ${mono.variable} ${poppins.variable} ${fraunces.variable} font-body min-h-screen bg-Budgexa-beige antialiased`}
       >
         {children}
       </body>

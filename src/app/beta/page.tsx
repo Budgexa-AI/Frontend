@@ -1,7 +1,6 @@
-// File location: app/beta/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { validateBetaToken } from "@/lib/data-service";
 
@@ -16,7 +15,7 @@ function MetricSkeletonCard() {
   );
 }
 
-export default function BetaGatePage() {
+function BetaGateContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<"checking" | "invalid">("checking");
@@ -92,3 +91,11 @@ export default function BetaGatePage() {
     </main>
   );
 }
+
+export default function BetaGatePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-Budgexa-beige">Checking invite...</div>}>
+      <BetaGateContent />
+    </Suspense>
+  );
+}
