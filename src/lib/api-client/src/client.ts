@@ -15,10 +15,32 @@ export interface UserProfile {
   id: string;
   email?: string;
   name?: string;
+  firstName?: string;
+  lastName?: string;
   avatarUrl?: string;
   plan?: string;
   country?: string;
   currency?: string;
+  phone?: string;
+  incomeSource?: string;
+}
+
+export function normalizeProfile(payload: any): UserProfile {
+  const source = payload?.data ?? payload?.profile ?? payload ?? {};
+
+  return {
+    id: source.id ?? source.userId ?? source.user_id ?? "",
+    email: source.email ?? undefined,
+    name: source.name ?? source.fullName ?? source.full_name ?? undefined,
+    firstName: source.firstName ?? source.first_name ?? undefined,
+    lastName: source.lastName ?? source.last_name ?? undefined,
+    avatarUrl: source.profileImage ?? undefined,
+    plan: source.plan ?? undefined,
+    country: source.country ?? undefined,
+    currency: source.currency ?? undefined,
+    phone: source.phone ?? source.phoneNumber ?? undefined,
+    incomeSource: source.incomeSource ?? undefined,
+  };
 }
 
 export interface BudgetRow {
@@ -53,19 +75,22 @@ const API_PROXY_PREFIX = "/api/v1";
  */
 function getAppBaseUrl(): string {
   if (typeof window !== "undefined") {
-    // Client-side: relative URLs work fine
+    // Client-side: relative URLs go through the Next.js proxy.
     return "";
   }
 
-  // Server-side: must use absolute URL so Node's fetch can resolve it.
-  // Set NEXT_PUBLIC_APP_URL=https://rayo.vercel.app in Vercel env vars.
+  // Server-side: talk to the backend directly and skip the self-proxy hop.
+  const backendUrl = process.env.BACKEND_URL;
+  if (backendUrl) {
+    return backendUrl.replace(/\/$/, "");
+  }
+
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
   if (appUrl) {
     return appUrl.replace(/\/$/, "");
   }
 
-  // Fallback for local dev
-  return "http://localhost:3000";
+  return "http://localhost:3001";
 }
 
 function proxyPath(path: string): string {
@@ -83,21 +108,6 @@ async function readJsonResponse<T>(res: Response): Promise<T> {
 
   const text = await res.text();
   return text as unknown as T;
-}
-
-function normalizeProfile(payload: any): UserProfile {
-  const source = payload?.data ?? payload?.profile ?? payload ?? {};
-
-  return {
-    id: source.id ?? source.userId ?? source.user_id ?? "",
-    email: source.email ?? undefined,
-    name:
-      source.name ?? source.fullName ?? source.full_name ?? undefined,
-    avatarUrl: source.profileImage ?? undefined,
-    plan: source.plan ?? undefined,
-    country: source.country ?? undefined,
-    currency: source.currency ?? undefined,
-  };
 }
 
 function createHeaders(extraHeaders?: HeadersInit, serverToken?: string | null): HeadersInit {
@@ -126,6 +136,7 @@ async function apiFetch(
 }
 
 function logApiEvent(message: string, payload?: unknown) {
+  if (process.env.NODE_ENV === "production") return;
   if (payload === undefined) {
     console.info(`[api-client] ${message}`);
     return;
@@ -1120,6 +1131,138 @@ export async function submitContactMessage(data: ContactRequest): Promise<Contac
   }
 
   return readJsonResponse<ContactResponse>(res);
+}
+
+// Receipt Scanner API
+export interface ScannedTransactionReview {
+  amount: number;
+  type: "income" | "expense";
+  description: string | null;
+  merchant: string | null;
+  date: string | null; // ISO date, or null if the scan couldn't determine one
+  categorySlug: string | null;
+  institution: string | null;
+  reasons: string[];
+}
+
+export interface ScanReceiptResult {
+  created: unknown[];
+  needsReview: ScannedTransactionReview[];
+}
+
+export async function scanReceipt(file: File): Promise<ScanReceiptResult> {
+  const formData = new FormData();
+  formData.append("receipt", file);
+
+  const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+
+  const res = await fetch(proxyPath("/transactions/scan"), {
+    method: "POST",
+    credentials: "include",
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const contentType = res.headers.get("content-type") || "";
+    const responseBody = contentType.includes("application/json")
+      ? await res.json().catch(() => null)
+      : await res.text().catch(() => "");
+    throw new Error(extractErrorMessage(responseBody, `Receipt scan failed (${res.status})`));
+  }
+
+  const data = await readJsonResponse<any>(res);
+  const inner = data.data ?? data;
+  return {
+    created: inner.created ?? [],
+    needsReview: inner.needsReview ?? [],
+  };
+}
+
+// Beta Testers 
+
+export interface ValidateBetaTokenRequest {
+  token: string;
+}
+
+export interface ValidateBetaTokenResponse {
+  success: boolean;
+  token?: string;
+  label?: string;
+  error?: string;
+}
+
+export async function validateBetaToken(
+  data: ValidateBetaTokenRequest
+): Promise<ValidateBetaTokenResponse> {
+  const endpoint = proxyPath("/beta/validate");
+  logApiEvent("validate beta token request", {
+    endpoint,
+    payload: { token: "[redacted]" },
+  });
+
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: createHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const contentType = res.headers.get("content-type") || "";
+    const responseBody = contentType.includes("application/json")
+      ? await res.json().catch(() => null)
+      : await res.text().catch(() => "");
+    const errorMessage = extractErrorMessage(
+      responseBody,
+      `Beta token validation failed (${res.status})`
+    );
+    logApiError("validate beta token backend error", {
+      endpoint,
+      status: res.status,
+      statusText: res.statusText,
+      body: responseBody || "<empty>",
+    });
+    return { success: false, error: errorMessage };
+  }
+
+  return readJsonResponse<ValidateBetaTokenResponse>(res);
+}
+
+// Logout
+
+export interface LogoutResponse {
+  success: boolean;
+  error?: string;
+}
+
+export async function logout(): Promise<LogoutResponse> {
+  const endpoint = proxyPath("/logout");
+  logApiEvent("logout request", { endpoint });
+
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: createHeaders(),
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    const contentType = res.headers.get("content-type") || "";
+    const responseBody = contentType.includes("application/json")
+      ? await res.json().catch(() => null)
+      : await res.text().catch(() => "");
+    const errorMessage = extractErrorMessage(responseBody, `Logout failed (${res.status})`);
+    logApiError("logout backend error", {
+      endpoint,
+      status: res.status,
+      statusText: res.statusText,
+      body: responseBody || "<empty>",
+    });
+
+    return { success: false, error: errorMessage };
+  }
+
+  return { success: true };
 }
 
 // Error Handling Helper

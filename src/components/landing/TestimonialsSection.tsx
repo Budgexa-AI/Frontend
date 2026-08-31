@@ -1,91 +1,34 @@
+// components/landing/TestimonialsSection.tsx
 import { Star } from "lucide-react";
-
-const TESTIMONIALS = [
-  {
-    name: "Sarah J.",
-    role: "Student · Port Harcourt",
-    initials: "SJ",
-    rating: 5,
-    quote:
-      "Honestly, I was terrible with money. Rayo feels like having a strict but nice accountant in my pocket. Saved ₦10k in 3 months!",
-    highlight: false,
-  },
-  {
-    name: "Marcus T.",
-    role: "Designer · Abuja",
-    initials: "MT",
-    rating: 5,
-    quote:
-      "The AI chat is actually useful. I asked 'can I afford these sneakers?' and it told me 'no' lol. My wallet thanks you, Rayo.",
-    highlight: true,
-    badge: "Editor's Choice",
-  },
-  {
-    name: "Elena R.",
-    role: "Developer · Lagos",
-    initials: "ER",
-    rating: 4,
-    quote:
-      "Finally an app that doesn't feel like a spreadsheet. It's clean, fast, and the auto-save feature is pure magic.",
-    highlight: false,
-  },
-];
-
-function Stars({ count }: { count: number }) {
-  return (
-    <div className="flex gap-0.5">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Star
-          key={i}
-          size={14}
-          className={i < count ? "fill-rayo-orange text-rayo-orange" : "text-rayo-beige-dark"}
-        />
-      ))}
-    </div>
-  );
-}
 
 export default function TestimonialsSection() {
   return (
-    <section className="py-24 lg:py-32 bg-rayo-beige-light">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 className="text-center font-display font-black text-4xl sm:text-5xl text-rayo-green mb-16 text-balance">
-          What people are saying
-        </h2>
+    <section className="grid grid-cols-1 border-b border-Budgexa-beige-dark bg-Budgexa-beige-light lg:grid-cols-2">
+      <div className="flex flex-col justify-center border-b border-Budgexa-beige-dark px-6 py-16 sm:px-10 lg:border-b-0 lg:border-r">
+        <span className="text-3xl text-Budgexa-orange">&ldquo;</span>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {TESTIMONIALS.map(({ name, role, initials, rating, quote, highlight, badge }) => (
-            <div
-              key={name}
-              className={`relative rounded-2xl p-6 border transition-all ${
-                highlight
-                  ? "bg-rayo-beige border-rayo-orange/30 shadow-glow"
-                  : "bg-white border-rayo-beige-dark shadow-card"
-              }`}
-            >
-              {badge && (
-                <span className="absolute -top-3 left-6 rounded-full bg-rayo-orange px-3 py-0.5 text-xs font-bold text-white">
-                  {badge}
-                </span>
-              )}
+        <p className="mt-4 max-w-md font-display text-xl leading-snug text-Budgexa-green sm:text-2xl">
+          It&apos;s simple to use and helps keep my spending in check.
+        </p>
 
-              <Stars count={rating} />
+        <div className="mt-6 flex items-center gap-3">
+          <div className="flex gap-0.5">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star key={i} size={14} className="fill-Budgexa-orange text-Budgexa-orange" />
+            ))}
+          </div>
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-Budgexa-green/50">
+            Micheal · via F6S
+          </p>
+        </div>
+      </div>
 
-              <blockquote className="mt-4 text-rayo-green/80 text-sm leading-relaxed mb-5">
-                &#34;{quote}&#34;
-              </blockquote>
-
-              <div className="flex items-center gap-3">
-                <span className="h-9 w-9 rounded-full bg-rayo-green/15 flex items-center justify-center text-xs font-bold text-rayo-green">
-                  {initials}
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-rayo-green">{name}</p>
-                  <p className="text-xs text-rayo-green/50">{role}</p>
-                </div>
-              </div>
-            </div>
-          ))}
+      <div className="relative min-h-[300px] overflow-hidden bg-gradient-to-br from-Budgexa-beige-dark to-Budgexa-beige-light lg:min-h-full">
+        <div className="absolute left-[17%] top-[17%] h-56 w-56 rounded-full bg-Budgexa-orange/70" />
+        <div className="absolute left-[26%] top-[16%] flex h-80 w-52 rotate-6 items-center justify-center rounded-[100px_100px_16px_16px] bg-Budgexa-green shadow-card-lg">
+          <span className="-rotate-6 font-display text-xl font-bold text-Budgexa-beige">
+            Budgexa
+          </span>
         </div>
       </div>
     </section>

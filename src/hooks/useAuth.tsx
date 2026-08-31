@@ -12,7 +12,6 @@ import {
   resetPassword,
   resendResetPassword,
   uploadProfileImage,
-  getCurrentUser,
   type SignUpRequest,
   type LoginRequest,
   type ResetPasswordRequest,
@@ -33,6 +32,7 @@ import {
   type VerifyOtpInput,
   type ResetPasswordInput,
 } from '@/lib/auth-client';
+import { fetchCurrentUser, invalidateCache } from '@/lib/data-service';
 
 export interface UseAuthReturn {
   // State
@@ -74,9 +74,11 @@ export function useAuth(): UseAuthReturn {
   useEffect(() => {
     const storedUser = getStoredUser();
     if (storedUser) {
-      setUser(storedUser);
+      setTimeout(() => {
+        setUser(storedUser);
+      }, 0);
     }
-    setIsHydrated(true);
+      setTimeout(() => { setIsHydrated(true); }, 0);
   }, []);
 
   const handleAuthSuccess = useCallback((response: AuthResponse) => {
@@ -329,25 +331,22 @@ export function useAuth(): UseAuthReturn {
   );
 
   const handleUploadProfileImage = useCallback(
-    async (file: File): Promise<{ success: boolean; imageUrl?: string; error?: string }> => {
+    async (file: File) => {
       setIsLoading(true);
       setError(null);
-
       try {
         const response = await uploadProfileImage(file);
-
         if (!response.success) {
           setError(response.error || 'Failed to upload image');
         } else {
-          // Update user avatar URL if successful
           if (user && response.imageUrl) {
             const updatedUser = { ...user, avatarUrl: response.imageUrl };
             setUser(updatedUser);
             setStoredUser(updatedUser);
           }
+          invalidateCache("current-user");
           setError(null);
         }
-
         return response;
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'Failed to upload image';
@@ -365,7 +364,7 @@ export function useAuth(): UseAuthReturn {
     setError(null);
 
     try {
-      const profile = await getCurrentUser();
+      const profile = await fetchCurrentUser();
       const userData: AuthUser = {
         id: profile.id,
         email: profile.email || '',
@@ -387,6 +386,7 @@ export function useAuth(): UseAuthReturn {
 
   const handleLogout = useCallback(() => {
     clearAuthData();
+    invalidateCache("current-user");
     setUser(null);
     setError(null);
   }, []);

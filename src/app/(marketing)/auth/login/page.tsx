@@ -64,6 +64,7 @@ export default function LoginPage() {
         oauth_cancelled: "Google sign-in was cancelled.",
         oauth_failed:    "Google sign-in failed. Please try again.",
       };
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reacting to OAuth redirect query params, not derivable during render
       setServerError(messages[oauthError] ?? "An error occurred during Google sign-in.");
     }
   }, [searchParams, router]);
@@ -186,16 +187,16 @@ export default function LoginPage() {
 
   return (
     <div className="w-full max-w-md">
-      <div className="rounded-3xl bg-white border border-rayo-beige-dark shadow-card-lg p-8">
-        <h1 className="font-display font-black text-3xl text-rayo-green mb-1">
+      <div className="rounded-3xl bg-white border border-Budgexa-beige-dark shadow-card-lg p-8">
+        <h1 className="font-display font-black text-3xl text-Budgexa-green mb-1">
           Welcome back
         </h1>
-        <p className="text-sm text-rayo-green/60 mb-8">
-          Log in to your Rayo account.
+        <p className="text-sm text-Budgexa-green/60 mb-8">
+          Log in to your Budgexa account.
         </p>
 
         {serverError && (
-          <div className="mb-5 rounded-xl bg-rayo-alert/10 border border-rayo-alert/20 px-4 py-3 text-sm text-rayo-alert">
+          <div className="mb-5 rounded-xl bg-Budgexa-alert/10 border border-Budgexa-alert/20 px-4 py-3 text-sm text-Budgexa-alert">
             {serverError}
           </div>
         )}
@@ -203,7 +204,7 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} noValidate className="space-y-5">
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-sm font-semibold text-rayo-green mb-1.5">
+            <label htmlFor="email" className="block text-sm font-semibold text-Budgexa-green mb-1.5">
               Email address
             </label>
             <input
@@ -213,27 +214,27 @@ export default function LoginPage() {
               onChange={(e) => set("email")(e.target.value)}
               placeholder="adaeze@example.com"
               className={cn(
-                "w-full rounded-xl border bg-white px-4 py-3 text-sm text-rayo-green placeholder:text-rayo-green/30",
-                "transition-all outline-none focus:ring-2 focus:ring-rayo-green/30",
+                "w-full rounded-xl border bg-white px-4 py-3 text-sm text-Budgexa-green placeholder:text-Budgexa-green/30",
+                "transition-all outline-none focus:ring-2 focus:ring-Budgexa-green/30",
                 errors.email
-                  ? "border-rayo-alert"
-                  : "border-rayo-beige-dark focus:border-rayo-green"
+                  ? "border-Budgexa-alert"
+                  : "border-Budgexa-beige-dark focus:border-Budgexa-green"
               )}
             />
             {errors.email && (
-              <p className="mt-1.5 text-xs text-rayo-alert">{errors.email}</p>
+              <p className="mt-1.5 text-xs text-Budgexa-alert">{errors.email}</p>
             )}
           </div>
 
           {/* Password */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label htmlFor="password" className="text-sm font-semibold text-rayo-green">
+              <label htmlFor="password" className="text-sm font-semibold text-Budgexa-green">
                 Password
               </label>
               <Link
                 href="/auth/forgot-password"
-                className="text-xs text-rayo-orange hover:underline"
+                className="text-xs text-Budgexa-orange hover:underline"
               >
                 Forgot password?
               </Link>
@@ -246,23 +247,23 @@ export default function LoginPage() {
                 onChange={(e) => set("password")(e.target.value)}
                 placeholder="Enter your password"
                 className={cn(
-                  "w-full rounded-xl border bg-white px-4 py-3 pr-11 text-sm text-rayo-green placeholder:text-rayo-green/30",
-                  "transition-all outline-none focus:ring-2 focus:ring-rayo-green/30",
+                  "w-full rounded-xl border bg-white px-4 py-3 pr-11 text-sm text-Budgexa-green placeholder:text-Budgexa-green/30",
+                  "transition-all outline-none focus:ring-2 focus:ring-Budgexa-green/30",
                   errors.password
-                    ? "border-rayo-alert"
-                    : "border-rayo-beige-dark focus:border-rayo-green"
+                    ? "border-Budgexa-alert"
+                    : "border-Budgexa-beige-dark focus:border-Budgexa-green"
                 )}
               />
               <button
                 type="button"
                 onClick={() => setShowPwd((s) => !s)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-rayo-green/40 hover:text-rayo-green transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-Budgexa-green/40 hover:text-Budgexa-green transition-colors"
               >
                 {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
             {errors.password && (
-              <p className="mt-1.5 text-xs text-rayo-alert">{errors.password}</p>
+              <p className="mt-1.5 text-xs text-Budgexa-alert">{errors.password}</p>
             )}
           </div>
 
@@ -281,10 +282,10 @@ export default function LoginPage() {
           {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-rayo-beige-dark"></div>
+              <div className="w-full border-t border-Budgexa-beige-dark"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-rayo-green/60">Or continue with</span>
+              <span className="px-2 bg-white text-Budgexa-green/60">Or continue with</span>
             </div>
           </div>
 
@@ -294,8 +295,8 @@ export default function LoginPage() {
             onClick={handleGoogleLogin}
             disabled={loading || googleLoading}
             className={cn(
-              "w-full rounded-xl border border-rayo-beige-dark bg-white px-4 py-3 flex items-center justify-center gap-2",
-              "text-sm font-medium text-rayo-green transition-all hover:bg-rayo-beige-light",
+              "w-full rounded-xl border border-Budgexa-beige-dark bg-white px-4 py-3 flex items-center justify-center gap-2",
+              "text-sm font-medium text-Budgexa-green transition-all hover:bg-Budgexa-beige-light",
               "disabled:opacity-60 disabled:cursor-not-allowed"
             )}
           >
@@ -307,11 +308,11 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-rayo-green/60">
+        <p className="mt-6 text-center text-sm text-Budgexa-green/60">
           Don&apos;t have an account?{" "}
           <Link
             href="/auth/signup"
-            className="font-semibold text-rayo-green hover:text-rayo-orange transition-colors"
+            className="font-semibold text-Budgexa-green hover:text-Budgexa-orange transition-colors"
           >
             Start for free
           </Link>

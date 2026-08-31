@@ -33,12 +33,12 @@ export default function InsightsPage() {
 // Helper for insight card styling
 function insightMeta(type: AiInsight["type"]) {
   switch (type) {
-    case "alert":       return { icon: AlertCircle,  bg: "bg-rayo-orange/8", border: "border-rayo-orange/20", text: "text-rayo-orange",   label: "Alert"       };
-    case "positive":    return { icon: TrendingUp, bg: "bg-rayo-green/5",  border: "border-rayo-green/10",  text: "text-rayo-green",    label: "Positive"    };
-    case "warning":     return { icon: AlertCircle,  bg: "bg-rayo-orange/5", border: "border-rayo-orange/15", text: "text-rayo-orange/80",label: "Warning"     };
+    case "alert":       return { icon: AlertCircle,  bg: "bg-Budgexa-orange/8", border: "border-Budgexa-orange/20", text: "text-Budgexa-orange",   label: "Alert"       };
+    case "positive":    return { icon: TrendingUp, bg: "bg-Budgexa-green/5",  border: "border-Budgexa-green/10",  text: "text-Budgexa-green",    label: "Positive"    };
+    case "warning":     return { icon: AlertCircle,  bg: "bg-Budgexa-orange/5", border: "border-Budgexa-orange/15", text: "text-Budgexa-orange/80",label: "Warning"     };
     case "observation":
     case "suggestion":
-    default:            return { icon: Lightbulb,  bg: "bg-rayo-beige",    border: "border-rayo-green/10",  text: "text-rayo-green/70", label: "Suggestion"  };
+    default:            return { icon: Lightbulb,  bg: "bg-Budgexa-beige",    border: "border-Budgexa-green/10",  text: "text-Budgexa-green/70", label: "Suggestion"  };
   }
 }
 
@@ -53,14 +53,14 @@ function insightMeta(type: AiInsight["type"]) {
         {/* HEADER */}
         <div className="lg:flex items-center justify-between px-10 py-5 border-b border-[#EEF2EB]">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-11 h-11 rounded-lg bg-rayo-green flex items-center justify-center">
+            <div className="w-11 h-11 rounded-lg bg-Budgexa-green flex items-center justify-center">
               <RayoLogo size={24} className="text-white" />
             </div>
             <div className="min-w-0">
-              <h2 className="text-lg font-bold truncate text-rayo-green">
+              <h2 className="text-lg font-bold truncate text-Budgexa-green">
                 Your Financial Advisor
               </h2>
-              <p className="text-sm text-rayo-green/45 truncate">
+              <p className="text-sm text-Budgexa-green/45 truncate">
                 Ask. Understand. Improve your money decisions.
               </p>
             </div>
@@ -70,7 +70,7 @@ function insightMeta(type: AiInsight["type"]) {
         {/* INFO PANEL */}
         {showInfo && (
           <div className="px-5 md:px-7 py-3 border-b border-[#EEF2EB] bg-[#FAFBF8]">
-            <p className="text-xs text-rayo-green/60">
+            <p className="text-xs text-Budgexa-green/60">
               Your advisor uses your transactions, budget, and goals to give personalized guidance.
             </p>
           </div>
@@ -84,13 +84,13 @@ function insightMeta(type: AiInsight["type"]) {
 
                 {/* Hero */}
                 <div className="text-center mb-8">
-                  <div className="w-20 h-20 rounded-3xl bg-rayo-green flex items-center justify-center mx-auto">
+                  <div className="w-20 h-20 rounded-3xl bg-Budgexa-green flex items-center justify-center mx-auto">
                     <RayoLogo size={36} className="text-white" />
                   </div>
-                  <h2 className="mt-5 text-2xl md:text-3xl font-bold text-rayo-green">
+                  <h2 className="mt-5 text-2xl md:text-3xl font-bold text-Budgexa-green">
                     Your Financial Insights
                   </h2>
-                  <p className="mt-2 text-sm text-rayo-green/50">
+                  <p className="mt-2 text-sm text-Budgexa-green/50">
                     Tap an insight to ask a follow-up, or type your own question below.
                   </p>
                 </div>
@@ -117,10 +117,10 @@ function insightMeta(type: AiInsight["type"]) {
                                   {meta.label}
                                 </span>
                               </div>
-                              <p className="text-sm font-semibold text-rayo-green leading-snug">
+                              <p className="text-sm font-semibold text-Budgexa-green leading-snug">
                                 {insight.message}
                               </p>
-                              <p className="mt-1 text-xs text-rayo-green/60 leading-relaxed line-clamp-2">
+                              <p className="mt-1 text-xs text-Budgexa-green/60 leading-relaxed line-clamp-2">
                                 {insight.detail}
                               </p>
                             </div>
@@ -133,7 +133,7 @@ function insightMeta(type: AiInsight["type"]) {
 
                 {/* Suggested prompts */}
                 <div className="space-y-2">
-                  <p className="text-xs font-medium text-rayo-green/40 uppercase tracking-wide mb-3">
+                  <p className="text-xs font-medium text-Budgexa-green/40 uppercase tracking-wide mb-3">
                     Or ask something
                   </p>
                   {[
@@ -144,7 +144,7 @@ function insightMeta(type: AiInsight["type"]) {
                     <button
                       key={prompt}
                       onClick={() => submitMessage(prompt)}
-                      className="w-full text-left rounded-2xl border border-rayo-green/10 bg-white px-4 py-3 text-sm text-rayo-green/70 hover:bg-rayo-ash transition-all"
+                      className="w-full text-left rounded-2xl border border-Budgexa-green/10 bg-white px-4 py-3 text-sm text-Budgexa-green/70 hover:bg-Budgexa-ash transition-all"
                     >
                       {prompt}
                     </button>
@@ -159,8 +159,8 @@ function insightMeta(type: AiInsight["type"]) {
 
         {/* DISCLAIMER */}
         <div className="px-5 md:px-7 py-2 border-t border-[#EEF2EB] bg-[#FAFBF8] flex items-center gap-2">
-          <AlertCircle size={12} className="text-rayo-green/30" />
-          <p className="text-[11px] text-rayo-green/35">
+          <AlertCircle size={12} className="text-Budgexa-green/30" />
+          <p className="text-[11px] text-Budgexa-green/35">
             Advice is based on your data and may not always be accurate.
           </p>
         </div>

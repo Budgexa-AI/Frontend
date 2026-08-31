@@ -34,7 +34,7 @@ export default function SmartInsightsSection() {
   return (
     <section
       id="how-it-works"
-      className="relative overflow-hidden bg-rayo-green py-24 lg:py-32"
+      className="relative overflow-hidden bg-Budgexa-green py-24 lg:py-32"
     >
       {/* Decorative Glow */}
       <div
@@ -51,20 +51,20 @@ export default function SmartInsightsSection() {
 
           {/* ── LEFT CONTENT ── */}
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-rayo-orange/20 bg-rayo-orange/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-rayo-orange mb-6">
+            <div className="inline-flex items-center gap-2 rounded-full border border-Budgexa-orange/20 bg-Budgexa-orange/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-Budgexa-orange mb-6">
               <BrainCircuit size={14} />
               AI Financial Intelligence
             </div>
 
             <h2 className="font-display text-4xl font-black leading-tight text-white sm:text-5xl lg:text-6xl mb-6 text-balance">
               Understand your money{" "}
-              <span className="text-rayo-orange">
+              <span className="text-Budgexa-orange">
                 before you spend it.
               </span>
             </h2>
 
             <p className="max-w-md text-lg leading-relaxed text-white/70 mb-8">
-              Rayo AI analyzes your spending habits, upcoming expenses,
+              Budgexa analyzes your spending habits, upcoming expenses,
               and financial goals to help you make smarter decisions
               with your money every day.
             </p>
@@ -77,7 +77,7 @@ export default function SmartInsightsSection() {
                 >
                   <CheckCircle2
                     size={18}
-                    className="shrink-0 text-rayo-orange"
+                    className="shrink-0 text-Budgexa-orange"
                   />
                   {bullet}
                 </li>
@@ -88,36 +88,36 @@ export default function SmartInsightsSection() {
               href="/auth/signup"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center rounded-full bg-white px-7 py-3.5 font-semibold text-rayo-green transition-all hover:bg-rayo-beige-light"
+              className="inline-flex items-center justify-center rounded-full bg-white px-7 py-3.5 font-semibold text-Budgexa-green transition-all hover:bg-Budgexa-beige-light"
             >
-              See Rayo AI in Action              
+              See Budgexa in Action              
             </a>
           </div>
 
           {/* ── RIGHT MOCK INSIGHTS CARD ── */}
           <div className="flex justify-center">
-            <div className="w-full max-w-sm rounded-[32px] bg-rayo-muted/70 p-6 shadow-card-lg backdrop-blur">
+            <div className="w-full max-w-sm rounded-[32px] bg-Budgexa-muted/70 p-6 shadow-card-lg backdrop-blur">
 
               {/* Top Overview */}
               <div className="flex items-start justify-between mb-8">
                 <div>
-                  <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-rayo-grey">
+                  <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-Budgexa-grey">
                     Financial Overview
                   </p>
 
-                  <p className="font-poppins text-4xl font-black leading-none text-rayo-green">
+                  <p className="font-poppins text-4xl font-black leading-none text-Budgexa-green">
                     ₦18,200
                   </p>
 
-                  <p className="mt-2 text-sm text-rayo-text-muted">
+                  <p className="mt-2 text-sm text-Budgexa-text-muted">
                     Safe-to-spend balance
                   </p>
                 </div>
 
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rayo-lemon/80 shrink-0">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-Budgexa-lemon/80 shrink-0">
                   <TrendingUp
                     size={18}
-                    className="text-rayo-green-light"
+                    className="text-Budgexa-green-light"
                     strokeWidth={2.5}
                   />
                 </div>
@@ -136,26 +136,26 @@ export default function SmartInsightsSection() {
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-rayo-muted shrink-0">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-Budgexa-muted shrink-0">
                           <Sparkles
                             size={14}
-                            className="text-rayo-green"
+                            className="text-Budgexa-green"
                             strokeWidth={2}
                           />
                         </div>
 
                         <div>
-                          <p className="mb-0.5 text-sm font-semibold leading-none text-rayo-green-dark">
+                          <p className="mb-0.5 text-sm font-semibold leading-none text-Budgexa-green-dark">
                             {item.label}
                           </p>
 
-                          <p className="text-xs leading-none text-rayo-text-muted">
+                          <p className="text-xs leading-none text-Budgexa-text-muted">
                             {item.time}
                           </p>
                         </div>
                       </div>
 
-                      <span className="max-w-[130px] text-right font-poppins text-xs font-bold leading-snug text-rayo-green-light">
+                      <span className="max-w-[130px] text-right font-poppins text-xs font-bold leading-snug text-Budgexa-green-light">
                         {item.amount}
                       </span>
                     </div>
@@ -164,17 +164,17 @@ export default function SmartInsightsSection() {
               </div>
 
               {/* Bottom AI Summary */}
-              <div className="mt-5 rounded-2xl bg-rayo-green px-4 py-4">
+              <div className="mt-5 rounded-2xl bg-Budgexa-green px-4 py-4">
                 <div className="flex items-start gap-3">
-                  <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-rayo-orange/20 shrink-0">
+                  <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-Budgexa-orange/20 shrink-0">
                     <BrainCircuit
                       size={15}
-                      className="text-rayo-orange"
+                      className="text-Budgexa-orange"
                     />
                   </div>
 
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-rayo-orange mb-1">
+                    <p className="text-xs font-bold uppercase tracking-wider text-Budgexa-orange mb-1">
                       AI Summary
                     </p>
 

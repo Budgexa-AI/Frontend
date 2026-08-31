@@ -50,7 +50,9 @@ export default function VerifyEmailPage() {
 
   // Show success message on initial load
   useEffect(() => {
-    setSuccessMessage("Verification code sent to your email!");
+    setTimeout(() => {
+        setSuccessMessage("Verification code sent to your email!");
+      }, 0);
     const timeout = setTimeout(() => setSuccessMessage(""), 5000);
     return () => clearTimeout(timeout);
   }, []);
@@ -197,11 +199,11 @@ export default function VerifyEmailPage() {
 
   return (
     <div className="w-full max-w-md">
-      <div className="rounded-3xl border border-rayo-beige-dark bg-white shadow-card-lg p-8">
+      <div className="rounded-3xl border border-Budgexa-beige-dark bg-white shadow-card-lg p-8">
         {/* Back */}
         <Link
           href="/auth/signup"
-          className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-rayo-green/60 transition-colors hover:text-rayo-green"
+          className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-Budgexa-green/60 transition-colors hover:text-Budgexa-green"
         >
           <ArrowLeft size={16} />
           Back
@@ -209,17 +211,17 @@ export default function VerifyEmailPage() {
 
         {/* Header */}
         <div className="mb-8">
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-rayo-orange/10">
-            <div className="h-3 w-3 rounded-full bg-rayo-orange animate-pulse" />
+          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-Budgexa-orange/10">
+            <div className="h-3 w-3 rounded-full bg-Budgexa-orange animate-pulse" />
           </div>
 
-          <h1 className="font-display text-3xl font-bold text-rayo-green mb-2">
+          <h1 className="font-display text-3xl font-bold text-Budgexa-green mb-2">
             Verify your email
           </h1>
 
-          <p className="text-sm leading-relaxed text-rayo-green/60">
+          <p className="text-sm leading-relaxed text-Budgexa-green/60">
             We sent a 6-digit verification code to{" "}
-            <span className="font-semibold text-rayo-green">
+            <span className="font-semibold text-Budgexa-green">
               {email || "your email"}
             </span>
           </p>
@@ -227,14 +229,14 @@ export default function VerifyEmailPage() {
 
         {/* Error */}
         {serverError && (
-          <div className="mb-5 rounded-xl border border-rayo-alert/20 bg-rayo-alert/10 px-4 py-3 text-sm text-rayo-alert">
+          <div className="mb-5 rounded-xl border border-Budgexa-alert/20 bg-Budgexa-alert/10 px-4 py-3 text-sm text-Budgexa-alert">
             {serverError}
           </div>
         )}
 
         {/* Success */}
         {successMessage && (
-          <div className="mb-5 rounded-xl border border-rayo-green/20 bg-rayo-green/5 px-4 py-3 text-sm text-rayo-green flex items-center gap-2">
+          <div className="mb-5 rounded-xl border border-Budgexa-green/20 bg-Budgexa-green/5 px-4 py-3 text-sm text-Budgexa-green flex items-center gap-2">
             <Check size={16} className="flex-shrink-0" />
             {successMessage}
           </div>
@@ -244,7 +246,7 @@ export default function VerifyEmailPage() {
         <form onSubmit={handleSubmit} noValidate>
           {/* OTP Inputs */}
           <div className="mb-3">
-            <label className="mb-3 block text-sm font-semibold text-rayo-green">
+            <label className="mb-3 block text-sm font-semibold text-Budgexa-green">
               Verification code
             </label>
 
@@ -263,18 +265,18 @@ export default function VerifyEmailPage() {
                   onKeyDown={(e) => handleKeyDown(e, index)}
                   onPaste={handlePaste}
                   className={cn(
-                    "h-12 w-full min-w-0 rounded-2xl border bg-white text-center text-lg font-semibold text-rayo-green outline-none transition-all",
-                    "focus:ring-2 focus:ring-rayo-green/20",
+                    "h-12 w-full min-w-0 rounded-2xl border bg-white text-center text-lg font-semibold text-Budgexa-green outline-none transition-all",
+                    "focus:ring-2 focus:ring-Budgexa-green/20",
                     errors.otp
-                      ? "border-rayo-alert"
-                      : "border-rayo-beige-dark focus:border-rayo-green"
+                      ? "border-Budgexa-alert"
+                      : "border-Budgexa-beige-dark focus:border-Budgexa-green"
                   )}
                 />
               ))}
             </div>
 
             {errors.otp && (
-              <p className="mt-2 text-xs text-rayo-alert">
+              <p className="mt-2 text-xs text-Budgexa-alert">
                 {errors.otp}
               </p>
             )}
@@ -298,14 +300,14 @@ export default function VerifyEmailPage() {
         </form>
 
         {/* Resend */}
-        <div className="mt-6 rounded-2xl border border-rayo-beige-dark bg-rayo-beige-light/40 p-4">
+        <div className="mt-6 rounded-2xl border border-Budgexa-beige-dark bg-Budgexa-beige-light/40 p-4">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-sm font-medium text-rayo-green">
+              <p className="text-sm font-medium text-Budgexa-green">
                 Didn’t receive the code?
               </p>
 
-              <p className="mt-1 text-xs leading-relaxed text-rayo-green/60">
+              <p className="mt-1 text-xs leading-relaxed text-Budgexa-green/60">
                 Check your spam folder or resend the verification code.
               </p>
             </div>
@@ -317,8 +319,8 @@ export default function VerifyEmailPage() {
               className={cn(
                 "inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-all",
                 timer > 0 || resending
-                  ? "cursor-not-allowed bg-rayo-beige-dark/50 text-rayo-green/40"
-                  : "bg-rayo-green text-white hover:opacity-90"
+                  ? "cursor-not-allowed bg-Budgexa-beige-dark/50 text-Budgexa-green/40"
+                  : "bg-Budgexa-green text-white hover:opacity-90"
               )}
             >
               {resending ? (
@@ -337,11 +339,11 @@ export default function VerifyEmailPage() {
         </div>
 
         {/* Footer */}
-        <p className="mt-6 text-center text-sm text-rayo-green/60">
+        <p className="mt-6 text-center text-sm text-Budgexa-green/60">
           Wrong email?{" "}
           <Link
             href="/auth/signup"
-            className="font-semibold text-rayo-green transition-colors hover:text-rayo-orange"
+            className="font-semibold text-Budgexa-green transition-colors hover:text-Budgexa-orange"
           >
             Go back
           </Link>

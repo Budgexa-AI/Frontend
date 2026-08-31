@@ -1,54 +1,45 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&display=swap');
-
-/* Cabinet Grotesk via Fontshare CDN */
-@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800,900&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ─────────────────────────────────────────────────────────
-   CSS Design Tokens — Rayo AI Brand System
+   CSS Design Tokens — Budgexa Brand System
    ───────────────────────────────────────────────────────── */
 :root {
   /* Raw brand values */
-  --rayo-green:        #254F22;
-  --rayo-green-dark:   #1a3818;
-  --rayo-green-light:  #16A34A;
-  --rayo-orange:       #F5824A;
-  --rayo-orange-dark:  #d96a34;
-  --rayo-alert:        #A03A13;
-  --rayo-beige:        #EDE4CC;
-  --rayo-beige-dark:   #ddd3b5;
-  --rayo-beige-light:  #f5f0e4;
-  --rayo-text:         #1a2e19;
-  --rayo-text-muted:   #4a6548;
-  --rayo-muted:        #f3f4f6d1;
-  --rayo-lemon:        #DCFCE7;
-  --rayo-grey:         #6B7280;
-  --rayo-ash:          #F6F7F6;
+  --Budgexa-green:        #254F22;
+  --Budgexa-green-dark:   #1a3818;
+  --Budgexa-green-light:  #16A34A;
+  --Budgexa-orange:       #F5824A;
+  --Budgexa-orange-dark:  #d96a34;
+  --Budgexa-alert:        #A03A13;
+  --Budgexa-beige:        #EDE4CC;
+  --Budgexa-beige-dark:   #ddd3b5;
+  --Budgexa-beige-light:  #f5f0e4;
+  --Budgexa-text:         #1a2e19;
+  --Budgexa-text-muted:   #4a6548;
+  --Budgexa-muted:        #f3f4f6d1;
+  --Budgexa-lemon:        #DCFCE7;
+  --Budgexa-grey:         #6B7280;
+  --Budgexa-ash:          #F6F7F6;
 
   /* Semantic tokens */
-  --background:        var(--rayo-beige);
-  --foreground:        var(--rayo-text);
-  --primary:           var(--rayo-green);
+  --background:        var(--Budgexa-beige);
+  --foreground:        var(--Budgexa-text);
+  --primary:           var(--Budgexa-green);
   --primary-foreground:#ffffff;
-  --secondary:         var(--rayo-beige-light);
-  --secondary-foreground: var(--rayo-green);
-  --accent:            var(--rayo-orange);
+  --secondary:         var(--Budgexa-beige-light);
+  --secondary-foreground: var(--Budgexa-green);
+  --accent:            var(--Budgexa-orange);
   --accent-foreground: #ffffff;
-  --muted:             var(--rayo-beige-dark);
-  --muted-foreground:  var(--rayo-text-muted);
+  --muted:             var(--Budgexa-beige-dark);
+  --muted-foreground:  var(--Budgexa-text-muted);
   --card:              #ffffff;
-  --card-foreground:   var(--rayo-text);
-  --border:            var(--rayo-beige-dark);
-  --input:             var(--rayo-beige-dark);
-  --ring:              var(--rayo-green);
-  --destructive:       var(--rayo-alert);
+  --card-foreground:   var(--Budgexa-text);
+  --border:            var(--Budgexa-beige-dark);
+  --input:             var(--Budgexa-beige-dark);
+  --ring:              var(--Budgexa-green);
+  --destructive:       var(--Budgexa-alert);
   --destructive-foreground: #ffffff;
   --radius:            0.75rem;
 }
@@ -69,26 +60,29 @@
   }
 
   body {
-    background-color: var(--rayo-beige);
-    color: var(--rayo-text);
-    font-family: 'DM Sans', sans-serif;
+    background-color: var(--Budgexa-beige);
+    color: var(--Budgexa-text);
+    font-family: var(--font-body), sans-serif;
     font-size: 1rem;
     line-height: 1.6;
   }
 
+  html, body {
+    overflow-x: hidden;
+  }
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Cabinet Grotesk', sans-serif;
+    font-family: var(--font-display), sans-serif;
     line-height: 1.15;
     font-weight: 800;
   }
 
   ::selection {
-    background-color: var(--rayo-orange);
+    background-color: var(--Budgexa-orange);
     color: #fff;
   }
 
   :focus-visible {
-    outline: 2px solid var(--rayo-orange);
+    outline: 2px solid var(--Budgexa-orange);
     outline-offset: 2px;
     border-radius: 4px;
   }
@@ -122,10 +116,10 @@
     height: 4px;
   }
   .scrollbar-thin::-webkit-scrollbar-track {
-    background: var(--rayo-beige-dark);
+    background: var(--Budgexa-beige-dark);
   }
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: var(--rayo-green);
+    background: var(--Budgexa-green);
     border-radius: 2px;
   }
 }
@@ -138,36 +132,36 @@
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2
           rounded-3xl
-          bg-rayo-green text-white
+          bg-Budgexa-green text-white
           font-semibold font-body
           px-6 py-3 text-sm
           shadow-sm
           transition-all duration-200
-          hover:bg-rayo-green-dark hover:shadow-md
+          hover:bg-Budgexa-green-dark hover:shadow-md
           active:scale-95
           focus-visible:outline-2 focus-visible:outline-offset-2
-          focus-visible:outline-rayo-green;
+          focus-visible:outline-Budgexa-green;
   }
 
   /* Secondary / outlined — green border */
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2
           rounded-3xl
-          bg-rayo-beige
-          border border-rayo-beige-dark
-          text-rayo-green
+          bg-Budgexa-beige
+          border border-Budgexa-beige-dark
+          text-Budgexa-green
           font-semibold font-body
           px-6 py-3 text-sm
           transition-all duration-200
-          hover:bg-rayo-beige-light
-          hover:border-rayo-green
+          hover:bg-Budgexa-beige-light
+          hover:border-Budgexa-green
           active:scale-95;
   }
 
   .btn-accent {
   @apply inline-flex items-center justify-center gap-2
         rounded-3xl
-        bg-rayo-orange hover:bg-rayo-orange-dark
+        bg-Budgexa-orange hover:bg-Budgexa-orange-dark
         text-white hover:text-white          /* ← add hover:text-white */
         font-semibold font-body
         px-6 py-3 text-sm
@@ -179,11 +173,11 @@
 
   /* Feature card */
   .feature-card {
-    @apply bg-white rounded-2xl p-6 shadow-card border border-rayo-beige-dark
+    @apply bg-white rounded-2xl p-6 shadow-card border border-Budgexa-beige-dark
            transition-all duration-300 hover:shadow-card-lg hover:-translate-y-1;
   }
 
-  /* Budget category sliders — ash unfilled track, category fill, Rayo green thumb */
+  /* Budget category sliders — ash unfilled track, category fill, Budgexa green thumb */
   input[type="range"].budget-range {
     @apply w-full cursor-pointer appearance-none bg-transparent;
     height: 22px;
@@ -206,7 +200,7 @@
     height: 18px;
     margin-top: -5px;
     border-radius: 9999px;
-    background: var(--rayo-green);
+    background: var(--Budgexa-green);
     border: 2px solid #ffffff;
     box-shadow: 0 1px 4px rgba(37, 79, 34, 0.22);
   }
@@ -226,14 +220,22 @@
     height: 18px;
     border: 2px solid #ffffff;
     border-radius: 9999px;
-    background: var(--rayo-green);
+    background: var(--Budgexa-green);
     box-shadow: 0 1px 4px rgba(37, 79, 34, 0.22);
   }
 
   /* Stat badge */
   .stat-badge {
     @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1
-           bg-rayo-green text-white text-xs font-semibold font-mono;
+           bg-Budgexa-green text-white text-xs font-semibold font-mono;
   }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 22s linear infinite;
 }
 

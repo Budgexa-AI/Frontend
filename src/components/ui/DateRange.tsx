@@ -39,12 +39,12 @@ export default function DateRange({ label: propLabel, onClick, className, onMont
   };
 
   return (
-    <div className={`inline-flex items-center rounded-lg border border-rayo-beige-dark bg-white overflow-hidden ${className ?? ""}`}>
+    <div className={`inline-flex items-center rounded-lg border border-Budgexa-beige-dark bg-white overflow-hidden ${className ?? ""}`}>
 
       {/* ← Previous month */}
       <button
         onClick={() => navigate(-1)}
-        className="flex items-center justify-center w-8 h-9 text-rayo-green/40 hover:bg-rayo-ash hover:text-rayo-green border-r border-rayo-beige-dark transition-colors"
+        className="flex items-center justify-center w-8 h-9 text-Budgexa-green/40 hover:bg-Budgexa-ash hover:text-Budgexa-green border-r border-Budgexa-beige-dark transition-colors"
         aria-label="Previous month"
       >
         <ChevronLeft size={15} strokeWidth={2.2} />
@@ -52,8 +52,8 @@ export default function DateRange({ label: propLabel, onClick, className, onMont
 
       {/* Month label */}
       <div className="flex items-center gap-1.5 px-3 h-9">
-        <CalendarDays size={13} className="text-rayo-green/30 shrink-0" />
-        <span className="text-sm font-medium text-rayo-green/70 whitespace-nowrap w-[110px] text-center select-none">
+        <CalendarDays size={13} className="text-Budgexa-green/30 shrink-0" />
+        <span className="text-sm font-medium text-Budgexa-green/70 whitespace-nowrap w-[110px] text-center select-none">
           {display}
         </span>
       </div>
@@ -62,9 +62,9 @@ export default function DateRange({ label: propLabel, onClick, className, onMont
       <button
         onClick={() => navigate(1)}
         disabled={isCurrentMonth}
-        className="flex items-center justify-center w-8 h-9 border-l border-rayo-beige-dark transition-colors
-          disabled:text-rayo-green/20 disabled:cursor-not-allowed
-          enabled:text-rayo-green/40 enabled:hover:bg-rayo-ash enabled:hover:text-rayo-green"
+        className="flex items-center justify-center w-8 h-9 border-l border-Budgexa-beige-dark transition-colors
+          disabled:text-Budgexa-green/20 disabled:cursor-not-allowed
+          enabled:text-Budgexa-green/40 enabled:hover:bg-Budgexa-ash enabled:hover:text-Budgexa-green"
         aria-label="Next month"
       >
         <ChevronRight size={15} strokeWidth={2.2} />
