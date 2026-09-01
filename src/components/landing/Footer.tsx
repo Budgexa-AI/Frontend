@@ -48,27 +48,47 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-[36%_18%_18%_28%]">
           {/* Brand */}
-          <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-rayo-green text-white font-display font-bold text-xs">
-              <RayoLogo className="text-rayo-beige" size={26} />
-            </span>
-            <span className="font-display font-bold text-rayo-green text-base">Rayo AI</span>
-          </Link>
+          <div>
+            <Link href="/" className="flex items-center gap-2.5">
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10">
+                <RayoLogo className="text-Budgexa-beige" size={26} />
+              </span>
+              <span className="font-display text-xl font-bold text-white">Budgexa</span>
+            </Link>
+            <p className="mt-4 max-w-xs text-xs leading-relaxed text-white/60">
+              AI-powered personal finance for young Nigerians. Track spending, manage budgets,
+              understand your money, and build better financial habits.
+            </p>
+          </div>
 
-          {/* Copyright */}
-          <p className="text-xs text-rayo-green/40 order-3 sm:order-2">
-            © {new Date().getFullYear()} Rayo Financial Inc.
-          </p>
-
-          {/* Links */}
-          <nav className="flex items-center gap-5 order-2 sm:order-3">
-            {["Privacy", "Terms", "Security", "Contact"].map((item) => (
+          {/* Explore */}
+          <div>
+            <h4 className="mb-4 text-[10px] font-semibold uppercase tracking-widest text-white/80">
+              Explore
+            </h4>
+            {EXPLORE_LINKS.map(([label, href]) => (
               <Link
-                key={item}
-                href={`/${item.toLowerCase()}`}
-                className="text-xs font-medium text-rayo-green/60 hover:text-rayo-green transition-colors"
+                key={label}
+                href={href}
+                className="mb-2 block text-xs text-white/60 transition-colors hover:text-Budgexa-orange"
               >
-                {item}
+                {label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Company */}
+          <div>
+            <h4 className="mb-4 text-[10px] font-semibold uppercase tracking-widest text-white/80">
+              Company
+            </h4>
+            {COMPANY_LINKS.map(([label, href]) => (
+              <Link
+                key={label}
+                href={href}
+                className="mb-2 block text-xs text-white/60 transition-colors hover:text-Budgexa-orange"
+              >
+                {label}
               </Link>
             ))}
           </div>

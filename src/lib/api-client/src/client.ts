@@ -15,8 +15,32 @@ export interface UserProfile {
   id: string;
   email?: string;
   name?: string;
+  firstName?: string;
+  lastName?: string;
   avatarUrl?: string;
   plan?: string;
+  country?: string;
+  currency?: string;
+  phone?: string;
+  incomeSource?: string;
+}
+
+export function normalizeProfile(payload: any): UserProfile {
+  const source = payload?.data ?? payload?.profile ?? payload ?? {};
+
+  return {
+    id: source.id ?? source.userId ?? source.user_id ?? "",
+    email: source.email ?? undefined,
+    name: source.name ?? source.fullName ?? source.full_name ?? undefined,
+    firstName: source.firstName ?? source.first_name ?? undefined,
+    lastName: source.lastName ?? source.last_name ?? undefined,
+    avatarUrl: source.profileImage ?? undefined,
+    plan: source.plan ?? undefined,
+    country: source.country ?? undefined,
+    currency: source.currency ?? undefined,
+    phone: source.phone ?? source.phoneNumber ?? undefined,
+    incomeSource: source.incomeSource ?? undefined,
+  };
 }
 
 export interface BudgetRow {
@@ -51,19 +75,22 @@ const API_PROXY_PREFIX = "/api/v1";
  */
 function getAppBaseUrl(): string {
   if (typeof window !== "undefined") {
-    // Client-side: relative URLs work fine
+    // Client-side: relative URLs go through the Next.js proxy.
     return "";
   }
 
-  // Server-side: must use absolute URL so Node's fetch can resolve it.
-  // Set NEXT_PUBLIC_APP_URL=https://rayo.vercel.app in Vercel env vars.
+  // Server-side: talk to the backend directly and skip the self-proxy hop.
+  const backendUrl = process.env.BACKEND_URL;
+  if (backendUrl) {
+    return backendUrl.replace(/\/$/, "");
+  }
+
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
   if (appUrl) {
     return appUrl.replace(/\/$/, "");
   }
 
-  // Fallback for local dev
-  return "http://localhost:3000";
+  return "http://localhost:3001";
 }
 
 function proxyPath(path: string): string {
@@ -83,19 +110,6 @@ async function readJsonResponse<T>(res: Response): Promise<T> {
   return text as unknown as T;
 }
 
-function normalizeProfile(payload: any): UserProfile {
-  const source = payload?.data ?? payload?.profile ?? payload ?? {};
-
-  return {
-    id: source.id ?? source.userId ?? source.user_id ?? "",
-    email: source.email ?? undefined,
-    name:
-      source.name ?? source.fullName ?? source.full_name ?? undefined,
-    avatarUrl: source.profileImage ?? undefined,
-    plan: source.plan ?? undefined,
-  };
-}
-
 function createHeaders(extraHeaders?: HeadersInit, serverToken?: string | null): HeadersInit {
   const token = serverToken 
     || (typeof window !== "undefined" ? localStorage.getItem("authToken") : null);
@@ -107,7 +121,7 @@ function createHeaders(extraHeaders?: HeadersInit, serverToken?: string | null):
   };
 }
 
-export async function apiFetch(
+async function apiFetch(
   path: string,
   init: RequestInit = {},
   serverToken?: string | null
@@ -122,6 +136,7 @@ export async function apiFetch(
 }
 
 function logApiEvent(message: string, payload?: unknown) {
+  if (process.env.NODE_ENV === "production") return;
   if (payload === undefined) {
     console.info(`[api-client] ${message}`);
     return;
@@ -679,6 +694,8 @@ export async function completeOnboarding(data: {
   incomeSource: string;
   financialGoals: string[];
   categories: string[];
+  country: string;
+  currency: string;
 }): Promise<{ success: boolean; error?: string }> {
   console.log("Onboarding data:", data);
   const res = await fetch(proxyPath("/onboarding"), {
@@ -693,6 +710,8 @@ export async function completeOnboarding(data: {
       financialGoals: data.financialGoals,
       goals: data.financialGoals,
       categories: data.categories,
+      country: data.country,
+      currency: data.currency,
     }),
   });
 
@@ -910,17 +929,33 @@ export async function deleteMultipleTransactions(ids: number[]): Promise<void> {
 }
 
 // Budget API
-export async function fetchBudgetMethod(): Promise<string | null> {
-  try {
-    const user = await getCurrentUser();
-    return (user as any).budgetMethod ?? null;
-  } catch {
-    return null;
-  }
-}
+export async function fetchBudgets(): Promise<BudgetCategory[]> {
+  const [budgetRes, catRes] = await Promise.all([
+    apiFetch("/budget"),
+    apiFetch("/categories"),
+  ]);
 
-export async function updateBudgetMethod(method: string): Promise<UserProfile> {
-  return updateProfile({ budgetMethod: method } as any);
+  if (!budgetRes.ok) throw new Error("Failed to fetch budgets");
+
+  const data = await budgetRes.json();
+  const rows: any[] = Array.isArray(data) ? data : (data.data ?? []);
+
+  // Build id → category lookup
+  const categoryMap = new Map<number, Category>();
+  if (catRes.ok) {
+    const catJson = await readJsonResponse<any>(catRes);
+    const cats: any[] = Array.isArray(catJson) ? catJson : (catJson.data ?? []);
+    cats.forEach((c: any) => categoryMap.set(c.id, c));
+  }
+
+  return rows.map((b: any) => {
+    const cat = categoryMap.get(b.categoryId);
+    return {
+      ...b,
+      categoryName:  b.category ?? cat?.name ?? "Unknown",
+      categoryEmoji: cat?.emoji ?? "📦",
+    };
+  });
 }
 
 export async function createBudget(payload: {
@@ -987,6 +1022,8 @@ export interface CreateSavingsGoalPayload {
   name: string;
   targetAmount: number;
   currentAmount?: number;
+  goalType?: "PERSONAL" | "GROUP" | "AJO";
+  categoryId?: number;
   deadline: string;        
 }
 
@@ -1053,55 +1090,180 @@ export async function fetchCategories(): Promise<Category[]> {
   return Array.isArray(json) ? json : (json.data ?? []);
 }
 
-// Profile update API
-export async function updateProfile(payload: {
-  name?: string;
-  email?: string;
-  budgetMethod?: string; // ← add
-}): Promise<UserProfile> {
-  const res = await apiFetch("/auth/me", { method: "PATCH", body: JSON.stringify(payload) });
+// Contact page
+export interface ContactRequest {
+  name: string;
+  email: string;
+  category: "bug" | "inquiry" | "feature" | "billing" | "other";
+  subject: string;
+  message: string;
+}
+
+export interface ContactResponse {
+  success: boolean;
+  error?: string;
+}
+
+export async function submitContactMessage(data: ContactRequest): Promise<ContactResponse> {
+  const endpoint = proxyPath("/contact");
+  logApiEvent("contact submit request", { endpoint, payload: { ...data, email: "[redacted]" } });
+
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: createHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  });
+
   if (!res.ok) {
-    const body = await res.json().catch(() => null);
-    throw new Error(extractErrorMessage(body, "Failed to update profile"));
+    const contentType = res.headers.get("content-type") || "";
+    const responseBody = contentType.includes("application/json")
+      ? await res.json().catch(() => null)
+      : await res.text().catch(() => "");
+    const errorMessage = extractErrorMessage(responseBody, `Failed to send message (${res.status})`);
+    logApiError("contact submit backend error", {
+      endpoint,
+      status: res.status,
+      statusText: res.statusText,
+      body: responseBody || "<empty>",
+    });
+    throw new Error(errorMessage);
   }
-  return normalizeProfile(await readJsonResponse<any>(res));
+
+  return readJsonResponse<ContactResponse>(res);
 }
 
-// Notifications API
-
-export interface NotificationPreferences {
-  budgetAlerts: boolean;
-  weeklyReport: boolean;
-  savingsReminder: boolean;
-  aiInsights: boolean;
-  securityAlerts: boolean;
+// Receipt Scanner API
+export interface ScannedTransactionReview {
+  amount: number;
+  type: "income" | "expense";
+  description: string | null;
+  merchant: string | null;
+  date: string | null; // ISO date, or null if the scan couldn't determine one
+  categorySlug: string | null;
+  institution: string | null;
+  reasons: string[];
 }
 
-export async function fetchNotificationPreferences(): Promise<NotificationPreferences | null> {
-  const res = await apiFetch("/notifications");
-  if (!res.ok) return null;
-  const json = await readJsonResponse<any>(res);
-  return json.data ?? json;
+export interface ScanReceiptResult {
+  created: unknown[];
+  needsReview: ScannedTransactionReview[];
 }
 
-export async function updateNotificationPreferences(
-  prefs: Partial<NotificationPreferences>
-): Promise<NotificationPreferences> {
-  const res = await apiFetch("/notifications", { method: "PATCH", body: JSON.stringify(prefs) });
+export async function scanReceipt(file: File): Promise<ScanReceiptResult> {
+  const formData = new FormData();
+  formData.append("receipt", file);
+
+  const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+
+  const res = await fetch(proxyPath("/transactions/scan"), {
+    method: "POST",
+    credentials: "include",
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    body: formData,
+  });
+
   if (!res.ok) {
-    const body = await res.json().catch(() => null);
-    throw new Error(extractErrorMessage(body, "Failed to update notification preferences"));
+    const contentType = res.headers.get("content-type") || "";
+    const responseBody = contentType.includes("application/json")
+      ? await res.json().catch(() => null)
+      : await res.text().catch(() => "");
+    throw new Error(extractErrorMessage(responseBody, `Receipt scan failed (${res.status})`));
   }
-  const json = await readJsonResponse<any>(res);
-  return json.data ?? json;
+
+  const data = await readJsonResponse<any>(res);
+  const inner = data.data ?? data;
+  return {
+    created: inner.created ?? [],
+    needsReview: inner.needsReview ?? [],
+  };
 }
 
-// ── TODO: not yet backed by an endpoint ────────────────────────
-// Wire these up once the corresponding backend routes ship:
-//   - changePassword(current, next)       → needs an authenticated
-//     "change password" route (distinct from the email-token reset flow)
-//   - toggleTwoFactor(enabled)            → no 2FA route exists yet
-//   - updateNotificationPrefs(prefs)      → no notifications route exists yet
+// Beta Testers 
+
+export interface ValidateBetaTokenRequest {
+  token: string;
+}
+
+export interface ValidateBetaTokenResponse {
+  success: boolean;
+  token?: string;
+  label?: string;
+  error?: string;
+}
+
+export async function validateBetaToken(
+  data: ValidateBetaTokenRequest
+): Promise<ValidateBetaTokenResponse> {
+  const endpoint = proxyPath("/beta/validate");
+  logApiEvent("validate beta token request", {
+    endpoint,
+    payload: { token: "[redacted]" },
+  });
+
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: createHeaders(),
+    credentials: "include",
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const contentType = res.headers.get("content-type") || "";
+    const responseBody = contentType.includes("application/json")
+      ? await res.json().catch(() => null)
+      : await res.text().catch(() => "");
+    const errorMessage = extractErrorMessage(
+      responseBody,
+      `Beta token validation failed (${res.status})`
+    );
+    logApiError("validate beta token backend error", {
+      endpoint,
+      status: res.status,
+      statusText: res.statusText,
+      body: responseBody || "<empty>",
+    });
+    return { success: false, error: errorMessage };
+  }
+
+  return readJsonResponse<ValidateBetaTokenResponse>(res);
+}
+
+// Logout
+
+export interface LogoutResponse {
+  success: boolean;
+  error?: string;
+}
+
+export async function logout(): Promise<LogoutResponse> {
+  const endpoint = proxyPath("/logout");
+  logApiEvent("logout request", { endpoint });
+
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: createHeaders(),
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    const contentType = res.headers.get("content-type") || "";
+    const responseBody = contentType.includes("application/json")
+      ? await res.json().catch(() => null)
+      : await res.text().catch(() => "");
+    const errorMessage = extractErrorMessage(responseBody, `Logout failed (${res.status})`);
+    logApiError("logout backend error", {
+      endpoint,
+      status: res.status,
+      statusText: res.statusText,
+      body: responseBody || "<empty>",
+    });
+
+    return { success: false, error: errorMessage };
+  }
+
+  return { success: true };
+}
 
 // Error Handling Helper
 

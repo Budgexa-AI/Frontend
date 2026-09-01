@@ -1,3 +1,4 @@
+// components/layout/Navbar.tsx
 "use client";
 
 import Link from "next/link";
@@ -6,18 +7,27 @@ import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import RayoLogo from "@/components/icons/RayoLogo";
+import { isAuthenticated } from "@/lib/auth-client";
 
 const NAV_LINKS = [
-  { label: "Features",     href: "/#features" },
-  { label: "How it Works", href: "/how-it-works" },
-  { label: "Pricing",      href: "/pricing" },
-  { label: "About",        href: "/about" },
+  { label: "Features", href: "/#features" },
+  { label: "How it Works", href: "/#how-it-works" },
+  { label: "Pricing", href: "/pricing" },
+  { label: "About", href: "/about" },
 ];
+
+type AuthState = "checking" | "authenticated" | "anonymous";
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [scrolled, setScrolled]     = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [authState, setAuthState] = useState<AuthState>("checking");
   const pathname = usePathname();
+
+  // The home page opens on a dark-green hero, so the nav needs light text
+  // until the user scrolls past it. Every other page starts on a light
+  // background, so it always gets the standard beige/green treatment.
+  const overDarkHero = pathname === "/" && !scrolled;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16);
@@ -25,11 +35,21 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    setTimeout(() => {
+        setAuthState(isAuthenticated() ? "authenticated" : "anonymous");
+      }, 0);
+  }, []);
+
   const isActive = (href: string) => {
-    // Hash links (#features etc.) are never "active" in the router sense
-    if (href.startsWith("#")) return false;
+    if (href.startsWith("/#")) return false;
     return pathname === href;
   };
+
+  const isDarkTheme =
+    pathname === "/contact" ||
+    pathname === "/pricing" ||
+    pathname?.startsWith("/auth");
 
   return (
     <header
@@ -44,7 +64,6 @@ export default function Navbar() {
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-
           {/* Logo */}
           <Link href="/" className="group flex items-center gap-2.5">
             <div
@@ -66,7 +85,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden items-center gap-8 md:flex">
             {NAV_LINKS.map(({ label, href }) => {
               const active = isActive(href);
               return (
@@ -96,12 +115,17 @@ export default function Navbar() {
               <a href="/product/dashboard" className="btn-primary px-5 py-2.5 text-sm">
                 Dashboard
               </a>
+            ) : authState === "anonymous" ? (
               <a
-                href={"/auth/signup"}
-                className="btn-primary text-sm px-5 py-2.5"
-                rel="noopener noreferrer"
+                href="/waitlist"
+                className={cn(
+                  "rounded-full px-5 py-2.5 text-sm font-bold transition-colors",
+                  overDarkHero
+                    ? "bg-Budgexa-orange text-Budgexa-green"
+                    : "bg-Budgexa-green text-white hover:bg-Budgexa-green/90"
+                )}
               >
-                Sign Up
+                Join Waitlist
               </a>
             ) : (
               <div className="h-9 w-24" />
@@ -119,7 +143,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — always solid, regardless of hero state, for readability */}
       {mobileOpen && (
         <div className="animate-slide-up space-y-1 border-t border-Budgexa-beige-dark bg-Budgexa-beige px-4 pb-6 pt-2 md:hidden">
           {NAV_LINKS.map(({ label, href }) => {
@@ -141,20 +165,23 @@ export default function Navbar() {
             );
           })}
           <div className="flex flex-col gap-3 pt-4">
-            <a
-              href={"/auth/login"}
-              className="btn-secondary text-center hover:bg-rayo-beige/60 hover:text-rayo-green transition-colors"
-              rel="noopener noreferrer"
-            >
-              Log In
-            </a>
-            <a
-              href={"/auth/signup"}
-              className="btn-primary text-center"
-              rel="noopener noreferrer"
-            >
-              Sign Up
-            </a>
+            {isDarkTheme ? (
+              <Link
+                href="/product/dashboard"
+                onClick={() => setMobileOpen(false)}
+                className="rounded-full bg-Budgexa-orange text-center py-2.5 text-sm font-semibold text-white hover:bg-Budgexa-orange-dark transition-colors"
+              >
+                Dashboard
+              </Link>
+            ) : authState === "authenticated" ? (
+              <a href="/product/dashboard" className="btn-primary text-center">
+                Dashboard
+              </a>
+            ) : (
+              <a href="/waitlist" className="btn-primary text-center">
+                Join Waitlist
+              </a>
+            )}
           </div>
         </div>
       )}
