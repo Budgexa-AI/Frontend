@@ -27,13 +27,13 @@ type DashboardClientProps = {
   initialError?: string | null;
 };
 
-function deriveLatestInsight(insights?: DBAiInsight[]) {
+function deriveInsight(insights?: DBAiInsight[], index: number = 0) {
   if (!insights || !insights?.length) return null;
-  const latest = insights[0];
+  const insight = insights[index];
   return {
-    title: latest.message,
-    body: latest.detail,
-    type: latest.type,
+    title: insight.message,
+    body: insight.detail,
+    type: insight.type,
   };
 }
 
@@ -113,6 +113,7 @@ export default function DashboardClient({
   const [showBalance, setShowBalance] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(initialError);
+  const [currentInsightIndex, setCurrentInsightIndex] = useState(0);
   const { profile } = useCurrentUser();
   const currency = profile?.currency ?? "NGN";
   const [data, setData] = useState<DashboardState>(initialData);
@@ -120,6 +121,20 @@ export default function DashboardClient({
   useEffect(() => {
     seedCache("dashboard-data", initialData, 30 * 1000);
   }, [initialData]);
+
+  // Rotate through insights automatically when there are multiple
+  useEffect(() => {
+    if (!data.insights || data.insights.length <= 1) {
+      setCurrentInsightIndex(0);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setCurrentInsightIndex(prev => (prev + 1) % data.insights!.length);
+    }, 8000); // Rotate every 8 seconds
+
+    return () => clearInterval(interval);
+  }, [data.insights]);
 
   async function reloadDashboard() {
     try {
@@ -195,7 +210,7 @@ export default function DashboardClient({
     [data.savingsGoals]
   );
 
-  const latestInsight = useMemo(() => deriveLatestInsight(data.insights), [data.insights]);
+  const currentInsight = useMemo(() => deriveInsight(data.insights, currentInsightIndex), [data.insights, currentInsightIndex]);
   const recentTxs = data.recentTransactions;
   const highestSpendingCategory = spending[0]?.label ?? "N/A";
 
@@ -242,28 +257,28 @@ export default function DashboardClient({
               Financial Insight
             </div>
 
-            {latestInsight ? (
+            {currentInsight ? (
               <div className="max-w-3xl">
                 <div
                   className={`mb-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium ${
-                    latestInsight.type === "alert"
+                    currentInsight.type === "alert"
                       ? "bg-Budgexa-orange/20 text-Budgexa-orange"
-                      : latestInsight.type === "positive"
+                      : currentInsight.type === "positive"
                         ? "bg-white/20 text-white"
                         : "bg-white/10 text-white/80"
                   }`}
                 >
-                  {latestInsight.type === "alert"
+                  {currentInsight.type === "alert"
                     ? "⚠ Alert"
-                    : latestInsight.type === "positive"
+                    : currentInsight.type === "positive"
                       ? "✓ Positive"
                       : "💡 Suggestion"}
                 </div>
                 <h2 className="text-2xl font-semibold tracking-tight md:text-4xl">
-                  {latestInsight.title}
+                  {currentInsight.title}
                 </h2>
                 <p className="mt-4 text-sm leading-7 text-white/75 md:text-base">
-                  {latestInsight.body}
+                  {currentInsight.body}
                 </p>
               </div>
             ) : (
