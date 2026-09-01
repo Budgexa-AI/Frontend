@@ -24,10 +24,9 @@ export default function Navbar() {
   const [authState, setAuthState] = useState<AuthState>("checking");
   const pathname = usePathname();
 
-  // The home page opens on a dark-green hero, so the nav needs light text
-  // until the user scrolls past it. Every other page starts on a light
-  // background, so it always gets the standard beige/green treatment.
+  const isAuthPage = pathname?.startsWith("/auth");
   const overDarkHero = pathname === "/" && !scrolled;
+  const isDarkTheme = !isAuthPage && (pathname === "/contact" || pathname === "/pricing");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16);
@@ -37,8 +36,8 @@ export default function Navbar() {
 
   useEffect(() => {
     setTimeout(() => {
-        setAuthState(isAuthenticated() ? "authenticated" : "anonymous");
-      }, 0);
+      setAuthState(isAuthenticated() ? "authenticated" : "anonymous");
+    }, 0);
   }, []);
 
   const isActive = (href: string) => {
@@ -46,62 +45,45 @@ export default function Navbar() {
     return pathname === href;
   };
 
-  const isDarkTheme =
-    pathname === "/contact" ||
-    pathname === "/pricing" ||
-    pathname?.startsWith("/auth");
-
   return (
     <header
       className={cn(
-<<<<<<< HEAD
-        "fixed top-0 inset-x-0 z-50 transition-all duration-300",
-        isDarkTheme
-          ? "bg-[#153813] border-b border-[#1c4219]"
-          : scrolled
-          ? "bg-Budgexa-beige/95 backdrop-blur-md shadow-sm border-b border-Budgexa-beige-dark"
-          : "bg-transparent"
-=======
         "fixed inset-x-0 top-0 z-50 transition-all duration-300",
-        overDarkHero
+        isAuthPage
+          ? "bg-white border-b border-[#e5e2db]"
+          : isDarkTheme
+          ? "bg-[#153813] border-b border-[#1c4219]"
+          : overDarkHero
           ? "bg-transparent"
           : scrolled
           ? "border-b border-Budgexa-beige-dark bg-Budgexa-beige/95 shadow-sm backdrop-blur-md"
           : "bg-Budgexa-beige"
->>>>>>> origin/feat/receipt
       )}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-<<<<<<< HEAD
-          <Link href="/" className="flex items-center gap-2.5 group">
-            {!isDarkTheme && (
-              <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-Budgexa-green group-hover:scale-105 transition-transform">
-                <RayoLogo className="text-Budgexa-beige" size={26} />
+          <Link href="/" className="group flex items-center gap-2.5">
+            {!isDarkTheme && !isAuthPage && (
+              <div
+                className={cn(
+                  "flex h-10 w-10 items-center justify-center rounded-lg transition-transform group-hover:scale-105",
+                  overDarkHero ? "bg-white/15" : "bg-Budgexa-green"
+                )}
+              >
+                <RayoLogo className={overDarkHero ? "text-white" : "text-Budgexa-beige"} size={26} />
               </div>
             )}
             <span
               className={cn(
-                "font-bold text-2xl tracking-tight transition-colors",
-                isDarkTheme
+                "text-2xl font-bold tracking-tight transition-colors",
+                isAuthPage
+                  ? "font-serif text-[#1b3d18] text-2xl"
+                  : isDarkTheme
                   ? "font-serif text-white text-3xl"
+                  : overDarkHero
+                  ? "font-display text-white"
                   : "font-display text-Budgexa-green"
-=======
-          <Link href="/" className="group flex items-center gap-2.5">
-            <div
-              className={cn(
-                "flex h-10 w-10 items-center justify-center rounded-lg transition-transform group-hover:scale-105",
-                overDarkHero ? "bg-white/15" : "bg-Budgexa-green"
-              )}
-            >
-              <RayoLogo className={overDarkHero ? "text-white" : "text-Budgexa-beige"} size={26} />
-            </div>
-            <span
-              className={cn(
-                "font-display text-2xl font-bold tracking-tight",
-                overDarkHero ? "text-white" : "text-Budgexa-green"
->>>>>>> origin/feat/receipt
               )}
             >
               Budgexa
@@ -117,25 +99,22 @@ export default function Navbar() {
                   key={label}
                   href={href}
                   className={cn(
-<<<<<<< HEAD
-                    "text-sm font-medium transition-colors pb-0.5",
-                    isDarkTheme
-                      ? active
-                        ? "text-[#F5824A] font-semibold border-b-2 border-Budgexa-orange"
-                        : "text-white/80 hover:text-white border-b-2 border-transparent"
-                      : active
-                      ? "text-Budgexa-green font-semibold border-b-2 border-Budgexa-orange"
-                      : "text-Budgexa-green/70 hover:text-Budgexa-green border-b-2 border-transparent"
-=======
                     "border-b-2 pb-0.5 text-sm font-medium transition-colors",
-                    overDarkHero
+                    isAuthPage
+                      ? active
+                        ? "border-[#1b3d18] font-semibold text-[#1b3d18]"
+                        : "border-transparent text-[#1b3d18]/75 hover:text-[#1b3d18]"
+                      : isDarkTheme
+                      ? active
+                        ? "border-Budgexa-orange font-semibold text-[#F5824A]"
+                        : "border-transparent text-white/80 hover:text-white"
+                      : overDarkHero
                       ? active
                         ? "border-Budgexa-orange text-white"
                         : "border-transparent text-white/75 hover:text-white"
                       : active
                       ? "border-Budgexa-orange font-semibold text-Budgexa-green"
                       : "border-transparent text-Budgexa-green/70 hover:text-Budgexa-green"
->>>>>>> origin/feat/receipt
                   )}
                 >
                   {label}
@@ -145,9 +124,15 @@ export default function Navbar() {
           </nav>
 
           {/* Desktop CTA */}
-<<<<<<< HEAD
-          <div className="hidden md:flex items-center gap-4">
-            {isDarkTheme ? (
+          <div className="hidden items-center gap-4 md:flex">
+            {isAuthPage ? (
+              <Link
+                href="/product/dashboard"
+                className="text-sm font-semibold text-[#1b3d18] hover:text-[#1b3d18]/70 transition-colors"
+              >
+                Dashboard
+              </Link>
+            ) : isDarkTheme ? (
               <Link
                 href="/product/dashboard"
                 className="text-sm font-medium text-white/90 hover:text-white transition-colors"
@@ -155,15 +140,7 @@ export default function Navbar() {
                 Dashboard
               </Link>
             ) : authState === "authenticated" ? (
-              <a
-                href="/product/dashboard"
-                className="btn-primary text-sm px-5 py-2.5"
-              >
-=======
-          <div className="hidden items-center gap-4 md:flex">
-            {authState === "authenticated" ? (
               <a href="/product/dashboard" className="btn-primary px-5 py-2.5 text-sm">
->>>>>>> origin/feat/receipt
                 Dashboard
               </a>
             ) : authState === "anonymous" ? (
@@ -179,24 +156,22 @@ export default function Navbar() {
                 Join Waitlist
               </a>
             ) : (
-<<<<<<< HEAD
-              // "checking" — reserve the space so the header doesn't jump
-=======
->>>>>>> origin/feat/receipt
               <div className="h-9 w-24" />
             )}
           </div>
 
           {/* Mobile hamburger */}
           <button
-<<<<<<< HEAD
             className={cn(
-              "md:hidden p-2 rounded-lg transition-colors",
-              isDarkTheme ? "text-white hover:bg-white/10" : "text-Budgexa-green hover:bg-Budgexa-green/10"
+              "p-2 rounded-lg transition-colors md:hidden",
+              isAuthPage
+                ? "text-[#1b3d18] hover:bg-[#1b3d18]/5"
+                : isDarkTheme
+                ? "text-white hover:bg-white/10"
+                : overDarkHero
+                ? "text-white"
+                : "text-Budgexa-green"
             )}
-=======
-            className={cn("p-2 md:hidden", overDarkHero ? "text-white" : "text-Budgexa-green")}
->>>>>>> origin/feat/receipt
             onClick={() => setMobileOpen((o) => !o)}
             aria-label="Toggle menu"
           >
@@ -205,20 +180,18 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile menu — always solid, regardless of hero state, for readability */}
+      {/* Mobile menu */}
       {mobileOpen && (
-<<<<<<< HEAD
         <div
           className={cn(
-            "md:hidden px-4 pb-6 pt-2 space-y-1 animate-slide-up border-t",
-            isDarkTheme
+            "animate-slide-up space-y-1 border-t px-4 pb-6 pt-2 md:hidden",
+            isAuthPage
+              ? "bg-white border-[#e5e2db] text-[#1b3d18]"
+              : isDarkTheme
               ? "bg-[#153813] border-[#1c4219] text-white"
-              : "bg-Budgexa-beige border-Budgexa-beige-dark"
+              : "border-Budgexa-beige-dark bg-Budgexa-beige"
           )}
         >
-=======
-        <div className="animate-slide-up space-y-1 border-t border-Budgexa-beige-dark bg-Budgexa-beige px-4 pb-6 pt-2 md:hidden">
->>>>>>> origin/feat/receipt
           {NAV_LINKS.map(({ label, href }) => {
             const active = isActive(href);
             return (
@@ -227,19 +200,17 @@ export default function Navbar() {
                 href={href}
                 onClick={() => setMobileOpen(false)}
                 className={cn(
-<<<<<<< HEAD
-                  "flex items-center text-base font-medium py-2.5 border-l-4 pl-3 transition-colors",
-                  isDarkTheme
+                  "flex items-center border-l-4 py-2.5 pl-3 text-base font-medium transition-colors",
+                  isAuthPage
                     ? active
-                      ? "border-Budgexa-orange text-[#F5824A] font-semibold"
+                      ? "border-[#1b3d18] font-semibold text-[#1b3d18]"
+                      : "border-transparent text-[#1b3d18]/75 hover:text-[#1b3d18]"
+                    : isDarkTheme
+                    ? active
+                      ? "border-Budgexa-orange font-semibold text-[#F5824A]"
                       : "border-transparent text-white/80 hover:text-white"
                     : active
-                    ? "border-Budgexa-orange text-Budgexa-green font-semibold"
-=======
-                  "flex items-center border-l-4 py-2.5 pl-3 text-base font-medium transition-colors",
-                  active
                     ? "border-Budgexa-orange font-semibold text-Budgexa-green"
->>>>>>> origin/feat/receipt
                     : "border-transparent text-Budgexa-green/70 hover:text-Budgexa-green"
                 )}
               >
@@ -248,11 +219,16 @@ export default function Navbar() {
             );
           })}
           <div className="flex flex-col gap-3 pt-4">
-            {isDarkTheme ? (
+            {isAuthPage || isDarkTheme ? (
               <Link
                 href="/product/dashboard"
                 onClick={() => setMobileOpen(false)}
-                className="rounded-full bg-Budgexa-orange text-center py-2.5 text-sm font-semibold text-white hover:bg-Budgexa-orange-dark transition-colors"
+                className={cn(
+                  "rounded-full text-center py-2.5 text-sm font-semibold transition-colors",
+                  isAuthPage
+                    ? "bg-[#1b3d18] text-white hover:bg-[#254F22]"
+                    : "bg-Budgexa-orange text-white hover:bg-Budgexa-orange-dark"
+                )}
               >
                 Dashboard
               </Link>
