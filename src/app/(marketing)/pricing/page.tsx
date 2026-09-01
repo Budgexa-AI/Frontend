@@ -1,25 +1,5 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Check, X, ShieldCheck, Sparkles } from "lucide-react";
-import { cn } from "@/lib/utils";
-
-type BillingPeriod = "monthly" | "yearly";
-
-interface PricingTier {
-  name: string;
-  monthlyPrice: number;
-  yearlyPrice: number;
-  period: string;
-  description: string;
-  cta: string;
-  recommended?: boolean;
-  features: {
-    name: string;
-    included: boolean;
-  }[];
-}
-
 interface ComparisonFeature {
   category: string;
   title: string;

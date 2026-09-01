@@ -15,7 +15,7 @@ function MetricSkeletonCard() {
   );
 }
 
-function BetaGateContent() {
+function BetaGateBody() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<"checking" | "invalid">("checking");
@@ -24,7 +24,9 @@ function BetaGateContent() {
     const token = searchParams.get("token");
 
     if (!token) {
-      setStatus("invalid");
+      setTimeout(() => {
+        setStatus("invalid");
+      }, 0);
       return;
     }
 
@@ -94,8 +96,22 @@ function BetaGateContent() {
 
 export default function BetaGatePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-Budgexa-beige">Checking invite...</div>}>
-      <BetaGateContent />
+    <Suspense fallback={<BetaGateFallback />}>
+      <BetaGateBody />
     </Suspense>
+  );
+}
+
+function BetaGateFallback() {
+  return (
+    <main className="min-h-screen bg-Budgexa-beige">
+      <div className="mx-auto w-full max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 pt-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <MetricSkeletonCard key={i} />
+          ))}
+        </section>
+      </div>
+    </main>
   );
 }
