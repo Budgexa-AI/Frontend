@@ -21,8 +21,19 @@ type AuthState = "checking" | "authenticated" | "anonymous";
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [authState, setAuthState] = useState<AuthState>("checking");
+  const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
+
+  // Determine auth state - use a state to allow for potential future updates
+  const [authState, setAuthState] = useState<AuthState>(() => {
+    // Safe to call on both server and client since isAuthenticated() checks typeof window
+    return isAuthenticated() ? "authenticated" : "anonymous";
+  });
+
+  // Ensure we only render after mount to prevent hydration mismatches
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // The home page opens on a dark-green hero, so the nav needs light text
   // until the user scrolls past it. Every other page starts on a light
@@ -35,12 +46,6 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => {
-    setTimeout(() => {
-        setAuthState(isAuthenticated() ? "authenticated" : "anonymous");
-      }, 0);
-  }, []);
-
   const isActive = (href: string) => {
     if (href.startsWith("/#")) return false;
     return pathname === href;
@@ -50,6 +55,9 @@ export default function Navbar() {
     pathname === "/contact" ||
     pathname === "/pricing" ||
     pathname?.startsWith("/auth");
+
+  // Don't render until mounted to prevent hydration mismatches
+  if (!isMounted) return null;
 
   return (
     <header
