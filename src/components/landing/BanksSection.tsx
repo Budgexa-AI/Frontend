@@ -2,9 +2,9 @@
 
 // export default function BanksSection() {
 //   return (
-//     <section className="border-y border-rayo-beige-dark bg-white/60 backdrop-blur-sm py-8">
+//     <section className="border-y border-Budgexa-beige-dark bg-white/60 backdrop-blur-sm py-8">
 //       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-//         <p className="text-center text-[11px] font-semibold tracking-widest text-rayo-green/50 uppercase mb-6">
+//         <p className="text-center text-[11px] font-semibold tracking-widest text-Budgexa-green/50 uppercase mb-6">
 //           {/* Works with your favourite banks */}
 //           Built for smarter money decisions
 //         </p>
@@ -12,15 +12,15 @@
 //           {/* {BANKS.map((bank) => (
 //             <span
 //               key={bank}
-//               className="text-sm font-semibold text-rayo-green/40 hover:text-rayo-green transition-colors cursor-default"
+//               className="text-sm font-semibold text-Budgexa-green/40 hover:text-Budgexa-green transition-colors cursor-default"
 //             >
 //               {bank}
 //             </span>
 //           ))} */}
 //           <span
-//             className="text-sm font-semibold rayo-muted text-rayo-green/40 hover:text-rayo-green transition-colors cursor-default"
+//             className="text-sm font-semibold Budgexa-muted text-Budgexa-green/40 hover:text-Budgexa-green transition-colors cursor-default"
 //           >
-//             Connect your accounts → Ask Rayo questions → Automate savings & investments
+//             Connect your accounts → Ask Budgexa questions → Automate savings & investments
 //           </span>
 //         </div>
 //       </div>
@@ -37,7 +37,7 @@ const STEPS = [
   },
   {
     icon: MessageCircle,
-    label: "Ask Rayo anything",
+    label: "Ask Budgexa anything",
   },
   {
     icon: TrendingUp,
@@ -47,12 +47,12 @@ const STEPS = [
 
 export default function HowItWorksBar() {
   return (
-    <section className="border-y border-rayo-beige-dark bg-white/60 backdrop-blur-sm py-8">
+    <section className="border-y border-Budgexa-beige-dark bg-white/60 backdrop-blur-sm py-8">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         {/* Label — identical style to the banks section */}
-        <p className="text-center text-[11px] font-semibold tracking-widest text-rayo-green/50 uppercase mb-6">
-          How Rayo works
+        <p className="text-center text-[11px] font-semibold tracking-widest text-Budgexa-green/50 uppercase mb-6">
+          How Budgexa works
         </p>
 
         {/* Steps row */}
@@ -66,17 +66,17 @@ export default function HowItWorksBar() {
                 <div className="flex items-center gap-2 cursor-default group">
                   <Icon
                     size={14}
-                    className="text-rayo-green/35 group-hover:text-rayo-green/60 transition-colors"
+                    className="text-Budgexa-green/35 group-hover:text-Budgexa-green/60 transition-colors"
                     strokeWidth={2}
                   />
-                  <span className="text-sm font-semibold text-rayo-green/40 group-hover:text-rayo-green/70 transition-colors">
+                  <span className="text-sm font-semibold text-Budgexa-green/40 group-hover:text-Budgexa-green/70 transition-colors">
                     {step.label}
                   </span>
                 </div>
 
                 {/* Arrow divider between steps, hidden after last */}
                 {i < STEPS.length - 1 && (
-                  <span className="text-rayo-green/20 font-light text-base select-none mx-3">
+                  <span className="text-Budgexa-green/20 font-light text-base select-none mx-3">
                     →
                   </span>
                 )}

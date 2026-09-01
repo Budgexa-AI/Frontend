@@ -1,22 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import { getCurrentUser, type UserProfile } from "@/lib/api-client";
+import { useCurrentUser } from "@/hooks/useUser";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-
-  useEffect(() => {
-    getCurrentUser()
-      .then(setProfile)
-      .catch(() => setProfile(null));
-  }, []);
+  const { profile } = useCurrentUser();
 
   return (
-    <div className="min-h-screen bg-rayo-ash flex">
-      <DashboardSidebar profile={profile ?? undefined} />
+    <div className="min-h-screen bg-Budgexa-ash flex">
       <div className="flex-1 flex flex-col min-w-0">
         <DashboardHeader profile={profile ?? { id: "" }} />
         <main className="flex-1 overflow-auto scrollbar-thin">

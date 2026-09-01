@@ -2,7 +2,7 @@ import type { FC } from "react";
 import Image from "next/image";
 
 const DashboardImg =
-  "https://res.cloudinary.com/dcmnvhhib/image/upload/v1773101280/Rayo_dashboard_qxlj1i.jpg";
+  "https://res.cloudinary.com/dcmnvhhib/image/upload/v1773101280/Budgexa_dashboard_qxlj1i.jpg";
 
 const BULLETS = [
   "Auto-detects paycheck deposits",
@@ -62,7 +62,7 @@ export const FeatureSection: FC = () => (
             <div className="relative w-full h-full">
               <Image
                 src={DashboardImg}
-                alt="Rayo dashboard preview"
+                alt="Budgexa dashboard preview"
                 fill
                 className="object-contain"
                 priority
@@ -98,7 +98,7 @@ export const FeatureSection: FC = () => (
           </h2>
 
           <p className="text-[16px] text-gray-500 leading-relaxed mb-8 pr-4">
-            Most apps just show you where your money went. Rayo actively moves
+            Most apps just show you where your money went. Budgexa actively moves
             your money to where it should go. Our AI adapts to your monthly
             spending spikes and dips, ensuring you never over-save when bills
             are due.

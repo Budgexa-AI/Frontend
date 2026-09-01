@@ -83,6 +83,8 @@ export interface UserProfile {
   envelopeBased: boolean;
   incomeSource?: string;
   onboardingComplete: boolean;
+  currency?: string;
+  country?: string;
 }
 
 export interface Category {

@@ -277,7 +277,7 @@ export default function BudgetRecommendationPage() {
 
               <p className="mt-3 text-base leading-relaxed text-[#254F22]/65">
                 Your budgeting system is flexible. As your financial
-                habits improve, Rayo can adapt your experience and
+                habits improve, Budgexa can adapt your experience and
                 recommendations over time.
               </p>
             </div>

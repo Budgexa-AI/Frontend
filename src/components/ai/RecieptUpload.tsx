@@ -124,7 +124,7 @@ export function ReceiptUpload({ onFileSelect }: ReceiptUploadProps) {
               Upload a screenshot of your receipt
             </p>
             <p className="text-xs text-gray-400">
-              Supports JPG, PNG, WebP · Max {MAX_SIZE_MB}MB
+              Supports JPG, PNG · Max {MAX_SIZE_MB}MB
             </p>
           </div>
           <span className="flex shrink-0 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 shadow-sm transition hover:bg-gray-50">

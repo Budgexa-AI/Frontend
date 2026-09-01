@@ -33,24 +33,13 @@ export default function DashboardHeader({
   const name = profile?.name ?? profile?.email ?? "User";
   const firstName = name.split(" ")[0];
 
-  const initials = useMemo(
-    () =>
-      firstName
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .slice(0, 2)
-        .toUpperCase(),
-    [firstName]
-  );
-
   const handleMonthChange = (year: number, month: number, offset: number) => {
     setOffset(offset);
     onMonthChange?.(year, month, offset);
   };
 
   return (
-    <header className="sticky top-0 z-30 border-b border-rayo-green/5 bg-rayo-beige/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-30 border-b border-Budgexa-green/5 bg-Budgexa-beige/80 backdrop-blur-xl">
       {/* ── Main row ── */}
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         {/* LEFT — greeting */}
@@ -58,7 +47,7 @@ export default function DashboardHeader({
           {showMobileMenuButton && (
             <button
               onClick={onMenuClick}
-              className="flex h-10 w-10 items-center justify-center rounded-2xl border border-rayo-green/10 bg-white text-rayo-green transition-all hover:bg-rayo-ash lg:hidden"
+              className="flex h-10 w-10 items-center justify-center rounded-2xl border border-Budgexa-green/10 bg-white text-Budgexa-green transition-all hover:bg-Budgexa-ash lg:hidden"
             >
               <Menu size={18} />
             </button>
@@ -66,12 +55,12 @@ export default function DashboardHeader({
 
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h1 className="truncate text-base font-semibold tracking-tight text-rayo-green sm:text-xl">
+              <h1 className="truncate text-base font-semibold tracking-tight text-Budgexa-green sm:text-xl">
                 {getGreeting()}, {firstName} 
               </h1>
             </div>
 
-            <p className="mt-0.5 hidden text-xs text-rayo-green/50 sm:block">
+            <p className="mt-0.5 hidden text-xs text-Budgexa-green/50 sm:block">
               Here&apos;s what&apos;s happening with your money today.
             </p>
           </div>
@@ -83,16 +72,16 @@ export default function DashboardHeader({
             <DateRange onMonthChange={handleMonthChange} />
           </div>
 
-          {/* Notifications */}
-          <button className="relative flex h-10 w-10 items-center justify-center rounded-2xl border border-rayo-green/10 bg-white text-rayo-green transition-all hover:bg-rayo-ash">
+          {/* Notifications
+          <button className="relative flex h-10 w-10 items-center justify-center rounded-2xl border border-Budgexa-green/10 bg-white text-Budgexa-green transition-all hover:bg-Budgexa-ash">
             <Bell size={16} />
-            <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-rayo-orange" />
-          </button>
+            <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-Budgexa-orange" />
+          </button> */}
 
           {/* Insights */}
           <Link
             href="/product/finance/ai"
-            className="hidden h-10 items-center gap-2 rounded-2xl border border-rayo-orange/20 bg-rayo-orange/10 px-3.5 text-sm font-medium text-rayo-orange transition-all hover:bg-rayo-orange/20 md:inline-flex"
+            className="hidden h-10 items-center gap-2 rounded-2xl border border-Budgexa-orange/20 bg-Budgexa-orange/10 px-3.5 text-sm font-medium text-Budgexa-orange transition-all hover:bg-Budgexa-orange/20 md:inline-flex"
           >
             <Sparkles size={15} />
             Insights
@@ -101,7 +90,7 @@ export default function DashboardHeader({
           {/* Add Transaction — desktop */}
           <Link
             href="/product/finance/transactions/new"
-            className="hidden h-10 items-center gap-2 rounded-2xl bg-rayo-green px-4 text-sm font-medium text-white transition-all hover:bg-rayo-green-dark sm:inline-flex"
+            className="hidden h-10 items-center gap-2 rounded-2xl bg-Budgexa-green px-4 text-sm font-medium text-white transition-all hover:bg-Budgexa-green-dark sm:inline-flex"
           >
             <Plus size={15} />
             Add Transaction
@@ -110,23 +99,16 @@ export default function DashboardHeader({
           {/* Add Transaction — mobile */}
           <Link
             href="/product/finance/transactions/new"
-            className="flex h-10 w-10 items-center justify-center rounded-2xl bg-rayo-green text-white transition-all hover:bg-rayo-green-dark sm:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-2xl bg-Budgexa-green text-white transition-all hover:bg-Budgexa-green-dark sm:hidden"
           >
             <Plus size={17} />
           </Link>
 
-          {/* Avatar */}
-          <button
-            onClick={() => router.push("/product/settings")}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-rayo-green text-sm font-semibold text-white hover:bg-rayo-green-dark transition-all"
-          >
-            {initials}
-          </button>
         </div>
       </div>
 
       {/* ── Mobile date range ── */}
-      <div className="border-t border-rayo-green/5 px-4 py-2.5 lg:hidden">
+      <div className="border-t border-Budgexa-green/5 px-4 py-2.5 lg:hidden">
         <DateRange onMonthChange={handleMonthChange} />
       </div>
     </header>

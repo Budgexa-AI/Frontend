@@ -5,18 +5,19 @@ import { detectCategory } from "@/lib/category";
 import type { AddTransactionFormValues } from "@/lib/validations";
 import { Lightbulb, MessageCircle, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 interface AIInsightPanelProps {
   values: Partial<AddTransactionFormValues>;
   selectedCategoryLabel?: string | null;
   selectedCategoryEmoji?: string | null;
+  currency?: string;
 }
 
 const CONFIDENCE_STYLES = {
   High: "bg-green-50 text-green-700 border border-green-200",
   Medium: "bg-yellow-50 text-yellow-700 border border-yellow-200",
-  Low: "bg-gray-100 text-rayo-green border border-gray-200",
+  Low: "bg-gray-100 text-Budgexa-green border border-gray-200",
 } as const;
 
 type Message = {
@@ -29,6 +30,7 @@ export function AIInsightPanel({
   values,
   selectedCategoryLabel,
   selectedCategoryEmoji,
+  currency = "NGN",
 }: AIInsightPanelProps) {
   const suggestion = useMemo(
     () => detectCategory(values.description ?? "", values.merchant ?? ""),
@@ -59,22 +61,22 @@ export function AIInsightPanel({
 
   // 🧠 simulate assistant "thinking flow"
   useEffect(() => {
-    setIsThinking(true);
-
-    const baseMessages: Message[] = [
-      {
-        id: "sys",
-        type: "system",
-        content: "Rayo Assistant is reviewing your transaction…",
-      },
-      {
-        id: "think",
-        type: "thinking",
-        content: "Analyzing patterns, merchant history, and description…",
-      },
-    ];
-
-    setMessages(baseMessages);
+    // Use setTimeout to avoid synchronous setState in effect
+    setTimeout(() => {
+      setIsThinking(true);
+      setMessages([
+        {
+          id: "sys",
+          type: "system",
+          content: "Budgexa Assistant is reviewing your transaction\u2026",
+        },
+        {
+          id: "think",
+          type: "thinking",
+          content: "Analyzing patterns, merchant history, and description\u2026",
+        },
+      ]);
+    }, 0);
 
     const t = setTimeout(() => {
       const finalMessages: Message[] = [
@@ -107,14 +109,12 @@ export function AIInsightPanel({
   }, [values.description, values.merchant, suggestion, displayedCategory]);
 
   const displayAmount = values.amount
-    ? `₦${parseFloat(values.amount.replace(/,/g, "") || "0").toLocaleString(
-        "en-NG",
-        {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }
-      )}`
-    : "₦0.00";
+    ? formatCurrency(
+        parseFloat(values.amount.replace(/,/g, "") || "0"),
+        currency,
+        { useCurrencyDecimals: true }
+      )
+    : formatCurrency(0, currency, { useCurrencyDecimals: true });
 
   const displayDate = values.date
     ? new Date(values.date).toLocaleDateString("en-NG", {
@@ -125,7 +125,7 @@ export function AIInsightPanel({
     : "—";
 
   return (
-    <aside className="flex flex-col gap-4 bg-white p-4 rounded-2xl border border-rayo-ash">
+    <aside className="flex flex-col gap-4 bg-white p-4 rounded-2xl border border-Budgexa-ash">
 
       {/* 🤖 HEADER */}
       <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
@@ -134,17 +134,17 @@ export function AIInsightPanel({
           <Sparkles
             className={cn(
               "mt-0.5 h-5 w-5 transition-all",
-              isThinking ? "animate-pulse text-gray-400" : "text-rayo-sage-dark"
+              isThinking ? "animate-pulse text-gray-400" : "text-Budgexa-sage-dark"
             )}
           />
 
           <div>
-            <p className="text-sm font-semibold text-rayo-green">
-              Rayo Assistant
+            <p className="text-sm font-semibold text-Budgexa-green">
+              Budgexa Assistant
             </p>
 
-            <p className="text-xs text-rayo-grey/60">
-              {isThinking ? "Rayo is analyzing your spend…" : "Here's your insight"}
+            <p className="text-xs text-Budgexa-grey/60">
+              {isThinking ? "Budgexa is analyzing your spend…" : "Here's your insight"}
             </p>
           </div>
         </div>
@@ -162,9 +162,9 @@ export function AIInsightPanel({
                 msg.type === "thinking" &&
                   "bg-yellow-50 text-yellow-700 border border-yellow-100 animate-pulse",
                 msg.type === "insight" &&
-                  "bg-rayo-beige-dark text-rayo-green border border-rayo-ash",
+                  "bg-Budgexa-beige-dark text-Budgexa-green border border-Budgexa-ash",
                 msg.type === "summary" &&
-                  "bg-white text-rayo-green border border-rayo-ash font-medium",
+                  "bg-white text-Budgexa-green border border-Budgexa-ash font-medium",
                 msg.type === "memory" &&
                   "bg-green-50 text-green-700 border border-green-200"
               )}
@@ -177,37 +177,37 @@ export function AIInsightPanel({
       </div>
 
       {/* 📊 QUICK SNAPSHOT (kept, but now secondary) */}
-      <div className="rounded-2xl border border-rayo-ash bg-gradient-to-b from-white to-rayo-muted/40 p-5 shadow-sm">
+      <div className="rounded-2xl border border-Budgexa-ash bg-gradient-to-b from-white to-Budgexa-muted/40 p-5 shadow-sm">
 
         {/* Header */}
         <div className="mb-4 flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rayo-beige-dark">
-            <Lightbulb className="h-4 w-4 text-rayo-sage-dark" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-Budgexa-beige-dark">
+            <Lightbulb className="h-4 w-4 text-Budgexa-sage-dark" />
           </div>
 
           <div>
-            <p className="text-sm font-semibold text-rayo-green">
+            <p className="text-sm font-semibold text-Budgexa-green">
               Quick snapshot
             </p>
-            <p className="text-xs text-rayo-grey/60">
+            <p className="text-xs text-Budgexa-grey/60">
               AI structured breakdown of this transaction
             </p>
           </div>
         </div>
 
         {/* Main highlight card (Amount + Category focus) */}
-        <div className="mb-4 rounded-xl border border-rayo-ash bg-white p-4 shadow-sm">
+        <div className="mb-4 rounded-xl border border-Budgexa-ash bg-white p-4 shadow-sm">
 
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs text-gray-500">Amount</span>
-            <span className="text-sm font-semibold text-rayo-green">
+            <span className="text-sm font-semibold text-Budgexa-green">
               {displayAmount}
             </span>
           </div>
 
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs text-gray-500">Category</span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-rayo-beige-light px-2.5 py-1 text-xs font-medium text-rayo-green">
+            <span className="inline-flex items-center gap-1 rounded-full bg-Budgexa-beige-light px-2.5 py-1 text-xs font-medium text-Budgexa-green">
               <span>{displayedCategory.emoji}</span>
               {displayedCategory.label}
             </span>
@@ -220,7 +220,7 @@ export function AIInsightPanel({
                 values.direction === "Income"
                   ? "text-green-600"
                   : values.direction === "Expense"
-                    ? "text-rayo-red"
+                    ? "text-Budgexa-red"
                     : "text-gray-500"
               }`}
             >
@@ -230,28 +230,28 @@ export function AIInsightPanel({
         </div>
 
         {/* Date pill section */}
-        <div className="flex items-center justify-between rounded-xl bg-rayo-muted px-4 py-3 border border-rayo-ash">
+        <div className="flex items-center justify-between rounded-xl bg-Budgexa-muted px-4 py-3 border border-Budgexa-ash">
 
           <span className="text-xs text-gray-500">Date</span>
 
-          <span className="text-xs font-medium text-rayo-green-dark">
+          <span className="text-xs font-medium text-Budgexa-green-dark">
             {displayDate}
           </span>
         </div>
       </div>
 
       {/* 💬 CTA */}
-      <div className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-rayo-sage p-4 shadow-lg">
+      <div className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-Budgexa-sage p-4 shadow-lg">
 
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-50">
           <MessageCircle className="h-4 w-4 text-green-600" />
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-semibold text-rayo-green-dark">
-            Talk to Rayo
+          <p className="text-xs font-semibold text-Budgexa-green-dark">
+            Talk to Budgexa
           </p>
-          <p className="text-xs text-rayo-green">
+          <p className="text-xs text-Budgexa-green">
             Ask follow-ups about this transaction
           </p>
         </div>
@@ -260,7 +260,7 @@ export function AIInsightPanel({
           href={`/product/finance/ai?description=${encodeURIComponent(
             values.description ?? ""
           )}`}
-          className="flex items-center gap-1.5 rounded-lg bg-rayo-green px-3 py-1.5 text-xs font-medium text-white hover:bg-rayo-green-dark transition"
+          className="flex items-center gap-1.5 rounded-lg bg-Budgexa-green px-3 py-1.5 text-xs font-medium text-white hover:bg-Budgexa-green-dark transition"
         >
           Ask
         </Link>
