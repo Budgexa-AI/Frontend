@@ -149,13 +149,13 @@ export default function FinancialSetupPage() {
         <div className="mb-10 flex items-center justify-between">
           <Link
             href="/product/onboarding/recommendation"
-            className="inline-flex items-center gap-2 text-sm font-medium text-rayo-green/70 transition-colors hover:text-rayo-green"
+            className="inline-flex items-center gap-2 text-sm font-medium text-Budgexa-green/70 transition-colors hover:text-Budgexa-green"
           >
             <ArrowLeft size={16} />
             Back
           </Link>
 
-          <div className="rounded-full border border-rayo-green/10 bg-white px-4 py-2 text-sm font-medium text-rayo-green shadow-sm">
+          <div className="rounded-full border border-Budgexa-green/10 bg-white px-4 py-2 text-sm font-medium text-Budgexa-green shadow-sm">
             Step 4 of 4
           </div>
         </div>
@@ -163,27 +163,27 @@ export default function FinancialSetupPage() {
         {/* PROGRESS */}
         <div className="mb-12">
           <div className="mb-3 flex items-center justify-between">
-            <p className="text-sm font-medium text-rayo-green/70">
+            <p className="text-sm font-medium text-Budgexa-green/70">
               Initial financial setup
             </p>
 
-            <p className="text-sm text-rayo-green/50">
+            <p className="text-sm text-Budgexa-green/50">
               100%
             </p>
           </div>
 
-          <div className="h-2 overflow-hidden rounded-full bg-rayo-green/10">
-            <div className="h-full w-full rounded-full bg-rayo-green" />
+          <div className="h-2 overflow-hidden rounded-full bg-Budgexa-green/10">
+            <div className="h-full w-full rounded-full bg-Budgexa-green" />
           </div>
         </div>
 
         {/* HERO */}
         <div className="mb-10 max-w-3xl">
-          <h1 className="text-4xl font-semibold leading-tight tracking-tight text-rayo-green md:text-5xl">
+          <h1 className="text-4xl font-semibold leading-tight tracking-tight text-Budgexa-green md:text-5xl">
             Let’s finish setting up your workspace.
           </h1>
 
-          <p className="mt-5 text-base leading-relaxed text-rayo-green/70 md:text-lg">
+          <p className="mt-5 text-base leading-relaxed text-Budgexa-green/70 md:text-lg">
             These details help personalize your budgeting,
             savings goals, and financial insights.
           </p>
@@ -193,18 +193,18 @@ export default function FinancialSetupPage() {
           {/* LEFT COLUMN */}
           <div className="space-y-6">
             {/* CURRENCY */}
-            <section className="rounded-[32px] border border-rayo-green/5 bg-white p-6 shadow-sm">
+            <section className="rounded-[32px] border border-Budgexa-green/5 bg-white p-6 shadow-sm">
               <div className="mb-6 flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rayo-green/5 text-rayo-green">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-Budgexa-green/5 text-Budgexa-green">
                   <CircleDollarSign size={22} />
                 </div>
 
                 <div>
-                  <h2 className="text-xl font-semibold text-rayo-green">
+                  <h2 className="text-xl font-semibold text-Budgexa-green">
                     Country & Currency
                   </h2>
 
-                  <p className="text-sm text-rayo-green/60">
+                  <p className="text-sm text-Budgexa-green/60">
                     We'll use this to set your default currency
                   </p>
                 </div>
@@ -214,7 +214,7 @@ export default function FinancialSetupPage() {
                 <select
                   value={countryCode}
                   onChange={(e) => handleCountryChange(e.target.value)}
-                  className="h-14 w-full appearance-none rounded-2xl border border-rayo-green/10 bg-white px-5 pr-12 text-left font-medium text-rayo-green outline-none transition-all hover:border-rayo-green/20 focus:border-rayo-green/30"
+                  className="h-14 w-full appearance-none rounded-2xl border border-Budgexa-green/10 bg-white px-5 pr-12 text-left font-medium text-Budgexa-green outline-none transition-all hover:border-Budgexa-green/20 focus:border-Budgexa-green/30"
                 >
                   {countryOptions.map((c) => (
                     <option key={c.code} value={c.code}>
@@ -224,28 +224,28 @@ export default function FinancialSetupPage() {
                 </select>
                 <ChevronRight
                   size={18}
-                  className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 rotate-90 text-rayo-green/40"
+                  className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 rotate-90 text-Budgexa-green/40"
                 />
               </div>
 
-              <p className="mt-3 text-sm text-rayo-green/50">
+              <p className="mt-3 text-sm text-Budgexa-green/50">
                 {getCurrencyDefinition(currencyCode).name} · {getCurrencySymbol(currencyCode)} {currencyCode}
               </p>
             </section>
 
             {/* INCOME */}
-            <section className="rounded-[32px] border border-rayo-green/5 bg-white p-6 shadow-sm">
+            <section className="rounded-[32px] border border-Budgexa-green/5 bg-white p-6 shadow-sm">
               <div className="mb-6 flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rayo-green/5 text-rayo-green">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-Budgexa-green/5 text-Budgexa-green">
                   <Briefcase size={22} />
                 </div>
 
                 <div>
-                  <h2 className="text-xl font-semibold text-rayo-green">
+                  <h2 className="text-xl font-semibold text-Budgexa-green">
                     Income Source
                   </h2>
 
-                  <p className="text-sm text-rayo-green/60">
+                  <p className="text-sm text-Budgexa-green/60">
                     Choose your primary source of income
                   </p>
                 </div>
@@ -267,8 +267,8 @@ export default function FinancialSetupPage() {
                       onClick={() => setSelectedIncome(item)}
                       className={`rounded-2xl border p-4 text-left transition-all ${
                         active
-                          ? "border-rayo-green bg-rayo-green text-white"
-                          : "border-rayo-green/10 hover:border-rayo-green/20"
+                          ? "border-Budgexa-green bg-Budgexa-green text-white"
+                          : "border-Budgexa-green/10 hover:border-Budgexa-green/20"
                       }`}
                     >
                       <p className="font-medium">
@@ -280,7 +280,7 @@ export default function FinancialSetupPage() {
 
                 {selectedIncome === "Other" && (
                   <div className="sm:col-span-2">
-                    <label className="mb-2 block text-sm font-medium text-rayo-green/70">
+                    <label className="mb-2 block text-sm font-medium text-Budgexa-green/70">
                       Write your income source
                     </label>
 
@@ -288,7 +288,7 @@ export default function FinancialSetupPage() {
                       value={customIncomeSource}
                       onChange={(e) => setCustomIncomeSource(e.target.value)}
                       placeholder="e.g. Allowance"
-                      className="h-14 w-full rounded-2xl border border-rayo-green/10 bg-rayo-green/[0.02] px-5 text-rayo-green outline-none transition-all placeholder:text-rayo-green/40 focus:border-rayo-green/30"
+                      className="h-14 w-full rounded-2xl border border-Budgexa-green/10 bg-Budgexa-green/[0.02] px-5 text-Budgexa-green outline-none transition-all placeholder:text-Budgexa-green/40 focus:border-Budgexa-green/30"
                     />
                   </div>
                 )}
@@ -296,18 +296,18 @@ export default function FinancialSetupPage() {
             </section>
 
             {/* GOALS */}
-            <section className="rounded-[32px] border border-rayo-green/5 bg-white p-6 shadow-sm">
+            <section className="rounded-[32px] border border-Budgexa-green/5 bg-white p-6 shadow-sm">
               <div className="mb-6 flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rayo-green/5 text-rayo-green">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-Budgexa-green/5 text-Budgexa-green">
                   <PiggyBank size={22} />
                 </div>
 
                 <div>
-                  <h2 className="text-xl font-semibold text-rayo-green">
+                  <h2 className="text-xl font-semibold text-Budgexa-green">
                     Savings Goals
                   </h2>
 
-                  <p className="text-sm text-rayo-green/60">
+                  <p className="text-sm text-Budgexa-green/60">
                     Select what you want to work toward
                   </p>
                 </div>
@@ -324,8 +324,8 @@ export default function FinancialSetupPage() {
                       onClick={() => toggleGoal(goal)}
                       className={`inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm font-medium transition-all ${
                         active
-                          ? "bg-rayo-green text-white"
-                          : "bg-[#EDE4CC]/70 text-rayo-green hover:bg-rayo-green/10"
+                          ? "bg-Budgexa-green text-white"
+                          : "bg-[#EDE4CC]/70 text-Budgexa-green hover:bg-Budgexa-green/10"
                       }`}
                     >
                       {active && <Check size={14} />}
@@ -340,18 +340,18 @@ export default function FinancialSetupPage() {
           {/* RIGHT COLUMN */}
           <div className="space-y-6">
             {/* CATEGORIES */}
-            <section className="rounded-[32px] border border-rayo-green/5 bg-white p-6 shadow-sm">
+            <section className="rounded-[32px] border border-Budgexa-green/5 bg-white p-6 shadow-sm">
               <div className="mb-6 flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rayo-green/5 text-rayo-green">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-Budgexa-green/5 text-Budgexa-green">
                   <Wallet size={22} />
                 </div>
 
                 <div>
-                  <h2 className="text-xl font-semibold text-rayo-green">
+                  <h2 className="text-xl font-semibold text-Budgexa-green">
                     Expense Categories
                   </h2>
 
-                  <p className="text-sm text-rayo-green/60">
+                  <p className="text-sm text-Budgexa-green/60">
                     Customize how your spending is organized
                   </p>
                 </div>
@@ -365,12 +365,12 @@ export default function FinancialSetupPage() {
                     setCustomCategory(e.target.value)
                   }
                   placeholder="Add a custom category"
-                  className="h-14 w-full rounded-2xl border border-rayo-green/10 bg-rayo-green/[0.02] px-5 text-rayo-green outline-none transition-all placeholder:text-rayo-green/40 focus:border-rayo-green/30"
+                  className="h-14 w-full rounded-2xl border border-Budgexa-green/10 bg-Budgexa-green/[0.02] px-5 text-Budgexa-green outline-none transition-all placeholder:text-Budgexa-green/40 focus:border-Budgexa-green/30"
                 />
 
                 <button
                   onClick={addCategory}
-                  className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-rayo-green px-6 text-sm font-medium text-white transition-all hover:bg-[#1D3F1B]"
+                  className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-Budgexa-green px-6 text-sm font-medium text-white transition-all hover:bg-[#1D3F1B]"
                 >
                   <Plus size={16} />
                   Add
@@ -382,7 +382,7 @@ export default function FinancialSetupPage() {
                 {categories.map((category) => (
                   <div
                     key={category}
-                    className="inline-flex items-center gap-2 rounded-full bg-[#EDE4CC]/70 px-4 py-3 text-sm font-medium text-rayo-green"
+                    className="inline-flex items-center gap-2 rounded-full bg-[#EDE4CC]/70 px-4 py-3 text-sm font-medium text-Budgexa-green"
                   >
                     {category}
 
@@ -390,7 +390,7 @@ export default function FinancialSetupPage() {
                       onClick={() =>
                         removeCategory(category)
                       }
-                      className="text-rayo-green/50 transition-colors hover:text-[#A03A13]"
+                      className="text-Budgexa-green/50 transition-colors hover:text-[#A03A13]"
                     >
                       <X size={14} />
                     </button>
@@ -400,7 +400,7 @@ export default function FinancialSetupPage() {
             </section>
 
             {/* PREVIEW */}
-            <section className="rounded-[32px] border border-rayo-green/5 bg-rayo-green p-6 text-white shadow-sm">
+            <section className="rounded-[32px] border border-Budgexa-green/5 bg-Budgexa-green p-6 text-white shadow-sm">
               <div className="mb-8">
                 <p className="text-sm uppercase tracking-wide text-white/50">
                   Workspace Preview
@@ -452,7 +452,7 @@ export default function FinancialSetupPage() {
         <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
           <Link
             href={completionHref}
-            className="group inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-rayo-green px-7 text-base font-medium text-white transition-all hover:bg-[#1D3F1B]"
+            className="group inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-Budgexa-green px-7 text-base font-medium text-white transition-all hover:bg-[#1D3F1B]"
           >
             Finish Setup
 
@@ -464,7 +464,7 @@ export default function FinancialSetupPage() {
 
           <button
             onClick={() => router.push("/product/dashboard")}
-            className="h-14 rounded-2xl px-6 text-sm font-medium text-rayo-green/60 transition-colors hover:text-rayo-green"
+            className="h-14 rounded-2xl px-6 text-sm font-medium text-Budgexa-green/60 transition-colors hover:text-Budgexa-green"
           >
             Skip for now
           </button>

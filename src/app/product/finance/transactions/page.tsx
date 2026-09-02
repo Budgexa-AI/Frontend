@@ -27,14 +27,14 @@ function DeleteModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4">
       <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-        <h3 className="text-base font-semibold text-rayo-green">Delete transaction?</h3>
-        <p className="mt-2 text-sm text-rayo-green/60">
-          <span className="font-medium text-rayo-green">"{label}"</span> will be permanently removed. This cannot be undone.
+        <h3 className="text-base font-semibold text-Budgexa-green">Delete transaction?</h3>
+        <p className="mt-2 text-sm text-Budgexa-green/60">
+          <span className="font-medium text-Budgexa-green">"{label}"</span> will be permanently removed. This cannot be undone.
         </p>
         <div className="mt-6 flex gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 rounded-xl border border-rayo-green/10 py-2.5 text-sm font-medium text-rayo-green transition hover:bg-rayo-beige"
+            className="flex-1 rounded-xl border border-Budgexa-green/10 py-2.5 text-sm font-medium text-Budgexa-green transition hover:bg-Budgexa-beige"
           >
             Cancel
           </button>
@@ -175,14 +175,14 @@ export default function TransactionsPage() {
         {/* HEADER */}
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between px-5">
           <div>
-            <h1 className="text-[28px] font-bold tracking-tight text-rayo-green">Transactions</h1>
-            <p className="text-sm text-rayo-green/50 mt-1">
+            <h1 className="text-[28px] font-bold tracking-tight text-Budgexa-green">Transactions</h1>
+            <p className="text-sm text-Budgexa-green/50 mt-1">
               Track your income, expenses, and overall budget progress.
             </p>
           </div>
           <Link
             href="/product/finance/transactions/new"
-            className="h-11 px-4 rounded-xl bg-rayo-green text-white text-sm font-medium hover:bg-rayo-green-dark transition-colors flex items-center justify-center gap-2 self-start"
+            className="h-11 px-4 rounded-xl bg-Budgexa-green text-white text-sm font-medium hover:bg-Budgexa-green-dark transition-colors flex items-center justify-center gap-2 self-start"
           >
             <Plus size={14} />
             Add Transaction
@@ -198,31 +198,31 @@ export default function TransactionsPage() {
 
         {/* CASHFLOW OVERVIEW */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-6">
-          <div className="bg-white border border-rayo-ash rounded-2xl p-5">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-rayo-green/45">
+          <div className="bg-white border border-Budgexa-ash rounded-2xl p-5">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-Budgexa-green/45">
               Cashflow Overview
             </h3>
             <div className="mt-4 space-y-4 text-sm">
               <div className="flex justify-between items-center">
-                <span className="text-rayo-green/60">Income</span>
+                <span className="text-Budgexa-green/60">Income</span>
                 <span className="text-emerald-600 font-bold">{fmtSigned(totalIncome)}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-rayo-green/60">Expenses</span>
+                <span className="text-Budgexa-green/60">Expenses</span>
                 <span className="text-red-500 font-bold">{fmtSigned(totalExpenses)}</span>
               </div>
-              <div className="border-t border-rayo-ash pt-3 flex justify-between items-center">
-                <span className="font-medium text-rayo-green/80">Net Balance</span>
-                <span className={cn("font-bold text-lg", balance >= 0 ? "text-rayo-green" : "text-red-500")}>
+              <div className="border-t border-Budgexa-ash pt-3 flex justify-between items-center">
+                <span className="font-medium text-Budgexa-green/80">Net Balance</span>
+                <span className={cn("font-bold text-lg", balance >= 0 ? "text-Budgexa-green" : "text-red-500")}>
                   {fmtSigned(balance)}
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="bg-white border border-rayo-ash rounded-2xl p-5 lg:col-span-2">
+          <div className="bg-white border border-Budgexa-ash rounded-2xl p-5 lg:col-span-2">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-rayo-green/45">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-Budgexa-green/45">
                 AI Spending Insights
               </h3>
               <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
@@ -230,16 +230,16 @@ export default function TransactionsPage() {
                 Active Monitor
               </span>
             </div>
-            <div className="mt-4 space-y-3.5 text-sm text-rayo-green/70">
+            <div className="mt-4 space-y-3.5 text-sm text-Budgexa-green/70">
               {insightsLoading ? (
-                <p className="text-sm text-rayo-green/50">Loading insights…</p>
+                <p className="text-sm text-Budgexa-green/50">Loading insights…</p>
               ) : transactions.length === 0 ? (
-                <p className="text-sm text-rayo-green/50">Add transactions to get AI-powered spending insights.</p>
+                <p className="text-sm text-Budgexa-green/50">Add transactions to get AI-powered spending insights.</p>
               ) : (
                 <div className="space-y-3">
                   {insights.map((insight, index) => (
                     <div key={index} className="flex items-start gap-2.5">
-                      <span className="w-2 h-2 rounded-full bg-rayo-orange mt-1.5 shrink-0" />
+                      <span className="w-2 h-2 rounded-full bg-Budgexa-orange mt-1.5 shrink-0" />
                       <p>{insight.message}</p>
                     </div>
                   ))}
@@ -250,14 +250,14 @@ export default function TransactionsPage() {
         </div>
 
         {/* FILTERS */}
-        <div className="bg-white rounded-2xl border border-rayo-ash p-4 mt-6">
+        <div className="bg-white rounded-2xl border border-Budgexa-ash p-4 mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-medium text-rayo-green/70">Type</label>
+              <label className="text-xs font-medium text-Budgexa-green/70">Type</label>
               <select
                 value={typeFilter}
                 onChange={(e) => { setTypeFilter(e.target.value as any); setPage(1); }}
-                className="h-11 rounded-xl border border-rayo-ash bg-white px-4 text-sm text-rayo-green/70 outline-none"
+                className="h-11 rounded-xl border border-Budgexa-ash bg-white px-4 text-sm text-Budgexa-green/70 outline-none"
               >
                 <option value="">All</option>
                 <option value="income">Income</option>
@@ -266,14 +266,14 @@ export default function TransactionsPage() {
             </div>
 
             <div className="flex flex-col gap-2 xl:col-span-4">
-              <label className="text-xs font-medium text-rayo-green/70">Search</label>
+              <label className="text-xs font-medium text-Budgexa-green/70">Search</label>
               <div className="relative">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-rayo-green/30" />
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-Budgexa-green/30" />
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search by description or category..."
-                  className="h-11 w-full rounded-xl border border-rayo-ash bg-white pl-9 pr-4 text-sm outline-none focus:border-rayo-green/20"
+                  className="h-11 w-full rounded-xl border border-Budgexa-ash bg-white pl-9 pr-4 text-sm outline-none focus:border-Budgexa-green/20"
                 />
               </div>
             </div>
@@ -282,33 +282,33 @@ export default function TransactionsPage() {
 
         {/* TRANSACTION TABLE */}
         <div className="mt-6">
-          <div className="bg-white rounded-2xl border border-rayo-ash overflow-hidden">
+          <div className="bg-white rounded-2xl border border-Budgexa-ash overflow-hidden">
 
             {/* ── Desktop ── */}
             <div className="hidden xl:block overflow-x-auto">
-              <div className="grid grid-cols-[130px_2fr_1.2fr_110px_130px_100px] px-5 py-3 bg-rayo-muted border-b border-rayo-ash">
+              <div className="grid grid-cols-[130px_2fr_1.2fr_110px_130px_100px] px-5 py-3 bg-Budgexa-muted border-b border-Budgexa-ash">
                 {["DATE", "DESCRIPTION", "CATEGORY", "TYPE", "AMOUNT", "ACTIONS"].map((h) => (
-                  <span key={h} className="text-xs font-semibold tracking-wider text-rayo-green/35">{h}</span>
+                  <span key={h} className="text-xs font-semibold tracking-wider text-Budgexa-green/35">{h}</span>
                 ))}
               </div>
 
               {loading ? (
                 <div className="p-6 space-y-4 animate-pulse">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="h-12 rounded-xl bg-rayo-muted" />
+                    <div key={i} className="h-12 rounded-xl bg-Budgexa-muted" />
                   ))}
                 </div>
               ) : filtered.length === 0 ? (
-                <div className="p-10 text-center text-sm text-rayo-green/50">No transactions yet.</div>
+                <div className="p-10 text-center text-sm text-Budgexa-green/50">No transactions yet.</div>
               ) : (
-                <div className="divide-y divide-rayo-ash">
+                <div className="divide-y divide-Budgexa-ash">
                   {filtered.map((t) => (
-                    <div key={t.id} className="grid grid-cols-[130px_2fr_1.2fr_110px_130px_100px] items-center px-5 py-4 hover:bg-rayo-muted/40 transition-colors group">
-                      <p className="text-sm font-medium text-rayo-green">
+                    <div key={t.id} className="grid grid-cols-[130px_2fr_1.2fr_110px_130px_100px] items-center px-5 py-4 hover:bg-Budgexa-muted/40 transition-colors group">
+                      <p className="text-sm font-medium text-Budgexa-green">
                         {new Date(t.date).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}
                       </p>
-                      <p className="text-sm font-semibold text-rayo-green truncate pr-4">{t.description}</p>
-                      <span className="inline-flex items-center gap-1.5 rounded-lg bg-rayo-muted px-2.5 py-1 text-xs font-medium text-rayo-green w-fit">
+                      <p className="text-sm font-semibold text-Budgexa-green truncate pr-4">{t.description}</p>
+                      <span className="inline-flex items-center gap-1.5 rounded-lg bg-Budgexa-muted px-2.5 py-1 text-xs font-medium text-Budgexa-green w-fit">
                         {categoryName(t.categoryId)}
                       </span>
 
@@ -327,13 +327,13 @@ export default function TransactionsPage() {
                       <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Link
                           href={`/product/finance/transactions/${t.id}/edit`}
-                          className="w-8 h-8 rounded-lg border border-rayo-ash flex items-center justify-center text-rayo-green/40 hover:text-rayo-green transition-colors"
+                          className="w-8 h-8 rounded-lg border border-Budgexa-ash flex items-center justify-center text-Budgexa-green/40 hover:text-Budgexa-green transition-colors"
                         >
                           <Pencil size={13} />
                         </Link>
                         <button
                           onClick={() => setDeleteTarget(t)}
-                          className="w-8 h-8 rounded-lg border border-rayo-ash flex items-center justify-center text-rayo-green/40 hover:text-red-500 transition-colors"
+                          className="w-8 h-8 rounded-lg border border-Budgexa-ash flex items-center justify-center text-Budgexa-green/40 hover:text-red-500 transition-colors"
                         >
                           <Trash2 size={13} />
                         </button>
@@ -345,23 +345,23 @@ export default function TransactionsPage() {
             </div>
 
             {/* ── Mobile ── */}
-            <div className="xl:hidden divide-y divide-rayo-ash">
+            <div className="xl:hidden divide-y divide-Budgexa-ash">
               {loading ? (
                 <div className="p-4 space-y-3 animate-pulse">
                   {Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="h-16 rounded-xl bg-rayo-muted" />
+                    <div key={i} className="h-16 rounded-xl bg-Budgexa-muted" />
                   ))}
                 </div>
               ) : filtered.length === 0 ? (
-                <div className="p-8 text-center text-sm text-rayo-green/50">No transactions yet.</div>
+                <div className="p-8 text-center text-sm text-Budgexa-green/50">No transactions yet.</div>
               ) : (
                 filtered.map((t) => (
-                  <div key={t.id} className="p-4 hover:bg-rayo-muted/40 transition-colors">
+                  <div key={t.id} className="p-4 hover:bg-Budgexa-muted/40 transition-colors">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-rayo-green truncate">{t.description}</p>
-                        <p className="text-xs text-rayo-green/40 mt-1">{t.categoryId}</p>
-                        <p className="text-xs text-rayo-green/45 mt-1">
+                        <p className="text-sm font-semibold text-Budgexa-green truncate">{t.description}</p>
+                        <p className="text-xs text-Budgexa-green/40 mt-1">{t.categoryId}</p>
+                        <p className="text-xs text-Budgexa-green/45 mt-1">
                           {new Date(t.date).toLocaleDateString("en-NG")}
                         </p>
                       </div>
@@ -372,13 +372,13 @@ export default function TransactionsPage() {
                         <div className="flex items-center gap-1.5">
                           <Link
                             href={`/product/finance/transactions/${t.id}/edit`}
-                            className="p-1.5 rounded-lg text-rayo-green/40 hover:text-rayo-green transition-colors"
+                            className="p-1.5 rounded-lg text-Budgexa-green/40 hover:text-Budgexa-green transition-colors"
                           >
                             <Pencil size={14} />
                           </Link>
                           <button
                             onClick={() => setDeleteTarget(t)}
-                            className="p-1.5 rounded-lg text-rayo-green/40 hover:text-red-500 transition-colors"
+                            className="p-1.5 rounded-lg text-Budgexa-green/40 hover:text-red-500 transition-colors"
                           >
                             <Trash2 size={14} />
                           </button>
@@ -391,15 +391,15 @@ export default function TransactionsPage() {
             </div>
 
             {/* Pagination */}
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between px-5 py-4 border-t border-rayo-ash">
-              <p className="text-xs text-rayo-green/45">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between px-5 py-4 border-t border-Budgexa-ash">
+              <p className="text-xs text-Budgexa-green/45">
                 Showing {Math.min((page - 1) * limit + 1, total)}–{Math.min(page * limit, total)} of {total} transactions
               </p>
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="w-8 h-8 rounded-lg border border-rayo-ash flex items-center justify-center text-rayo-green/40 disabled:opacity-40"
+                  className="w-8 h-8 rounded-lg border border-Budgexa-ash flex items-center justify-center text-Budgexa-green/40 disabled:opacity-40"
                 >
                   <ChevronLeft size={14} />
                 </button>
@@ -409,7 +409,7 @@ export default function TransactionsPage() {
                     onClick={() => setPage(n)}
                     className={cn(
                       "w-8 h-8 rounded-lg text-sm font-medium",
-                      page === n ? "bg-rayo-green text-white" : "border border-rayo-ash text-rayo-green/60"
+                      page === n ? "bg-Budgexa-green text-white" : "border border-Budgexa-ash text-Budgexa-green/60"
                     )}
                   >
                     {n}
@@ -418,7 +418,7 @@ export default function TransactionsPage() {
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page >= totalPages}
-                  className="w-8 h-8 rounded-lg border border-rayo-ash flex items-center justify-center text-rayo-green/40 disabled:opacity-40"
+                  className="w-8 h-8 rounded-lg border border-Budgexa-ash flex items-center justify-center text-Budgexa-green/40 disabled:opacity-40"
                 >
                   <ChevronRight size={14} />
                 </button>

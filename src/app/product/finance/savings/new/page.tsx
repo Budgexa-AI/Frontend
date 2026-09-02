@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import {
@@ -91,6 +92,7 @@ const formatDate = (date: string) =>
 // Page
 
 export default function CreateSavingsGoalPage() {
+  const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const { profile } = useCurrentUser();
@@ -153,7 +155,7 @@ export default function CreateSavingsGoalPage() {
       1,
       Math.round(
         (new Date(targetDate).getTime() -
-          Date.now()) /
+          new Date().getTime()) /
           (1000 * 60 * 60 * 24 * 30)
       )
     );
@@ -208,7 +210,8 @@ export default function CreateSavingsGoalPage() {
               parentSlug: selectedGoalType === "emergency" ? "savings_investment" : GOAL_TYPE_TO_SLUG[selectedGoalType] ?? "savings_investment",
             }),
       });
-      window.location.href = "/product/finance/savings";
+      router.push("/product/finance/savings");
+      router.refresh();
     } catch (e: any) {
       setError(e.message || "Failed to create goal");
     } finally {
@@ -230,17 +233,17 @@ export default function CreateSavingsGoalPage() {
 
               <a
                 href="/product/finance/savings"
-                className="inline-flex items-center gap-2 text-sm font-medium text-rayo-green/60 hover:text-rayo-green transition-colors"
+                className="inline-flex items-center gap-2 text-sm font-medium text-Budgexa-green/60 hover:text-Budgexa-green transition-colors"
               >
                 <ArrowLeft size={15} />
                 Back to Goals
               </a>
 
-              <h1 className="mt-5 text-[28px] md:text-[32px] leading-none font-bold tracking-tight text-rayo-green">
+              <h1 className="mt-5 text-[28px] md:text-[32px] leading-none font-bold tracking-tight text-Budgexa-green">
                 Create a New Savings Goal
               </h1>
 
-              <p className="mt-2 text-sm text-rayo-green/50">
+              <p className="mt-2 text-sm text-Budgexa-green/50">
                 Set a goal, track your progress,
                 and achieve your dreams.
               </p>
@@ -252,11 +255,11 @@ export default function CreateSavingsGoalPage() {
 
                 <section className="rounded-3xl border border-[#E8EDE5] bg-white p-5">
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-rayo-green text-white flex items-center justify-center text-xs font-bold">
+                    <div className="w-6 h-6 rounded-full bg-Budgexa-green text-white flex items-center justify-center text-xs font-bold">
                       1
                     </div>
 
-                    <h2 className="text-sm font-bold text-rayo-green">
+                    <h2 className="text-sm font-bold text-Budgexa-green">
                       Goal Details
                     </h2>
                   </div>
@@ -265,7 +268,7 @@ export default function CreateSavingsGoalPage() {
                     {/* Goal Name */}
 
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wide text-rayo-green/45 mb-2">
+                      <label className="block text-xs font-semibold uppercase tracking-wide text-Budgexa-green/45 mb-2">
                         Goal Name
                       </label>
 
@@ -277,14 +280,14 @@ export default function CreateSavingsGoalPage() {
                             e.target.value
                           )
                         }
-                        className="w-full h-12 rounded-2xl border border-[#E4E9E0] bg-[#FBFCFA] px-4 text-sm text-rayo-green outline-none focus:border-rayo-green/30"
+                        className="w-full h-12 rounded-2xl border border-[#E4E9E0] bg-[#FBFCFA] px-4 text-sm text-Budgexa-green outline-none focus:border-Budgexa-green/30"
                       />
                     </div>
 
                     {/* Goal Icons */}
 
                     <div className="mt-5">
-                      <label className="block text-xs font-semibold uppercase tracking-wide text-rayo-green/45 mb-3">
+                      <label className="block text-xs font-semibold uppercase tracking-wide text-Budgexa-green/45 mb-3">
                         Goal Icon
                       </label>
 
@@ -309,8 +312,8 @@ export default function CreateSavingsGoalPage() {
                                 className={cn(
                                   "w-12 h-12 rounded-2xl border flex items-center justify-center transition-all",
                                   active
-                                    ? "bg-rayo-green border-rayo-green text-white shadow-sm"
-                                    : "bg-white border-[#E6ECE2] text-rayo-green/50 hover:border-rayo-green/25"
+                                    ? "bg-Budgexa-green border-Budgexa-green text-white shadow-sm"
+                                    : "bg-white border-[#E6ECE2] text-Budgexa-green/50 hover:border-Budgexa-green/25"
                                 )}
                               >
                                 <GoalIcon
@@ -321,7 +324,7 @@ export default function CreateSavingsGoalPage() {
                           }
                         )}
 
-                        <button className="h-12 px-4 rounded-2xl border border-[#E6ECE2] text-rayo-green/50 text-xs font-medium flex items-center gap-2 hover:border-rayo-green/25">
+                        <button className="h-12 px-4 rounded-2xl border border-[#E6ECE2] text-Budgexa-green/50 text-xs font-medium flex items-center gap-2 hover:border-Budgexa-green/25">
                           <MoreHorizontal
                             size={14}
                           />
@@ -333,7 +336,7 @@ export default function CreateSavingsGoalPage() {
                     {/* Description */}
 
                     <div className="mt-5">
-                      <label className="block text-xs font-semibold uppercase tracking-wide text-rayo-green/45 mb-2">
+                      <label className="block text-xs font-semibold uppercase tracking-wide text-Budgexa-green/45 mb-2">
                         Goal Description
                         (Optional)
                       </label>
@@ -350,10 +353,10 @@ export default function CreateSavingsGoalPage() {
                               e.target.value
                             )
                           }
-                          className="w-full rounded-2xl border border-[#E4E9E0] bg-[#FBFCFA] px-4 py-3 text-sm text-rayo-green outline-none resize-none focus:border-rayo-green/30"
+                          className="w-full rounded-2xl border border-[#E4E9E0] bg-[#FBFCFA] px-4 py-3 text-sm text-Budgexa-green outline-none resize-none focus:border-Budgexa-green/30"
                         />
 
-                        <span className="absolute bottom-3 right-4 text-xs text-rayo-green/35">
+                        <span className="absolute bottom-3 right-4 text-xs text-Budgexa-green/35">
                           {
                             goalDescription.length
                           }
@@ -368,11 +371,11 @@ export default function CreateSavingsGoalPage() {
 
                 <section className="rounded-3xl border border-[#E8EDE5] bg-white p-5">
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-rayo-green text-white flex items-center justify-center text-xs font-bold">
+                    <div className="w-6 h-6 rounded-full bg-Budgexa-green text-white flex items-center justify-center text-xs font-bold">
                       2
                     </div>
 
-                    <h2 className="text-sm font-bold text-rayo-green">
+                    <h2 className="text-sm font-bold text-Budgexa-green">
                       Target
                     </h2>
                   </div>
@@ -381,14 +384,14 @@ export default function CreateSavingsGoalPage() {
                     {/* Target Amount */}
 
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wide text-rayo-green/45 mb-2">
+                      <label className="block text-xs font-semibold uppercase tracking-wide text-Budgexa-green/45 mb-2">
                         Target Amount
                       </label>
 
                       <div className="relative">
                         <Wallet
                           size={15}
-                          className="absolute left-4 top-1/2 -translate-y-1/2 text-rayo-green/30"
+                          className="absolute left-4 top-1/2 -translate-y-1/2 text-Budgexa-green/30"
                         />
 
                         <input
@@ -403,11 +406,11 @@ export default function CreateSavingsGoalPage() {
                               )
                             )
                           }
-                          className="w-full h-12 rounded-2xl border border-[#E4E9E0] bg-[#FBFCFA] pl-11 pr-4 text-sm text-rayo-green outline-none focus:border-rayo-green/30"
+                          className="w-full h-12 rounded-2xl border border-[#E4E9E0] bg-[#FBFCFA] pl-11 pr-4 text-sm text-Budgexa-green outline-none focus:border-Budgexa-green/30"
                         />
                       </div>
 
-                      <p className="mt-2 text-xs text-rayo-green/40">
+                      <p className="mt-2 text-xs text-Budgexa-green/40">
                         How much do you want
                         to save?
                       </p>
@@ -416,14 +419,14 @@ export default function CreateSavingsGoalPage() {
                     {/* Date */}
 
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wide text-rayo-green/45 mb-2">
+                      <label className="block text-xs font-semibold uppercase tracking-wide text-Budgexa-green/45 mb-2">
                         Target Date
                       </label>
 
                       <div className="relative">
                         <Calendar
                           size={15}
-                          className="absolute left-4 top-1/2 -translate-y-1/2 text-rayo-green/30"
+                          className="absolute left-4 top-1/2 -translate-y-1/2 text-Budgexa-green/30"
                         />
 
                         <input
@@ -434,11 +437,11 @@ export default function CreateSavingsGoalPage() {
                               e.target.value
                             )
                           }
-                          className="w-full h-12 rounded-2xl border border-[#E4E9E0] bg-[#FBFCFA] pl-11 pr-4 text-sm text-rayo-green outline-none focus:border-rayo-green/30"
+                          className="w-full h-12 rounded-2xl border border-[#E4E9E0] bg-[#FBFCFA] pl-11 pr-4 text-sm text-Budgexa-green outline-none focus:border-Budgexa-green/30"
                         />
                       </div>
 
-                      <p className="mt-2 text-xs text-rayo-green/40">
+                      <p className="mt-2 text-xs text-Budgexa-green/40">
                         By when do you want
                         to achieve this?
                       </p>
@@ -450,11 +453,11 @@ export default function CreateSavingsGoalPage() {
 
                 <section className="rounded-3xl border border-[#E8EDE5] bg-white p-5">
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-rayo-green text-white flex items-center justify-center text-xs font-bold">
+                    <div className="w-6 h-6 rounded-full bg-Budgexa-green text-white flex items-center justify-center text-xs font-bold">
                       3
                     </div>
 
-                    <h2 className="text-sm font-bold text-rayo-green">
+                    <h2 className="text-sm font-bold text-Budgexa-green">
                       Funding Plan
                     </h2>
                   </div>
@@ -463,7 +466,7 @@ export default function CreateSavingsGoalPage() {
                     {/* Initial Deposit */}
 
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wide text-rayo-green/45 mb-2">
+                      <label className="block text-xs font-semibold uppercase tracking-wide text-Budgexa-green/45 mb-2">
                         Initial Deposit
                         (Optional)
                       </label>
@@ -471,7 +474,7 @@ export default function CreateSavingsGoalPage() {
                       <div className="relative">
                         <PiggyBank
                           size={15}
-                          className="absolute left-4 top-1/2 -translate-y-1/2 text-rayo-green/30"
+                          className="absolute left-4 top-1/2 -translate-y-1/2 text-Budgexa-green/30"
                         />
 
                         <input
@@ -486,11 +489,11 @@ export default function CreateSavingsGoalPage() {
                               )
                             )
                           }
-                          className="w-full h-12 rounded-2xl border border-[#E4E9E0] bg-[#FBFCFA] pl-11 pr-4 text-sm text-rayo-green outline-none focus:border-rayo-green/30"
+                          className="w-full h-12 rounded-2xl border border-[#E4E9E0] bg-[#FBFCFA] pl-11 pr-4 text-sm text-Budgexa-green outline-none focus:border-Budgexa-green/30"
                         />
                       </div>
 
-                      <p className="mt-2 text-xs text-rayo-green/40">
+                      <p className="mt-2 text-xs text-Budgexa-green/40">
                         How much are you
                         saving right now?
                       </p>
@@ -499,14 +502,14 @@ export default function CreateSavingsGoalPage() {
                     {/* Monthly */}
 
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wide text-rayo-green/45 mb-2">
+                      <label className="block text-xs font-semibold uppercase tracking-wide text-Budgexa-green/45 mb-2">
                         Monthly Contribution
                       </label>
 
                       <div className="relative">
                         <Wallet
                           size={15}
-                          className="absolute left-4 top-1/2 -translate-y-1/2 text-rayo-green/30"
+                          className="absolute left-4 top-1/2 -translate-y-1/2 text-Budgexa-green/30"
                         />
 
                         <input
@@ -521,11 +524,11 @@ export default function CreateSavingsGoalPage() {
                               )
                             )
                           }
-                          className="w-full h-12 rounded-2xl border border-[#E4E9E0] bg-[#FBFCFA] pl-11 pr-4 text-sm text-rayo-green outline-none focus:border-rayo-green/30"
+                          className="w-full h-12 rounded-2xl border border-[#E4E9E0] bg-[#FBFCFA] pl-11 pr-4 text-sm text-Budgexa-green outline-none focus:border-Budgexa-green/30"
                         />
                       </div>
 
-                      <p className="mt-2 text-xs text-rayo-green/40">
+                      <p className="mt-2 text-xs text-Budgexa-green/40">
                         How much can you
                         save each month?
                       </p>
@@ -536,12 +539,12 @@ export default function CreateSavingsGoalPage() {
 
                   <div className="mt-5 rounded-2xl border border-[#E8EDE5] bg-[#F7FAF5] p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
-                      <p className="text-xs font-semibold text-rayo-green">
+                      <p className="text-xs font-semibold text-Budgexa-green">
                         Suggested Monthly
                         Contribution
                       </p>
 
-                      <p className="text-xs text-rayo-green/50 mt-1 leading-relaxed">
+                      <p className="text-xs text-Budgexa-green/50 mt-1 leading-relaxed">
                         To reach your goal
                         by{" "}
                         {formatDate(
@@ -549,7 +552,7 @@ export default function CreateSavingsGoalPage() {
                         )}
                         , you need to save at
                         least{" "}
-                        <span className="font-semibold text-rayo-green">
+                        <span className="font-semibold text-Budgexa-green">
                           {formatCurrency(
                             suggestedMonthly,
                             currency
@@ -559,7 +562,7 @@ export default function CreateSavingsGoalPage() {
                       </p>
                     </div>
 
-                    <button className="h-10 px-4 rounded-xl border border-[#DCE5D5] bg-white text-xs font-semibold text-rayo-green hover:border-rayo-green/20 whitespace-nowrap">
+                    <button className="h-10 px-4 rounded-xl border border-[#DCE5D5] bg-white text-xs font-semibold text-Budgexa-green hover:border-Budgexa-green/20 whitespace-nowrap">
                       Use Suggested
                     </button>
                   </div>
@@ -569,11 +572,11 @@ export default function CreateSavingsGoalPage() {
 
                 <section className="rounded-3xl border border-[#E8EDE5] bg-white p-5">
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-rayo-green text-white flex items-center justify-center text-xs font-bold">
+                    <div className="w-6 h-6 rounded-full bg-Budgexa-green text-white flex items-center justify-center text-xs font-bold">
                       4
                     </div>
 
-                    <h2 className="text-sm font-bold text-rayo-green">
+                    <h2 className="text-sm font-bold text-Budgexa-green">
                       Goal Settings
                     </h2>
                   </div>
@@ -582,7 +585,7 @@ export default function CreateSavingsGoalPage() {
                     {/* Category */}
 
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wide text-rayo-green/45 mb-2">
+                      <label className="block text-xs font-semibold uppercase tracking-wide text-Budgexa-green/45 mb-2">
                         Goal Category
                       </label>
 
@@ -595,7 +598,7 @@ export default function CreateSavingsGoalPage() {
                               if (e.target.value) setCategoryName("");
                             }}
                             disabled={categoriesLoading}
-                            className="w-full h-12 rounded-2xl border border-[#E4E9E0] bg-[#FBFCFA] px-4 pr-10 text-sm text-rayo-green outline-none focus:border-rayo-green/30 disabled:opacity-60"
+                            className="w-full h-12 rounded-2xl border border-[#E4E9E0] bg-[#FBFCFA] px-4 pr-10 text-sm text-Budgexa-green outline-none focus:border-Budgexa-green/30 disabled:opacity-60"
                           >
                             <option value="">Select an existing category</option>
                             {categories.map((category) => (
@@ -607,11 +610,11 @@ export default function CreateSavingsGoalPage() {
 
                           <ChevronDown
                             size={16}
-                            className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-rayo-green/30"
+                            className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-Budgexa-green/30"
                           />
                         </div>
 
-                        <div className="flex items-center gap-2 text-xs text-rayo-green/40">
+                        <div className="flex items-center gap-2 text-xs text-Budgexa-green/40">
                           <span className="h-px flex-1 bg-[#E8EDE5]" />
                           <span>or</span>
                           <span className="h-px flex-1 bg-[#E8EDE5]" />
@@ -625,10 +628,10 @@ export default function CreateSavingsGoalPage() {
                             if (e.target.value.trim()) setCategoryId("");
                           }}
                           placeholder="Custom category name"
-                          className="w-full h-12 rounded-2xl border border-[#E4E9E0] bg-[#FBFCFA] px-4 text-sm text-rayo-green outline-none focus:border-rayo-green/30"
+                          className="w-full h-12 rounded-2xl border border-[#E4E9E0] bg-[#FBFCFA] px-4 text-sm text-Budgexa-green outline-none focus:border-Budgexa-green/30"
                         />
 
-                        <p className="text-xs text-rayo-green/40">
+                        <p className="text-xs text-Budgexa-green/40">
                           Pick an existing category or type a custom one. The backend needs one of them.
                         </p>
                       </div>
@@ -650,14 +653,14 @@ export default function CreateSavingsGoalPage() {
                 )}
 
                 <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-3">
-                  <button className="flex-1 h-12 rounded-2xl border border-[#E4E9E0] bg-white text-sm font-semibold text-rayo-green/70 hover:border-rayo-green/20 transition-colors">
+                  <button className="flex-1 h-12 rounded-2xl border border-[#E4E9E0] bg-white text-sm font-semibold text-Budgexa-green/70 hover:border-Budgexa-green/20 transition-colors">
                     Cancel
                   </button>
 
                   <button
                     onClick={handleCreate}
                     disabled={submitting}
-                    className="flex-[1.5] h-12 rounded-2xl bg-rayo-green text-white text-sm font-semibold hover:bg-rayo-green-dark transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+                    className="flex-[1.5] h-12 rounded-2xl bg-Budgexa-green text-white text-sm font-semibold hover:bg-Budgexa-green-dark transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
                   >
                     {submitting
                       ? <><Loader2 size={15} className="animate-spin" /> Creating...</>
@@ -676,11 +679,11 @@ export default function CreateSavingsGoalPage() {
                   {/* Header */}
 
                   <div className="p-5 border-b border-[#EDF1EA]">
-                    <h2 className="text-base font-bold text-rayo-green">
+                    <h2 className="text-base font-bold text-Budgexa-green">
                       Goal Preview
                     </h2>
 
-                    <p className="text-xs text-rayo-green/45 mt-1">
+                    <p className="text-xs text-Budgexa-green/45 mt-1">
                       Here&apos;s how your goal
                       will look.
                     </p>
@@ -696,22 +699,22 @@ export default function CreateSavingsGoalPage() {
 
                       <div className="p-5">
                         <div className="flex items-start gap-4">
-                          <div className="w-14 h-14 rounded-2xl bg-[#EEF5EB] text-rayo-green flex items-center justify-center shrink-0">
+                          <div className="w-14 h-14 rounded-2xl bg-[#EEF5EB] text-Budgexa-green flex items-center justify-center shrink-0">
                             <Icon size={24} />
                           </div>
 
                           <div className="min-w-0">
-                            <h3 className="text-lg font-bold text-rayo-green truncate">
+                            <h3 className="text-lg font-bold text-Budgexa-green truncate">
                               {goalName}
                             </h3>
 
-                            <p className="text-sm text-rayo-green/55 leading-relaxed mt-1">
+                            <p className="text-sm text-Budgexa-green/55 leading-relaxed mt-1">
                               {
                                 goalDescription
                               }
                             </p>
 
-                            <span className="inline-flex items-center rounded-lg bg-[#EEF5EB] px-2.5 py-1 text-xs font-medium text-rayo-green mt-3">
+                            <span className="inline-flex items-center rounded-lg bg-[#EEF5EB] px-2.5 py-1 text-xs font-medium text-Budgexa-green mt-3">
                               {categoryDisplayLabel}
                             </span>
                           </div>
@@ -750,11 +753,11 @@ export default function CreateSavingsGoalPage() {
                               }
                               className="p-4 border-r last:border-r-0 border-[#EDF1EA]"
                             >
-                              <p className="text-xs uppercase tracking-wide text-rayo-green/35">
+                              <p className="text-xs uppercase tracking-wide text-Budgexa-green/35">
                                 {label}
                               </p>
 
-                              <p className="text-sm font-bold text-rayo-green mt-1">
+                              <p className="text-sm font-bold text-Budgexa-green mt-1">
                                 {value}
                               </p>
                             </div>
@@ -767,11 +770,11 @@ export default function CreateSavingsGoalPage() {
                       <div className="p-5 border-t border-[#EDF1EA]">
                         <div className="grid grid-cols-2 gap-4 mb-4">
                           <div>
-                            <p className="text-xs uppercase tracking-wide text-rayo-green/35">
+                            <p className="text-xs uppercase tracking-wide text-Budgexa-green/35">
                               Initial Deposit
                             </p>
 
-                            <p className="text-sm font-bold text-rayo-green mt-1">
+                            <p className="text-sm font-bold text-Budgexa-green mt-1">
                               {formatCurrency(
                                 initialDeposit,
                                 currency
@@ -780,12 +783,12 @@ export default function CreateSavingsGoalPage() {
                           </div>
 
                           <div>
-                            <p className="text-xs uppercase tracking-wide text-rayo-green/35">
+                            <p className="text-xs uppercase tracking-wide text-Budgexa-green/35">
                               Monthly
                               Contribution
                             </p>
 
-                            <p className="text-sm font-bold text-rayo-green mt-1">
+                            <p className="text-sm font-bold text-Budgexa-green mt-1">
                               {formatCurrency(
                                 monthlyContribution,
                                 currency
@@ -795,25 +798,25 @@ export default function CreateSavingsGoalPage() {
                         </div>
 
                         <div className="flex items-center justify-between mb-2">
-                          <p className="text-xs text-rayo-green/45">
+                          <p className="text-xs text-Budgexa-green/45">
                             Saved So Far
                           </p>
 
-                          <p className="text-sm font-bold text-rayo-green">
+                          <p className="text-sm font-bold text-Budgexa-green">
                             {progress}%
                           </p>
                         </div>
 
                         <div className="h-3 rounded-full bg-[#E8EEE4] overflow-hidden">
                           <div
-                            className="h-full rounded-full bg-rayo-green"
+                            className="h-full rounded-full bg-Budgexa-green"
                             style={{
                               width: `${progress}%`,
                             }}
                           />
                         </div>
 
-                        <div className="flex items-center justify-between mt-2 text-xs text-rayo-green/45">
+                        <div className="flex items-center justify-between mt-2 text-xs text-Budgexa-green/45">
                           <span>
                             Saved So Far:{" "}
                             {formatCurrency(
@@ -835,7 +838,7 @@ export default function CreateSavingsGoalPage() {
                       {/* At A Glance */}
 
                       <div className="p-5 border-t border-[#EDF1EA]">
-                        <h4 className="text-sm font-bold text-rayo-green mb-4">
+                        <h4 className="text-sm font-bold text-Budgexa-green mb-4">
                           At a glance
                         </h4>
 
@@ -892,13 +895,13 @@ export default function CreateSavingsGoalPage() {
                                 }
                                 className="flex items-center justify-between gap-3"
                               >
-                                <span className="text-xs text-rayo-green/45">
+                                <span className="text-xs text-Budgexa-green/45">
                                   {
                                     label
                                   }
                                 </span>
 
-                                <span className="text-xs font-semibold text-rayo-green text-right">
+                                <span className="text-xs font-semibold text-Budgexa-green text-right">
                                   {
                                     value
                                   }
@@ -921,11 +924,11 @@ export default function CreateSavingsGoalPage() {
                             </div>
 
                             <div>
-                              <p className="text-sm font-semibold text-rayo-green">
+                              <p className="text-sm font-semibold text-Budgexa-green">
                                 Pro Tip
                               </p>
 
-                              <p className="text-xs leading-relaxed text-rayo-green/55 mt-1">
+                              <p className="text-xs leading-relaxed text-Budgexa-green/55 mt-1">
                                 Automate your
                                 monthly
                                 contributions
@@ -935,7 +938,7 @@ export default function CreateSavingsGoalPage() {
                                 goal faster.
                               </p>
 
-                              <button className="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-rayo-green hover:underline">
+                              <button className="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-Budgexa-green hover:underline">
                                 Setup
                                 Automation
                                 <Zap

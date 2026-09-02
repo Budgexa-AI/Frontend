@@ -1,34 +1,14 @@
-import { cookies } from "next/headers";
-import type { UserProfile } from "@/lib/api-client";
+import { cache } from "react";
+import { normalizeProfile, type UserProfile } from "@/lib/api-client";
+import { backendFetch, getAuthTokenFromCookies } from "./backend-fetch";
 
-function normalizeProfile(payload: any): UserProfile | null {
-  const source = payload?.data ?? payload?.profile ?? payload ?? {};
-  const id = source.id ?? source.userId ?? source.user_id ?? "";
 
-  if (!id && !source.email) return null;
-
-  return {
-    id,
-    email: source.email ?? undefined,
-    name: source.name ?? source.fullName ?? source.full_name ?? undefined,
-    avatarUrl: source.profileImage ?? undefined,
-    plan: source.plan ?? undefined,
-    country: source.country ?? undefined,
-    currency: source.currency ?? undefined,
-  };
-}
-
-export async function getCurrentUserServer(): Promise<UserProfile | null> {
-  const token = cookies().get("authToken")?.value;
+/** Deduped per request — layout + page won't each hit /auth/me. */
+export const getCurrentUserServer = cache(async (): Promise<UserProfile | null> => {
+  const token = await getAuthTokenFromCookies();
   if (!token) return null;
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? "http://localhost:3000";
-  const response = await fetch(`${baseUrl}/api/v1/auth/me`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    cache: "no-store",
-  });
+  const response = await backendFetch("/auth/me", token);
 
   if (!response.ok) return null;
 
@@ -38,4 +18,4 @@ export async function getCurrentUserServer(): Promise<UserProfile | null> {
     : await response.text();
 
   return normalizeProfile(payload);
-}
+});

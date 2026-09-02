@@ -1,14 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+
   typescript: {
     ignoreBuildErrors: false,
   },
   reactStrictMode: true,
   distDir: '.next',
   cleanDistDir: true,
+  experimental: {
+    optimizePackageImports: ["lucide-react"],
+  },
   images: {
     remotePatterns: [
       {
@@ -17,7 +18,7 @@ const nextConfig = {
         pathname: "/storage/v1/object/public/**",
       },
     ],
-    domains: ["res.cloudinary.com"],
+
   },
   headers: async () => [
     {
@@ -35,7 +36,7 @@ const nextConfig = {
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.fontshare.com",
             "font-src 'self' https://fonts.gstatic.com https://api.fontshare.com",
             "img-src 'self' data: blob: https://*.supabase.co",
-            "connect-src 'self' http://localhost:3001 https://rayotypebackend-production.up.railway.app https://o4511406333427712.ingest.de.sentry.io",
+            "connect-src 'self' http://localhost:3000 https://Budgexa-backend-yg0v.onrender.com https://o4511406333427712.ingest.de.sentry.io",
           ].join("; "),
         },
       ],
@@ -54,7 +55,7 @@ module.exports = withSentryConfig(module.exports, {
   // For all available options, see:
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
-  org: "rayo-ai",
+  org: "Budgexa-ai",
   project: "node-express",
 
   // Only print logs for uploading source maps in CI

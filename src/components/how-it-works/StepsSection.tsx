@@ -7,7 +7,7 @@ const STEPS = [
     icon: Landmark,
     title: "Connect your accounts",
     description:
-      "Securely link your bank and investment accounts to Rayo. Your data is encrypted and credentials are never stored.",
+      "Securely link your bank and investment accounts to Budgexa. Your data is encrypted and credentials are never stored.",
     status: "done",
   },
   {
@@ -15,7 +15,7 @@ const STEPS = [
     icon: BarChart2,
     title: "See your finances in one place",
     description:
-      "Rayo automatically organizes your spending, savings, and investments into a single clear dashboard.",
+      "Budgexa automatically organizes your spending, savings, and investments into a single clear dashboard.",
     status: "done",
   },
   {
@@ -23,7 +23,7 @@ const STEPS = [
     icon: Lightbulb,
     title: "Get AI-powered insights",
     description:
-      "Rayo analyzes your financial patterns to highlight spending trends, opportunities to save, and smarter ways to manage money.",
+      "Budgexa analyzes your financial patterns to highlight spending trends, opportunities to save, and smarter ways to manage money.",
     status: "processing",
   },
   {
@@ -31,7 +31,7 @@ const STEPS = [
     icon: RefreshCw,
     title: "Build better money habits",
     description:
-      "Use Rayo's insights to make better financial decisions and steadily improve your financial health over time.",
+      "Use Budgexa's insights to make better financial decisions and steadily improve your financial health over time.",
     status: "pending",
   },
 ];
@@ -40,10 +40,10 @@ export const StepsSection: FC = () => (
   <section className="animate-fade-up-2 px-6 pb-24 max-w-[1100px] mx-auto">
 
     <div className="text-center mb-16">
-      <h2 className="font-bold text-3xl text-rayo-green mb-3">
-        How Rayo works
+      <h2 className="font-bold text-3xl text-Budgexa-green mb-3">
+        How Budgexa works
       </h2>
-      <p className="text-rayo-text-muted max-w-xl mx-auto">
+      <p className="text-Budgexa-text-muted max-w-xl mx-auto">
         A simple way to understand your finances and make smarter decisions with your money.
       </p>
     </div>
@@ -51,16 +51,16 @@ export const StepsSection: FC = () => (
     {/* Timeline bar */}
     <div className="relative flex items-center justify-between mb-12 px-8">
       {/* connecting line */}
-      <div className="absolute left-8 right-8 top-1/2 -translate-y-1/2 h-[2px] bg-rayo-beige-dark" />
-      <div className="absolute left-8 top-1/2 -translate-y-1/2 h-[2px] bg-rayo-green" style={{ width: "55%" }} />
+      <div className="absolute left-8 right-8 top-1/2 -translate-y-1/2 h-[2px] bg-Budgexa-beige-dark" />
+      <div className="absolute left-8 top-1/2 -translate-y-1/2 h-[2px] bg-Budgexa-green" style={{ width: "55%" }} />
 
       {STEPS.map((step) => (
         <div
           key={step.number}
           className={`relative z-10 w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all
             ${step.status === "pending"
-              ? "bg-rayo-beige border-rayo-beige-dark text-rayo-grey"
-              : "bg-rayo-green border-rayo-green text-white"
+              ? "bg-Budgexa-beige border-Budgexa-beige-dark text-Budgexa-grey"
+              : "bg-Budgexa-green border-Budgexa-green text-white"
             }`}
         >
           {step.number}
@@ -77,18 +77,18 @@ export const StepsSection: FC = () => (
             status === "pending" ? "opacity-50" : ""
           }`}
         >
-          <div className="w-11 h-11 rounded-2xl bg-rayo-green/10 flex items-center justify-center text-rayo-green">
+          <div className="w-11 h-11 rounded-2xl bg-Budgexa-green/10 flex items-center justify-center text-Budgexa-green">
             <Icon className="w-5 h-5" />
           </div>
-          <h3 className="font-display font-bold text-[16px] text-rayo-green">
+          <h3 className="font-display font-bold text-[16px] text-Budgexa-green">
             {title}
           </h3>
-          <p className="text-sm text-rayo-text-muted leading-[1.7]">
+          <p className="text-sm text-Budgexa-text-muted leading-[1.7]">
             {description}
           </p>
           {status === "processing" && (
-            <span className="self-start inline-flex items-center gap-1.5 text-[10px] font-bold tracking-widest uppercase text-rayo-green rounded-full px-3 py-1">
-              <span className="w-1.5 h-1.5 bg-rayo-green rounded-full animate-pulse" />
+            <span className="self-start inline-flex items-center gap-1.5 text-[10px] font-bold tracking-widest uppercase text-Budgexa-green rounded-full px-3 py-1">
+              <span className="w-1.5 h-1.5 bg-Budgexa-green rounded-full animate-pulse" />
               Processing
             </span>
           )}

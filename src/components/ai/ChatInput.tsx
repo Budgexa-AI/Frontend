@@ -26,15 +26,15 @@ export function ChatInput({ loading, onSend }: Props) {
   }
 
   return (
-    <div className="flex items-end gap-2 bg-rayo-ash rounded-2xl border border-rayo-beige-dark px-4 py-2.5 focus-within:border-rayo-green transition-colors">
+    <div className="flex items-end gap-2 bg-Budgexa-ash rounded-2xl border border-Budgexa-beige-dark px-4 py-2.5 focus-within:border-Budgexa-green transition-colors">
       
       <textarea
         rows={1}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={onKeyDown}
-        placeholder="Ask Rayo about your finances…"
-        className="flex-1 bg-transparent text-sm text-rayo-green placeholder:text-rayo-green/35 resize-none outline-none max-h-32"
+        placeholder="Ask Budgexa about your finances…"
+        className="flex-1 bg-transparent text-sm text-Budgexa-green placeholder:text-Budgexa-green/35 resize-none outline-none max-h-32"
       />
 
       <button
@@ -43,8 +43,8 @@ export function ChatInput({ loading, onSend }: Props) {
         className={cn(
           "h-8 w-8 rounded-xl flex items-center justify-center transition-all",
           value.trim() && !loading
-            ? "bg-rayo-green text-white"
-            : "bg-rayo-beige-dark text-rayo-green/30"
+            ? "bg-Budgexa-green text-white"
+            : "bg-Budgexa-beige-dark text-Budgexa-green/30"
         )}
       >
         <Send size={14} />

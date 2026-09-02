@@ -7,7 +7,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { profile } = useCurrentUser();
 
   return (
-    <div className="min-h-screen bg-rayo-ash flex">
+    <div className="min-h-screen bg-Budgexa-ash flex">
       <div className="flex-1 flex flex-col min-w-0">
         <DashboardHeader profile={profile ?? { id: "" }} />
         <main className="flex-1 overflow-auto scrollbar-thin">

@@ -1,4 +1,4 @@
-import { DM_Sans, JetBrains_Mono, Roboto, Poppins, Lato } from "next/font/google";
+import { DM_Sans, JetBrains_Mono, Poppins, Fraunces } from "next/font/google";
 
 export const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -12,20 +12,15 @@ export const mono = JetBrains_Mono({
   variable: "--font-mono",
 });
 
-export const roboto = Roboto({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "700", "900"],
-  variable: "--font-roboto",
-});
-
 export const poppins = Poppins({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-display",
 });
 
-export const lato = Lato({
+export const fraunces = Fraunces({
   subsets: ["latin"],
-  weight: ["400", "700", "900"],
-  variable: "--font-lato",
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-serif",
 });
+
