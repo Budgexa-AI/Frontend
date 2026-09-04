@@ -6,8 +6,8 @@ import {
   CheckCircle2,
   Sparkles,
   Target,
-  Wallet,
 } from "lucide-react";
+import RayoLogo from "@/components/icons/RayoLogo";
 
 export default function WelcomeSetupPage() {
   return (
@@ -18,8 +18,8 @@ export default function WelcomeSetupPage() {
           {/* LOGO */}
           <div className="mb-10">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#254F22] text-white shadow-sm">
-                <Wallet size={22} />
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#254F22] text-[#EDE4C2] shadow-sm">
+                <RayoLogo size={22} className="text-white" />
               </div>
 
               <div>

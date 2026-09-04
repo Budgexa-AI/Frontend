@@ -278,9 +278,9 @@ export default function SignUpPage() {
         >
           {/* Pill badge */}
           <div className="mb-5">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1b3d18]/8 border border-[#1b3d18]/12 text-[10px] font-semibold tracking-[0.15em] uppercase text-[#1b3d18]">
-              <Sparkles size={11} className="text-[#1b3d18]" />
-              AI-Powered Finance
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1b3d18]/8 border border-[#1b3d18]/12 text-[11px] font-semibold text-[#1b3d18]">
+              <Sparkles size={12} className="text-[#1b3d18]" />
+              Your daily money companion, guided by AI
             </span>
           </div>
 

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Instagram, Linkedin } from "lucide-react";
+import RayoLogo from "@/components/icons/RayoLogo";
 
 function TwitterIcon({ size = 15, className = "" }: { size?: number; className?: string }) {
   return (
@@ -42,13 +43,28 @@ const COMPANY_LINKS = [
 export default function Footer() {
   const pathname = usePathname();
 
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith("/#") || href.startsWith("#")) {
+      const id = href.replace(/^\/?#/, "");
+      if (pathname === "/") {
+        e.preventDefault();
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+          window.history.pushState(null, "", `#${id}`);
+        }
+      }
+    }
+  };
+
   return (
     <footer className="border-t border-[#e5e2db] bg-white text-[#1b3d18]">
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-[36%_18%_18%_28%]">
           {/* Brand */}
           <div>
-            <Link href="/" className="inline-block">
+            <Link href="/" className="inline-flex items-center gap-2 group">
+              <RayoLogo className="text-[#1b3d18] transition-transform group-hover:scale-105" size={24} />
               <span className="font-serif text-2xl font-bold text-[#1b3d18] tracking-tight">
                 Budgexa
               </span>
@@ -69,6 +85,7 @@ export default function Footer() {
                 <Link
                   key={label}
                   href={href}
+                  onClick={(e) => handleLinkClick(e, href)}
                   className="block text-xs text-[#1b3d18]/70 transition-colors hover:text-[#1b3d18]"
                 >
                   {label}

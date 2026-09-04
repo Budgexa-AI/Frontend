@@ -1,28 +1,24 @@
-// app/page.tsx (or wherever LandingPage lives)
+// app/(marketing)/page.tsx
 import HeroSection from "@/components/landing/HeroSection";
 import ProductNavStrip from "@/components/landing/ProductNavStrip";
 import ManifestoSection from "@/components/landing/ManifestoSection";
 import StatementSection from "@/components/landing/StatementSection";
-import ProductStorySection from "@/components/landing/ProductStory";
-import FeaturesGridSection from "@/components/landing/FeaturesSection";
-import TrustSection from "@/components/landing/TrustSection";
-import CommunitySection from "@/components/landing/CommunitySection";
+import DashboardSection from "@/components/landing/DashboardSection";
+import ImpactSection from "@/components/landing/ImpactSection";
 import TestimonialsSection from "@/components/landing/TestimonialsSection";
-import Marquee from "@/components/landing/Marquee";
+import TrustSection from "@/components/landing/TrustSection";
 
 export default function LandingPage() {
   return (
-    <main className="relative overflow-x-hidden">
+    <main className="relative overflow-x-hidden bg-[#FBF9F5]">
       <HeroSection />
       <ProductNavStrip />
       <ManifestoSection />
       <StatementSection />
-      <ProductStorySection />
-      <Marquee text="With Budgexa, you're always in control of your money." bg="bg-Budgexa-orange" fg="text-Budgexa-green" />
-      <FeaturesGridSection />
-      <TrustSection />
+      <DashboardSection />
+      <ImpactSection />
       <TestimonialsSection />
-      <CommunitySection />
+      <TrustSection />
     </main>
   );
 }
