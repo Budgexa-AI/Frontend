@@ -45,7 +45,7 @@ export default function AboutPage() {
   return (
     <main className="min-h-screen bg-[#FBF9F5] text-[#1b3d18] overflow-hidden">
       {/* ── 1. HERO SECTION (Fills 100% Viewport Height with Fully Opaque Botanical BG) ── */}
-      <section className="relative border-b border-[#e5e2db] bg-[#FBF9F5] min-h-screen lg:h-screen pt-16 flex flex-col justify-center items-center py-10 px-6 sm:px-10 lg:pl-40 lg:pr-16 xl:pl-52 xl:pr-24 overflow-hidden">
+      <section className="relative border-b border-[#e5e2db] bg-[#FBF9F5] min-h-screen lg:h-screen pt-16 flex flex-col justify-center items-center py-10 px-4 sm:px-6 lg:px-8 overflow-hidden">
         {/* Botanical background image - fully opaque */}
         <div className="absolute inset-0 select-none pointer-events-none">
           <Image
@@ -59,7 +59,7 @@ export default function AboutPage() {
           />
         </div>
 
-        <div className="relative z-10 mx-auto max-w-4xl w-full text-center lg:text-left flex flex-col items-center lg:items-start">
+        <div className="relative z-10 mx-auto max-w-4xl w-full text-center flex flex-col items-center">
           {/* Badge with brand orange sparkle */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
@@ -78,7 +78,7 @@ export default function AboutPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="font-serif text-3xl sm:text-5xl md:text-[54px] lg:text-[62px] font-normal leading-[1.08] tracking-tight text-black max-w-3xl"
+            className="font-serif text-3xl sm:text-5xl md:text-[54px] lg:text-[62px] font-normal leading-[1.08] tracking-tight text-black max-w-3xl mx-auto"
           >
             Helping the{" "}
             <span className="text-[#1b3d18]">next generation</span>{" "}
@@ -90,7 +90,7 @@ export default function AboutPage() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-6 max-w-xl text-sm sm:text-base lg:text-[17px] leading-relaxed text-[#1b3d18]/80 font-normal"
+            className="mt-6 max-w-xl mx-auto text-sm sm:text-base lg:text-[17px] leading-relaxed text-[#1b3d18]/80 font-normal"
           >
             Budgexa was born from a simple realization: personal finance tools were never designed
             for how modern Africans actually earn, spend, and save. We turn raw transactions into
