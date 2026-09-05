@@ -141,11 +141,11 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
   }
 
   return (
-    <main className="min-h-[calc(100vh-4rem)] lg:h-[calc(100vh-4rem)] pt-16 grid grid-cols-1 lg:grid-cols-2 bg-[#FBF9F5] overflow-hidden">
+    <main className="min-h-screen lg:h-screen pt-16 grid grid-cols-1 lg:grid-cols-2 bg-[#FBF9F5] overflow-hidden">
       {/* ── LEFT PANEL (Botanical BG + Editorial Copy, Info, Support Badge) ── */}
-      <section className="relative bg-[#FBF9F5] px-8 sm:px-12 lg:px-14 xl:px-16 py-8 sm:py-10 lg:py-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-[#e5e2db] overflow-hidden">
-        {/* Botanical background image with subtle atmospheric treatment */}
-        <div className="absolute inset-0 select-none pointer-events-none opacity-40">
+      <section className="relative bg-[#FBF9F5] pl-8 sm:pl-16 lg:pl-40 xl:pl-52 pr-6 sm:pr-8 lg:pr-12 py-8 sm:py-10 lg:py-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-[#e5e2db] overflow-hidden">
+        {/* Botanical background image - fully opaque */}
+        <div className="absolute inset-0 select-none pointer-events-none">
           <Image
             src="/images/signup-botanical-bg.webp"
             alt="Botanical background"
@@ -155,17 +155,11 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
             placeholder="blur"
             blurDataURL="data:image/webp;base64,UklGRjYAAABXRUJQVlA4ICoAAACwAgCdASoUAAwAPzmEuVOvKKWisAgB4CcJaQAAeyAA/u39ZobeyUFAAAA="
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#FBF9F5]/85 via-[#FBF9F5]/70 to-[#FBF9F5]/90" />
         </div>
 
-        <div className="relative z-10">
-          {/* Top index */}
-          <span className="text-xs sm:text-sm font-mono text-[#1b3d18]/50 font-semibold tracking-wider block">
-            05
-          </span>
-
+        <div className="relative z-10 max-w-sm">
           {/* Main Editorial Heading */}
-          <h1 className="font-serif text-4xl sm:text-5xl lg:text-[58px] font-normal text-black leading-[0.98] tracking-tight mt-6 sm:mt-8 lg:mt-10 mb-4 sm:mb-5">
+          <h1 className="font-serif text-4xl sm:text-5xl lg:text-[58px] font-normal text-black leading-[0.98] tracking-tight mt-4 sm:mt-6 lg:mt-8 mb-4 sm:mb-5">
             Get in<br />
             <span className="text-[#1b3d18]">touch.</span>
           </h1>
@@ -186,8 +180,8 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
         </div>
 
         {/* Human Support Pill Badge */}
-        <div className="relative z-10 mt-8 flex justify-start">
-          <div className="inline-flex items-center gap-2.5 bg-white/90 backdrop-blur-sm rounded-full pl-1.5 pr-4 py-1.5 shadow-xs border border-[#e5e2db] select-none hover:border-[#1b3d18]/25 transition-all">
+        <div className="relative z-10 mt-6 flex justify-start">
+          <div className="inline-flex items-center gap-2.5 bg-white/95 backdrop-blur-sm rounded-full pl-1.5 pr-4 py-1.5 shadow-xs border border-[#e5e2db] select-none hover:border-[#1b3d18]/25 transition-all">
             {/* Circle with headset icon */}
             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#F5824A]/10 flex items-center justify-center shrink-0">
               <Headphones size={15} className="text-[#F5824A] stroke-[2]" />
