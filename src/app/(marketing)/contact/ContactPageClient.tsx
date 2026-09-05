@@ -143,7 +143,7 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
   return (
     <main className="min-h-screen lg:h-screen pt-16 grid grid-cols-1 lg:grid-cols-2 bg-[#FBF9F5] overflow-hidden">
       {/* ── LEFT PANEL (Botanical BG + Editorial Copy, Info, Support Badge) ── */}
-      <section className="relative bg-[#FBF9F5] pl-8 sm:pl-16 lg:pl-40 xl:pl-52 pr-6 sm:pr-8 lg:pr-12 py-8 sm:py-10 lg:py-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-[#e5e2db] overflow-hidden">
+      <section className="relative bg-[#FBF9F5] pl-8 sm:pl-16 lg:pl-40 xl:pl-52 pr-6 sm:pr-8 lg:pr-12 py-8 sm:py-10 lg:py-12 flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-[#e5e2db] overflow-hidden">
         {/* Botanical background image - fully opaque */}
         <div className="absolute inset-0 select-none pointer-events-none">
           <Image
@@ -159,7 +159,7 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
 
         <div className="relative z-10 max-w-sm">
           {/* Main Editorial Heading */}
-          <h1 className="font-serif text-4xl sm:text-5xl lg:text-[58px] font-normal text-black leading-[0.98] tracking-tight mt-4 sm:mt-6 lg:mt-8 mb-4 sm:mb-5">
+          <h1 className="font-serif text-4xl sm:text-5xl lg:text-[58px] font-normal text-black leading-[0.98] tracking-tight mb-4 sm:mb-5">
             Get in<br />
             <span className="text-[#1b3d18]">touch.</span>
           </h1>
@@ -170,17 +170,17 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
           </p>
 
           {/* Email row */}
-          <a
-            href="mailto:info@budgexa.app"
-            className="inline-flex items-center gap-2.5 text-sm sm:text-base font-medium text-[#1b3d18] hover:text-[#F5824A] hover:underline underline-offset-4 transition-all group"
-          >
-            <Mail size={18} className="stroke-[1.75] text-[#1b3d18] group-hover:text-[#F5824A] group-hover:scale-105 transition-transform" />
-            <span>info@budgexa.app</span>
-          </a>
-        </div>
+          <div className="mb-6">
+            <a
+              href="mailto:info@budgexa.app"
+              className="inline-flex items-center gap-2.5 text-sm sm:text-base font-medium text-[#1b3d18] hover:text-[#F5824A] hover:underline underline-offset-4 transition-all group"
+            >
+              <Mail size={18} className="stroke-[1.75] text-[#1b3d18] group-hover:text-[#F5824A] group-hover:scale-105 transition-transform" />
+              <span>info@budgexa.app</span>
+            </a>
+          </div>
 
-        {/* Human Support Pill Badge */}
-        <div className="relative z-10 mt-6 flex justify-start">
+          {/* Human Support Pill Badge */}
           <div className="inline-flex items-center gap-2.5 bg-white/95 backdrop-blur-sm rounded-full pl-1.5 pr-4 py-1.5 shadow-xs border border-[#e5e2db] select-none hover:border-[#1b3d18]/25 transition-all">
             {/* Circle with headset icon */}
             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#F5824A]/10 flex items-center justify-center shrink-0">
