@@ -6,6 +6,7 @@ import StatementSection from "@/components/landing/StatementSection";
 import DashboardSection from "@/components/landing/DashboardSection";
 import ImpactSection from "@/components/landing/ImpactSection";
 import TestimonialsSection from "@/components/landing/TestimonialsSection";
+import CommunitySection from "@/components/landing/CommunitySection";
 import TrustSection from "@/components/landing/TrustSection";
 
 export default function LandingPage() {
@@ -18,6 +19,7 @@ export default function LandingPage() {
       <DashboardSection />
       <ImpactSection />
       <TestimonialsSection />
+      <CommunitySection />
       <TrustSection />
     </main>
   );
