@@ -70,10 +70,10 @@ export default function HeroSection() {
               </a>
               <a
                 href="#how-it-works"
-                className="inline-flex items-center gap-2 rounded-full border border-[#d9d6cf] bg-white/80 px-6 py-3.5 text-sm font-semibold text-[#1b3d18] transition-colors hover:bg-white active:scale-[0.99]"
+                className="group inline-flex items-center gap-2 rounded-full border border-[#d9d6cf] bg-white/80 px-6 py-3.5 text-sm font-semibold text-[#F5824A] transition-all hover:bg-[#F5824A] hover:border-[#F5824A] hover:text-white hover:shadow-xs active:scale-[0.99]"
               >
-                <Play size={13} className="fill-[#1b3d18] text-[#1b3d18]" />
-                See how it works
+                <Play size={13} className="fill-[#F5824A] text-[#F5824A] transition-colors group-hover:fill-white group-hover:text-white" />
+                <span>See how it works</span>
               </a>
             </motion.div>
 
