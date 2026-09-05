@@ -51,11 +51,6 @@ export default function Navbar() {
     return pathname === href;
   };
 
-  const isDarkTheme =
-    pathname === "/contact" ||
-    pathname === "/pricing" ||
-    pathname?.startsWith("/auth");
-
   // Don't render until mounted to prevent hydration mismatches
   if (!isMounted) return null;
 
@@ -124,17 +119,28 @@ export default function Navbar() {
                 Dashboard
               </a>
             ) : authState === "anonymous" ? (
-              <a
-                href="/waitlist"
-                className={cn(
-                  "rounded-full px-5 py-2.5 text-sm font-bold transition-colors",
-                  overDarkHero
-                    ? "bg-Budgexa-orange text-Budgexa-green"
-                    : "bg-Budgexa-green text-white hover:bg-Budgexa-green/90"
-                )}
-              >
-                Join Waitlist
-              </a>
+              <>
+                <Link
+                  href="/auth/login"
+                  className={cn(
+                    "text-sm font-semibold transition-colors",
+                    overDarkHero ? "text-white/85 hover:text-white" : "text-Budgexa-green hover:text-Budgexa-orange"
+                  )}
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/auth/signup"
+                  className={cn(
+                    "rounded-full px-5 py-2.5 text-sm font-bold transition-colors",
+                    overDarkHero
+                      ? "bg-Budgexa-orange text-Budgexa-green"
+                      : "bg-Budgexa-green text-white hover:bg-Budgexa-green/90"
+                  )}
+                >
+                  Sign up
+                </Link>
+              </>
             ) : (
               <div className="h-9 w-24" />
             )}
@@ -173,22 +179,27 @@ export default function Navbar() {
             );
           })}
           <div className="flex flex-col gap-3 pt-4">
-            {isDarkTheme ? (
-              <Link
-                href="/product/dashboard"
-                onClick={() => setMobileOpen(false)}
-                className="rounded-full bg-Budgexa-orange text-center py-2.5 text-sm font-semibold text-white hover:bg-Budgexa-orange-dark transition-colors"
-              >
-                Dashboard
-              </Link>
-            ) : authState === "authenticated" ? (
+            {authState === "authenticated" ? (
               <a href="/product/dashboard" className="btn-primary text-center">
                 Dashboard
               </a>
             ) : (
-              <a href="/waitlist" className="btn-primary text-center">
-                Join Waitlist
-              </a>
+              <>
+                <Link
+                  href="/auth/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="rounded-full border border-Budgexa-green py-2.5 text-center text-sm font-semibold text-Budgexa-green transition-colors hover:bg-Budgexa-green/5"
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/auth/signup"
+                  onClick={() => setMobileOpen(false)}
+                  className="btn-primary text-center"
+                >
+                  Sign up
+                </Link>
+              </>
             )}
           </div>
         </div>
