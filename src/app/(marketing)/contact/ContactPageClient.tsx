@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -117,20 +118,20 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
 
   if (submitted) {
     return (
-      <main className="min-h-[calc(100vh-4rem)] pt-16 flex items-center justify-center bg-[#FAF7EE] px-6 py-20">
-        <div className="max-w-md w-full text-center bg-white rounded-3xl p-10 border border-[#254F22]/10 shadow-xl animate-in fade-in zoom-in-95 duration-300">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#254F22]/10 text-[#254F22]">
+      <main className="min-h-[calc(100vh-4rem)] pt-16 flex items-center justify-center bg-[#FBF9F5] px-6 py-20">
+        <div className="max-w-md w-full text-center bg-white rounded-3xl p-10 border border-[#e5e2db] shadow-xl animate-in fade-in zoom-in-95 duration-300">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#F5824A]/10 text-[#F5824A]">
             <CheckCircle2 size={36} />
           </div>
           <h1 className="mt-6 font-serif text-3xl font-bold text-[#1b3d18]">
             Message received
           </h1>
-          <p className="mt-3 text-[#254F22]/70 text-base leading-relaxed">
+          <p className="mt-3 text-[#1b3d18]/70 text-base leading-relaxed">
             Thank you for reaching out. We&apos;ve received your message and our team will get back to you shortly.
           </p>
           <button
             onClick={() => setSubmitted(false)}
-            className="mt-8 inline-flex items-center justify-center rounded-full bg-[#EA6A35] hover:bg-[#d85e2b] px-7 py-3 text-sm font-semibold text-white transition-colors"
+            className="mt-8 inline-flex items-center justify-center rounded-full bg-[#F5824A] hover:bg-[#e06d34] px-7 py-3 text-sm font-semibold text-white transition-colors shadow-sm"
           >
             Send Another Message
           </button>
@@ -140,72 +141,87 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
   }
 
   return (
-    <main className="min-h-[calc(100vh-4rem)] pt-16 grid grid-cols-1 lg:grid-cols-2">
-      {/* ── LEFT PANEL (05, Title, Info, Human Support Badge) ── */}
-      <section className="bg-[#DFD7BF] px-8 sm:px-12 md:px-16 lg:px-20 xl:px-24 py-12 sm:py-16 md:py-20 flex flex-col justify-between relative border-b lg:border-b-0 lg:border-r border-[#254F22]/10">
-        <div>
+    <main className="min-h-[calc(100vh-4rem)] lg:h-[calc(100vh-4rem)] pt-16 grid grid-cols-1 lg:grid-cols-2 bg-[#FBF9F5] overflow-hidden">
+      {/* ── LEFT PANEL (Botanical BG + Editorial Copy, Info, Support Badge) ── */}
+      <section className="relative bg-[#FBF9F5] px-8 sm:px-12 lg:px-14 xl:px-16 py-8 sm:py-10 lg:py-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-[#e5e2db] overflow-hidden">
+        {/* Botanical background image with subtle atmospheric treatment */}
+        <div className="absolute inset-0 select-none pointer-events-none opacity-40">
+          <Image
+            src="/images/signup-botanical-bg.webp"
+            alt="Botanical background"
+            fill
+            className="object-cover object-left"
+            priority
+            placeholder="blur"
+            blurDataURL="data:image/webp;base64,UklGRjYAAABXRUJQVlA4ICoAAACwAgCdASoUAAwAPzmEuVOvKKWisAgB4CcJaQAAeyAA/u39ZobeyUFAAAA="
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#FBF9F5]/85 via-[#FBF9F5]/70 to-[#FBF9F5]/90" />
+        </div>
+
+        <div className="relative z-10">
           {/* Top index */}
-          <span className="text-xs sm:text-sm font-mono text-[#254F22]/50 font-semibold tracking-wider block">
+          <span className="text-xs sm:text-sm font-mono text-[#1b3d18]/50 font-semibold tracking-wider block">
             05
           </span>
 
           {/* Main Editorial Heading */}
-          <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-[76px] font-black text-[#1b3d18] leading-[0.95] tracking-tight mt-8 sm:mt-14 md:mt-20 mb-6 sm:mb-8">
-            Get in<br />touch.
+          <h1 className="font-serif text-4xl sm:text-5xl lg:text-[58px] font-normal text-black leading-[0.98] tracking-tight mt-6 sm:mt-8 lg:mt-10 mb-4 sm:mb-5">
+            Get in<br />
+            <span className="text-[#1b3d18]">touch.</span>
           </h1>
 
           {/* Subtitle */}
-          <p className="text-base sm:text-lg text-[#254F22]/85 leading-relaxed max-w-sm sm:max-w-md mb-8 font-normal">
+          <p className="text-sm sm:text-base text-[#1b3d18]/75 leading-relaxed max-w-sm mb-6 font-normal">
             Questions about Budgexa? We read every message. Drop us a note and we&apos;ll get back to you shortly.
           </p>
 
           {/* Email row */}
           <a
             href="mailto:info@budgexa.app"
-            className="inline-flex items-center gap-3 text-base sm:text-lg font-medium text-[#1b3d18] hover:underline underline-offset-4 transition-all group"
+            className="inline-flex items-center gap-2.5 text-sm sm:text-base font-medium text-[#1b3d18] hover:text-[#F5824A] hover:underline underline-offset-4 transition-all group"
           >
-            <Mail size={20} className="stroke-[1.75] text-[#1b3d18] group-hover:scale-105 transition-transform" />
+            <Mail size={18} className="stroke-[1.75] text-[#1b3d18] group-hover:text-[#F5824A] group-hover:scale-105 transition-transform" />
             <span>info@budgexa.app</span>
           </a>
         </div>
 
         {/* Human Support Pill Badge */}
-        <div className="mt-14 sm:mt-20 flex justify-end">
-          <div className="inline-flex items-center gap-3 bg-[#FAF7EE]/95 backdrop-blur-sm rounded-full pl-2 pr-4 sm:pr-5 py-2 shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-white/80 select-none hover:shadow-md transition-shadow">
-            {/* Peachy circle with headset icon */}
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#F3E7D5] flex items-center justify-center shrink-0">
-              <Headphones size={17} className="text-[#EA6A35] stroke-[2]" />
+        <div className="relative z-10 mt-8 flex justify-start">
+          <div className="inline-flex items-center gap-2.5 bg-white/90 backdrop-blur-sm rounded-full pl-1.5 pr-4 py-1.5 shadow-xs border border-[#e5e2db] select-none hover:border-[#1b3d18]/25 transition-all">
+            {/* Circle with headset icon */}
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#F5824A]/10 flex items-center justify-center shrink-0">
+              <Headphones size={15} className="text-[#F5824A] stroke-[2]" />
             </div>
 
             {/* Text block */}
             <div className="flex flex-col text-left">
-              <span className="text-xs sm:text-sm font-bold text-[#1b3d18] leading-tight">
+              <span className="text-xs font-bold text-[#1b3d18] leading-tight">
                 Human Support
               </span>
-              <span className="text-[10px] sm:text-[11px] text-[#7A8775] font-medium leading-tight mt-0.5">
+              <span className="text-[10px] text-[#1b3d18]/60 font-medium leading-tight">
                 Real people. Real help.
               </span>
             </div>
 
             {/* Orange indicator dot */}
-            <span className="w-2 h-2 rounded-full bg-[#EA6A35] shrink-0 ml-1" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#F5824A] shrink-0 ml-1" />
           </div>
         </div>
       </section>
 
       {/* ── RIGHT PANEL (Interactive Contact Form) ── */}
-      <section className="bg-[#FAF7EE] px-8 sm:px-12 md:px-16 lg:px-20 xl:px-24 py-12 sm:py-16 md:py-20 flex flex-col justify-center">
-        <div className="max-w-lg w-full mx-auto">
+      <section className="bg-[#FBF9F5] px-8 sm:px-12 lg:px-14 xl:px-16 py-8 sm:py-10 flex flex-col justify-center overflow-y-auto">
+        <div className="max-w-md w-full mx-auto">
           <form
             noValidate
             onSubmit={handleSubmit(onSubmit)}
-            className="space-y-6 sm:space-y-7"
+            className="space-y-4 sm:space-y-5"
           >
             {/* FULL NAME */}
             <div>
               <label
                 htmlFor="name"
-                className="block text-[11px] font-bold tracking-widest uppercase text-[#254F22] mb-1"
+                className="block text-[10px] font-bold tracking-widest uppercase text-[#1b3d18] mb-0.5"
               >
                 FULL NAME
               </label>
@@ -215,14 +231,14 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
                 type="text"
                 placeholder="Alex Doe"
                 className={cn(
-                  "w-full bg-transparent border-b pb-2 pt-1 text-base text-[#1b3d18] placeholder:text-[#254F22]/40 focus:outline-none transition-colors",
+                  "w-full bg-transparent border-b pb-1.5 pt-0.5 text-sm sm:text-base text-[#1b3d18] placeholder:text-[#1b3d18]/35 focus:outline-none transition-colors",
                   errors.name
                     ? "border-red-400 focus:border-red-500"
-                    : "border-[#254F22]/35 focus:border-[#254F22]"
+                    : "border-[#e5e2db] focus:border-[#1b3d18]"
                 )}
               />
               {errors.name && (
-                <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>
+                <p className="mt-0.5 text-xs text-red-500">{errors.name.message}</p>
               )}
             </div>
 
@@ -230,7 +246,7 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
             <div>
               <label
                 htmlFor="subject"
-                className="block text-[11px] font-bold tracking-widest uppercase text-[#254F22] mb-1"
+                className="block text-[10px] font-bold tracking-widest uppercase text-[#1b3d18] mb-0.5"
               >
                 TITLE / SUBJECT
               </label>
@@ -240,14 +256,14 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
                 type="text"
                 placeholder="Brief summary of your report"
                 className={cn(
-                  "w-full bg-transparent border-b pb-2 pt-1 text-base text-[#1b3d18] placeholder:text-[#254F22]/40 focus:outline-none transition-colors",
+                  "w-full bg-transparent border-b pb-1.5 pt-0.5 text-sm sm:text-base text-[#1b3d18] placeholder:text-[#1b3d18]/35 focus:outline-none transition-colors",
                   errors.subject
                     ? "border-red-400 focus:border-red-500"
-                    : "border-[#254F22]/35 focus:border-[#254F22]"
+                    : "border-[#e5e2db] focus:border-[#1b3d18]"
                 )}
               />
               {errors.subject && (
-                <p className="mt-1 text-xs text-red-500">{errors.subject.message}</p>
+                <p className="mt-0.5 text-xs text-red-500">{errors.subject.message}</p>
               )}
             </div>
 
@@ -255,7 +271,7 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
             <div>
               <label
                 htmlFor="email"
-                className="block text-[11px] font-bold tracking-widest uppercase text-[#254F22] mb-1"
+                className="block text-[10px] font-bold tracking-widest uppercase text-[#1b3d18] mb-0.5"
               >
                 EMAIL ADDRESS
               </label>
@@ -265,35 +281,35 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
                 type="email"
                 placeholder="alex@example.com"
                 className={cn(
-                  "w-full bg-transparent border-b pb-2 pt-1 text-base text-[#1b3d18] placeholder:text-[#254F22]/40 focus:outline-none transition-colors",
+                  "w-full bg-transparent border-b pb-1.5 pt-0.5 text-sm sm:text-base text-[#1b3d18] placeholder:text-[#1b3d18]/35 focus:outline-none transition-colors",
                   errors.email
                     ? "border-red-400 focus:border-red-500"
-                    : "border-[#254F22]/35 focus:border-[#254F22]"
+                    : "border-[#e5e2db] focus:border-[#1b3d18]"
                 )}
               />
               {errors.email && (
-                <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>
+                <p className="mt-0.5 text-xs text-red-500">{errors.email.message}</p>
               )}
             </div>
 
             {/* ISSUE CATEGORY */}
             <div className="relative" ref={categoryDropdownRef}>
-              <label className="block text-[11px] font-bold tracking-widest uppercase text-[#254F22] mb-1">
+              <label className="block text-[10px] font-bold tracking-widest uppercase text-[#1b3d18] mb-0.5">
                 ISSUE CATEGORY
               </label>
               <button
                 type="button"
                 onClick={() => setCategoryOpen((prev) => !prev)}
                 className={cn(
-                  "w-full flex items-center justify-between bg-transparent border-b pb-2 pt-1 text-base text-left focus:outline-none transition-colors cursor-pointer",
+                  "w-full flex items-center justify-between bg-transparent border-b pb-1.5 pt-0.5 text-sm sm:text-base text-left focus:outline-none transition-colors cursor-pointer",
                   errors.category
                     ? "border-red-400"
-                    : "border-[#254F22]/35 focus:border-[#254F22]"
+                    : "border-[#e5e2db] focus:border-[#1b3d18]"
                 )}
               >
                 <span
                   className={cn(
-                    selectedCategory ? "text-[#1b3d18]" : "text-[#254F22]/40"
+                    selectedCategory ? "text-[#1b3d18]" : "text-[#1b3d18]/35"
                   )}
                 >
                   {selectedCategory
@@ -301,16 +317,16 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
                     : "Select a category"}
                 </span>
                 <ChevronDown
-                  size={18}
+                  size={16}
                   className={cn(
-                    "text-[#254F22]/60 transition-transform duration-200",
+                    "text-[#1b3d18]/60 transition-transform duration-200",
                     categoryOpen && "rotate-180"
                   )}
                 />
               </button>
 
               {categoryOpen && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-[#254F22]/15 py-1.5 z-20 animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-[#e5e2db] py-1 z-20 animate-in fade-in zoom-in-95 duration-150">
                   {CATEGORIES.map((cat) => {
                     const isSelected = selectedCategory === cat.value;
                     return (
@@ -322,21 +338,21 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
                           setCategoryOpen(false);
                         }}
                         className={cn(
-                          "w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between cursor-pointer",
+                          "w-full text-left px-4 py-2 text-xs sm:text-sm transition-colors flex items-center justify-between cursor-pointer",
                           isSelected
-                            ? "bg-[#254F22]/10 text-[#1b3d18] font-semibold"
-                            : "text-[#254F22]/80 hover:bg-[#254F22]/5 hover:text-[#1b3d18]"
+                            ? "bg-[#F7F5EE] text-[#1b3d18] font-semibold"
+                            : "text-[#1b3d18]/80 hover:bg-[#F7F5EE] hover:text-[#1b3d18]"
                         )}
                       >
                         <span>{cat.label}</span>
-                        {isSelected && <Check size={16} className="text-[#EA6A35]" />}
+                        {isSelected && <Check size={14} className="text-[#F5824A]" />}
                       </button>
                     );
                   })}
                 </div>
               )}
               {errors.category && (
-                <p className="mt-1 text-xs text-red-500">{errors.category.message}</p>
+                <p className="mt-0.5 text-xs text-red-500">{errors.category.message}</p>
               )}
             </div>
 
@@ -344,55 +360,55 @@ export function ContactPageClient({ defaultCategory }: ContactPageClientProps) {
             <div>
               <label
                 htmlFor="message"
-                className="block text-[11px] font-bold tracking-widest uppercase text-[#254F22] mb-2"
+                className="block text-[10px] font-bold tracking-widest uppercase text-[#1b3d18] mb-1"
               >
                 YOUR MESSAGE
               </label>
               <div
                 className={cn(
-                  "rounded-[26px] border-[1.5px] p-4 transition-colors bg-transparent",
+                  "rounded-2xl border p-3 transition-colors bg-white",
                   errors.message
                     ? "border-red-400"
-                    : "border-[#7D9B78]/70 focus-within:border-[#254F22]"
+                    : "border-[#e5e2db] focus-within:border-[#1b3d18] focus-within:ring-1 focus-within:ring-[#1b3d18]/20"
                 )}
               >
                 <textarea
                   id="message"
                   {...register("message")}
-                  rows={4}
+                  rows={3}
                   maxLength={2000}
                   placeholder="How can we help you?"
-                  className="w-full resize-none bg-transparent text-base text-[#1b3d18] placeholder:text-[#254F22]/40 outline-none leading-relaxed"
+                  className="w-full resize-none bg-transparent text-sm text-[#1b3d18] placeholder:text-[#1b3d18]/35 outline-none leading-relaxed"
                 />
               </div>
               {errors.message && (
-                <p className="mt-1 text-xs text-red-500">{errors.message.message}</p>
+                <p className="mt-0.5 text-xs text-red-500">{errors.message.message}</p>
               )}
             </div>
 
             {/* Server Error Message */}
             {serverError && (
-              <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-xs sm:text-sm text-red-700">
+              <div className="rounded-2xl border border-red-200 bg-red-50 p-3 text-xs text-red-700">
                 {serverError}
               </div>
             )}
 
             {/* SUBMIT BUTTON */}
-            <div className="pt-2">
+            <div className="pt-1">
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="rounded-full bg-[#EA6A35] hover:bg-[#d85e2b] text-white font-semibold text-sm sm:text-base px-8 py-3.5 shadow-sm inline-flex items-center gap-2.5 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 cursor-pointer"
+                className="rounded-full bg-[#F5824A] hover:bg-[#e06d34] text-white font-semibold text-sm px-7 py-3 shadow-sm inline-flex items-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 cursor-pointer"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 size={18} className="animate-spin" />
+                    <Loader2 size={16} className="animate-spin" />
                     <span>Sending...</span>
                   </>
                 ) : (
                   <>
                     <span>Submit Message</span>
-                    <ArrowRight size={18} />
+                    <ArrowRight size={16} />
                   </>
                 )}
               </button>

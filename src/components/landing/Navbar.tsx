@@ -13,7 +13,7 @@ const NAV_LINKS = [
   { label: "Features", href: "/#features" },
   { label: "How it Works", href: "/#how-it-works" },
   { label: "Pricing", href: "/pricing" },
-  { label: "About", href: "/#about" },
+  { label: "About", href: "/about" },
 ];
 
 type AuthState = "checking" | "authenticated" | "anonymous";
@@ -25,7 +25,7 @@ export default function Navbar() {
   const pathname = usePathname();
 
   const isAuthPage = pathname?.startsWith("/auth");
-  const isDarkTheme = !isAuthPage && pathname === "/contact";
+  const isDarkTheme = false;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16);

@@ -1,8 +1,10 @@
-import type { Metadata } from "next";
-import { AudienceCard } from "@/components/about/AudienceCard";
-import { Badge } from "@/components/about/Badge";
+"use client";
+
+import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import {
+  Sparkles,
   Zap,
   GraduationCap,
   Briefcase,
@@ -10,109 +12,271 @@ import {
   Check,
   ShieldCheck,
   ArrowRight,
+  HeartHandshake,
+  Compass,
+  Lightbulb,
 } from "lucide-react";
+import { AudienceCard } from "@/components/about/AudienceCard";
+import { Badge } from "@/components/about/Badge";
+import RayoLogo from "@/components/icons/RayoLogo";
 
-export const metadata: Metadata = {
-  title: "About – Budgexa",
-  description:
-    "Budgexa is an AI-powered financial assistant that helps people understand spending, build smarter habits, and make better financial decisions.",
-};
+const VALUES = [
+  {
+    icon: Compass,
+    title: "Clarity over complexity",
+    description:
+      "We strip away banking jargon, endless dropdowns, and confusing spreadsheets. Money should feel intuitive, not overwhelming.",
+  },
+  {
+    icon: Lightbulb,
+    title: "Proactive guidance",
+    description:
+      "Instead of just telling you what you spent yesterday, Budgexa calculates your real-time safe-to-spend balance so you know what to do today.",
+  },
+  {
+    icon: HeartHandshake,
+    title: "Zero shame, real growth",
+    description:
+      "Financial progress is about building sustainable habits that fit your real income and life, not feeling guilty for living.",
+  },
+];
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-Budgexa-beige text-Budgexa-text overflow-hidden">
-
-      {/* ── HERO ── */}
-      <section className="animate-fade-up-1 text-center pt-32 pb-24 px-6 max-w-[760px] mx-auto">
-        <div className="inline-flex items-center gap-1.5 bg-Budgexa-orange/10 text-Budgexa-orange border border-Budgexa-orange/25 rounded-full px-3.5 py-1.5 text-[11px] font-bold tracking-[0.12em] uppercase mb-7">
-          <span className="w-1.5 h-1.5 bg-Budgexa-orange rounded-full" />
-          Our Mission
+    <main className="min-h-screen bg-[#FBF9F5] text-[#1b3d18] overflow-hidden">
+      {/* ── 1. HERO SECTION (Fills 100% Viewport Height with Botanical BG) ── */}
+      <section className="relative border-b border-[#e5e2db] bg-[#FBF9F5] min-h-[calc(100vh-4rem)] lg:h-[calc(100vh-4rem)] flex flex-col justify-center items-center py-10 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        {/* Botanical background image with subtle atmospheric treatment */}
+        <div className="absolute inset-0 select-none pointer-events-none opacity-45">
+          <Image
+            src="/images/signup-botanical-bg.webp"
+            alt="Botanical background"
+            fill
+            className="object-cover object-center"
+            priority
+            placeholder="blur"
+            blurDataURL="data:image/webp;base64,UklGRjYAAABXRUJQVlA4ICoAAACwAgCdASoUAAwAPzmEuVOvKKWisAgB4CcJaQAAeyAA/u39ZobeyUFAAAA="
+          />
+          {/* Subtle gradient vignette overlay to ensure text contrast */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#FBF9F5]/80 via-[#FBF9F5]/60 to-[#FBF9F5]/90" />
         </div>
 
-        <h1 className="font-display text-[clamp(44px,7vw,72px)] font-black leading-[1.02] tracking-tight text-Budgexa-green mb-7">
-          Helping the{" "}
-          <em className="italic underline decoration-Budgexa-orange decoration-[3px] underline-offset-[6px]">
-            next generation
-          </em>{" "}
-          build smarter financial habits.
-        </h1>
+        <div className="relative z-10 mx-auto max-w-4xl w-full text-center flex flex-col items-center">
+          {/* Badge with brand orange sparkle */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="inline-flex items-center gap-2 rounded-full border border-[#d9d6cf] bg-white/90 backdrop-blur-sm px-4 py-1 mb-6 shadow-2xs"
+          >
+            <Sparkles size={13} className="text-[#F5824A]" />
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.14em] text-[#1b3d18]">
+              Our Mission &amp; Story
+            </span>
+          </motion.div>
 
-        <p className="text-[17px] text-Budgexa-text-muted leading-[1.65] mx-auto">
-          Budgexa helps you understand your money with intelligent insights, spending analysis, and personalized financial guidance. We&apos;re making financial management simpler, more proactive, and easier to build habits around.
-        </p>
+          {/* Bold Editorial Headline sized cleanly for 100vh */}
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            className="font-serif text-3xl sm:text-5xl md:text-[54px] lg:text-[62px] font-normal leading-[1.08] tracking-tight text-black max-w-3xl mx-auto"
+          >
+            Helping the{" "}
+            <span className="text-[#1b3d18]">next generation</span>{" "}
+            build smarter <span className="text-[#F5824A]">financial habits.</span>
+          </motion.h1>
+
+          {/* Subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="mt-6 max-w-xl mx-auto text-sm sm:text-base lg:text-[17px] leading-relaxed text-[#1b3d18]/80 font-normal"
+          >
+            Budgexa was born from a simple realization: personal finance tools were never designed
+            for how modern Africans actually earn, spend, and save. We turn raw transactions into
+            daily, actionable clarity.
+          </motion.p>
+        </div>
       </section>
 
-      <div className="max-w-[1100px] mx-auto border-t border-Budgexa-green/10" />
-
-      {/* ── WHO IS Budgexa FOR ── */}
-      <section className="animate-fade-up-2 py-28 px-6 max-w-[1100px] mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="font-display text-[36px] font-bold text-Budgexa-green mb-3">
-            Who is Budgexa for?
-          </h2>
-          <p className="text-Budgexa-grey text-[15px]">
-            Built for people trying to manage money more intentionally.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-          <AudienceCard
-            icon={<Zap className="w-6 h-6" />}
-            title="Gen Z & Digital Natives"
-            description="Built for people who expect simple, intelligent, and mobile-first financial tools."
-          />
-          <AudienceCard
-            icon={<GraduationCap className="w-6 h-6" />}
-            title="Students"
-            description="Build better money habits while managing school, rent, subscriptions, and daily spending."
-          />
-          <AudienceCard
-            icon={<Briefcase className="w-6 h-6" />}
-            title="Freelancers & Creators"
-            description="Designed for irregular income and unpredictable spending patterns. Stay on top of your finances with smarter insights and forecasting."
-          />
+      {/* ── 2. MANIFESTO / STATEMENT STRIP (With Brand Orange Details) ── */}
+      <section className="border-b border-[#e5e2db] bg-[#F7F5EE] py-14 sm:py-18">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-[40%_60%] gap-8 items-center">
+            <div>
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-[#F5824A]/30 bg-[#F5824A]/10 px-3 py-0.5 mb-3">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#F5824A]" />
+                <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#F5824A]">
+                  Why Budgexa
+                </span>
+              </div>
+              <h2 className="font-serif text-2xl sm:text-3xl font-normal leading-snug tracking-tight text-black">
+                Built for{" "}
+                <span className="text-[#1b3d18]">irregular incomes</span>, flexible goals, and real life.
+              </h2>
+            </div>
+            <p className="text-sm sm:text-base text-[#1b3d18]/80 leading-relaxed font-medium">
+              Most budgeting software was built for 9-to-5 salaries in traditional economies. Budgexa understands allowance, freelance milestones, multiple side-gigs, and family commitments. It meets you wherever your money actually is.
+            </p>
+          </div>
         </div>
       </section>
 
-      <div className="max-w-[1100px] mx-auto border-t border-Budgexa-green/10" />
-
-      {/* ── SECURITY ── */}
-      <section className="animate-fade-up-3 py-12 px-6 pb-28 max-w-[820px] mx-auto">
-        <div className="relative overflow-hidden bg-Budgexa-green rounded-3xl px-10 py-16 text-center">
-          <div
-            className="absolute -top-16 -right-16 w-[200px] h-[200px] pointer-events-none"
-            style={{ background: "radial-gradient(circle, rgba(245,130,74,0.18) 0%, transparent 70%)" }}
-          />
-
-          <div className="w-14 h-14 bg-Budgexa-orange/20 rounded-full flex items-center justify-center text-Budgexa-orange mx-auto mb-6">
-            <Lock className="w-7 h-7" />
+      {/* ── 3. WHO IS BUDGEXA FOR ── */}
+      <section className="border-b border-[#e5e2db] bg-white py-20 sm:py-28">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#d9d6cf] bg-[#F7F5EE] px-3.5 py-1 mb-4">
+              <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#1b3d18]">
+                Audience
+              </span>
+            </div>
+            <h2 className="font-serif text-3xl sm:text-4xl font-normal tracking-tight text-black">
+              Who is <span className="text-[#1b3d18]">Budgexa</span> for?
+            </h2>
+            <p className="mt-3 text-xs sm:text-sm text-[#1b3d18]/70">
+              Tailored for anyone striving to make intentional decisions with their money.
+            </p>
           </div>
 
-          <h2 className="font-display text-[32px] font-bold text-white mb-4">
-            Uncompromising Security
-          </h2>
-          <p className="text-[15px] text-Budgexa-beige/70 leading-[1.7] max-w-[400px] mx-auto mb-8">
-            Your financial data should stay private and secure. Budgexa uses modern security practices and encrypted connections to help protect your information at every step.
-          </p>
-
-          <div className="flex justify-center gap-5 flex-wrap">
-            <Badge icon={<Check className="w-4 h-4" />}       label="Bank-level Encryption (AES-256)" />
-            <Badge icon={<ShieldCheck className="w-4 h-4" />} label="Encrypted Data Protection" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            <AudienceCard
+              icon={<Zap className="w-5 h-5" />}
+              tag="Mobile-first"
+              title="Gen Z & Digital Natives"
+              description="Built for individuals who expect lightning-fast, intelligent, and beautifully intuitive mobile experiences with automated insights."
+            />
+            <AudienceCard
+              icon={<GraduationCap className="w-5 h-5" />}
+              tag="Campus & Life"
+              title="Students & Starters"
+              description="Build healthy money habits early while managing school fees, allowances, subscriptions, stashes, and daily lifestyle spending."
+            />
+            <AudienceCard
+              icon={<Briefcase className="w-5 h-5" />}
+              tag="Flexible Income"
+              title="Freelancers & Creators"
+              description="Engineered for variable cash flow and unpredictable payout schedules. Stay ahead of cash dips with forward-looking safe-to-spend calculations."
+            />
           </div>
         </div>
       </section>
 
-      {/* ── CTA ── */}
-      <section className="animate-fade-up-4 text-center px-6 pt-12 pb-16">
-        <h2 className="font-display text-[40px] font-bold text-Budgexa-green tracking-tight mb-8">
-          Start building smarter financial habits.
-        </h2>
-        <a href="/auth/signup" className="btn-accent text-base px-9 py-4">
-          Get Started with Budgexa 
-          <ArrowRight className="w-4 h-4" />
-        </a>
+      {/* ── 4. OUR CORE VALUES ── */}
+      <section className="border-b border-[#e5e2db] bg-[#F7F5EE] py-20 sm:py-28">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#d9d6cf] bg-white px-3.5 py-1 mb-4">
+              <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#1b3d18]">
+                Philosophy
+              </span>
+            </div>
+            <h2 className="font-serif text-3xl sm:text-4xl font-normal tracking-tight text-black">
+              Principles behind <span className="text-[#1b3d18]">our copilot</span>
+            </h2>
+            <p className="mt-3 text-xs sm:text-sm text-[#1b3d18]/70">
+              The foundational standards shaping every algorithm, recommendation, and feature.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            {VALUES.map(({ icon: Icon, title, description }) => (
+              <div
+                key={title}
+                className="rounded-3xl border border-[#e5e2db] bg-white p-7 sm:p-8 shadow-xs transition-transform hover:-translate-y-1 duration-300"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#1b3d18] text-white mb-6">
+                  <Icon size={20} />
+                </div>
+                <h3 className="font-serif text-xl font-bold tracking-tight text-[#1b3d18] mb-2.5">
+                  {title}
+                </h3>
+                <p className="text-xs sm:text-sm text-[#1b3d18]/70 leading-relaxed">
+                  {description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
+      {/* ── 5. SECURITY & DATA PRIVACY ── */}
+      <section className="border-b border-[#e5e2db] bg-white py-16 sm:py-24">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="relative overflow-hidden rounded-3xl bg-[#1b3d18] p-8 sm:p-12 lg:p-16 text-center text-white shadow-xl">
+            {/* Background Glow */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-[#F5824A]/20 blur-3xl"
+            />
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-white/5 blur-3xl"
+            />
+
+            <div className="relative z-10 mx-auto max-w-2xl">
+              <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 border border-white/20 text-[#F5824A] backdrop-blur-sm">
+                <Lock className="w-6 h-6" />
+              </div>
+
+              <h2 className="font-serif text-2xl sm:text-4xl font-bold tracking-tight text-white mb-4">
+                Uncompromising Security &amp; Privacy
+              </h2>
+
+              <p className="text-xs sm:text-sm leading-relaxed text-white/80 mb-8 max-w-xl mx-auto">
+                Your financial information is strictly yours. Budgexa is read-only and non-custodial:
+                we never hold, move, or withdraw your funds, and adhere strictly to NDPA standards.
+              </p>
+
+              <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
+                <Badge
+                  icon={<Check className="w-4 h-4" />}
+                  label="Bank-Grade AES-256 Encryption"
+                />
+                <Badge
+                  icon={<ShieldCheck className="w-4 h-4" />}
+                  label="NDPA Compliant & Non-Custodial"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 6. CALL TO ACTION ── */}
+      <section className="bg-[#FBF9F5] py-20 sm:py-28 text-center">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-[#1b3d18] shadow-sm">
+            <RayoLogo size={22} className="text-white" />
+          </div>
+
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight text-black mb-4">
+            Start building smarter <span className="text-[#1b3d18]">financial habits</span> today.
+          </h2>
+
+          <p className="text-xs sm:text-sm text-[#1b3d18]/70 max-w-md mx-auto mb-8 leading-relaxed">
+            Join young professionals and ambitious creators taking control of their money with Budgexa.
+          </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <Link
+              href="/auth/signup"
+              className="group inline-flex items-center gap-2 rounded-full bg-[#F5824A] px-7 py-3.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#e06d34] hover:shadow active:scale-[0.99]"
+            >
+              Get Started Free
+              <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
+            </Link>
+            <Link
+              href="/pricing"
+              className="inline-flex items-center gap-2 rounded-full border border-[#d9d6cf] bg-white px-6 py-3.5 text-sm font-semibold text-[#1b3d18] transition-colors hover:bg-[#F7F5EE] active:scale-[0.99]"
+            >
+              Explore Plans
+            </Link>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
