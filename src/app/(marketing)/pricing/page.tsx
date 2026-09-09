@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
   ArrowUpRight,
@@ -12,27 +12,18 @@ import {
   Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import BillingToggle from "@/components/pricing/BillingToggle";
 
-const MONTHLY_FEATURES = [
-  "Unlimited expense tracking & smart categorization",
-  "Unlimited custom savings targets & stashes",
-  "Real-time safe-to-spend guidance",
-  "AI spending pattern detection & insights",
-  "Predict future cash shortages before they happen",
-  "Smart monthly & weekly budget planner",
-  "Export transaction data anytime (CSV, PDF)",
-  "Standard email & in-app support",
-];
-
-const YEARLY_FEATURES = [
-  "Everything in the Monthly Plan",
-  "2 months completely free (Save 20%)",
-  "Annual financial health & wealth projections",
-  "Priority customer & concierge support",
-  "Early access to upcoming AI financial models",
-  "Advanced debt payoff & savings simulations",
-  "Custom multi-wallet allocation stashes",
-  "Export full annual tax & audit reports",
+const ALL_FEATURES = [
+  "Real-time AI Financial Copilot & Safe-to-Spend balance",
+  "Unlimited expense tracking & smart auto-categorization",
+  "Custom flexible budgets for irregular & variable incomes",
+  "Unlimited savings targets, milestone dates & stash allocations",
+  "AI spending pattern detection & overdraft predictions",
+  "Smart weekly & monthly financial health summaries",
+  "Full data export anytime (CSV, PDF, Tax/Audit reports)",
+  "Bank-grade 256-bit AES encryption & NDPR-aligned privacy",
+  "Priority support & continuous access to new AI models",
 ];
 
 const HIGHLIGHTS = [
@@ -64,6 +55,8 @@ const STEPS = [
 ];
 
 export default function PricingPage() {
+  const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
+
   return (
     <main className="relative overflow-x-hidden bg-[#FBF9F5]">
       {/* ── 1. HERO SECTION (Matches Reference Image) ── */}
@@ -200,178 +193,130 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* ── 2. DEDICATED 2 SIDE-BY-SIDE PAYMENT PLAN CARDS (Fits 100vh) ── */}
-      <section id="plans" className="scroll-mt-16 border-b border-[#e5e2db] bg-[#F7F5EE] min-h-[calc(100dvh-4rem)] flex flex-col justify-center py-10 sm:py-12 lg:py-14">
+      {/* ── 2. UNIFIED PAYMENT PLAN SECTION WITH SMOOTH BILLING TOGGLE ── */}
+      <section id="plans" className="scroll-mt-16 border-b border-[#e5e2db] bg-[#F7F5EE] min-h-[calc(100dvh-4rem)] flex flex-col justify-center py-12 sm:py-16 lg:py-20">
         <div className="mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#d9d6cf] bg-white px-3 py-1 mb-3">
-              <Sparkles size={11} className="text-[#1b3d18]" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#d9d6cf] bg-white px-3.5 py-1 mb-3 shadow-2xs">
+              <Sparkles size={11} className="text-[#F5824A]" />
               <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#1b3d18]">
                 Transparent Pricing
               </span>
             </div>
-            <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-normal tracking-tight text-black">
-              Choose the plan that fits <span className="text-[#1b3d18]">your pace.</span>
+            <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight text-black">
+              Everything you need. <span className="text-[#1b3d18]">One simple plan.</span>
             </h2>
-            <p className="mt-2 text-xs sm:text-sm text-[#1b3d18]/70 leading-relaxed max-w-lg mx-auto">
-              Every plan begins with a 30-day free trial. No credit card required upfront. Cancel anytime with zero fees.
+            <p className="mt-3 text-xs sm:text-sm text-[#1b3d18]/70 leading-relaxed max-w-lg mx-auto">
+              Every subscription includes all features and begins with a 30-day free trial. No credit card required upfront. Cancel anytime with zero fees.
             </p>
+
+            {/* Smooth animated Pill Toggle Switch */}
+            <div className="mt-8 flex justify-center">
+              <BillingToggle billing={billing} onChange={setBilling} />
+            </div>
           </div>
 
-          {/* 2 Side-by-Side Cards Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto items-stretch">
-            
-            {/* ── CARD 1: MONTHLY PLAN ── */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-              className="relative flex flex-col justify-between rounded-3xl bg-white p-6 sm:p-7 lg:p-8 shadow-md border border-[#e5e2db] hover:border-[#1b3d18]/30 transition-all duration-300"
-            >
-              <div>
-                {/* Plan Header */}
-                <div className="flex justify-between items-start pb-4 border-b border-[#f0eee6]">
-                  <div>
-                    <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#1b3d18]">
-                      Monthly Plan
-                    </h3>
-                    <p className="text-xs text-[#1b3d18]/60 mt-0.5">
-                      Pay month-to-month with total flexibility.
+          {/* Unified Single Plan Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="relative rounded-3xl bg-white p-7 sm:p-9 lg:p-12 shadow-xl border border-[#e5e2db] max-w-4xl mx-auto overflow-hidden"
+          >
+            {/* Ambient accent background glow */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-[#F5824A]/10 blur-3xl"
+            />
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-[#1b3d18]/5 blur-3xl"
+            />
+
+            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[46%_54%] gap-8 lg:gap-12 items-center">
+              {/* Left Column: Plan Details, Dynamic Price, CTA */}
+              <div className="flex flex-col justify-between h-full">
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="rounded-full bg-[#1b3d18]/8 px-3 py-1 text-[10.5px] font-bold text-[#1b3d18] tracking-wider uppercase">
+                      Full Access Membership
+                    </span>
+                    {billing === "yearly" && (
+                      <span className="rounded-full bg-[#F5824A]/15 text-[#F5824A] px-2.5 py-0.5 text-[10.5px] font-bold tracking-wide animate-in fade-in">
+                        2 Months Free
+                      </span>
+                    )}
+                  </div>
+
+                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#1b3d18] tracking-tight">
+                    Budgexa All-Access
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[#1b3d18]/70 mt-1.5 leading-relaxed">
+                    Complete access to all intelligent budgeting tools, safe-to-spend forecasting, and personalized AI financial guidance.
+                  </p>
+
+                  {/* Dynamic Price Display */}
+                  <div className="mt-6 pt-5 border-t border-[#f0eee6]">
+                    <div className="flex items-baseline gap-2">
+                      <motion.span
+                        key={billing}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="font-sans text-4xl sm:text-5xl font-bold text-[#1b3d18] tracking-tight"
+                      >
+                        {billing === "monthly" ? "₦3,500" : "₦30,000"}
+                      </motion.span>
+                      <span className="text-xs sm:text-sm font-medium text-[#1b3d18]/60">
+                        {billing === "monthly" ? "/ month" : "/ year"}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-[#1b3d18]/60 mt-1.5 font-medium">
+                      {billing === "monthly" ? (
+                        <>Free for 30 days • ₦0 due today • Billed monthly after trial</>
+                      ) : (
+                        <>Equivalent to <span className="font-bold text-[#F5824A]">₦2,500/mo</span> • Save ₦12,000/year (₦0 due today)</>
+                      )}
                     </p>
                   </div>
-                  <span className="rounded-full bg-[#1b3d18]/8 px-2.5 py-0.5 text-[10.5px] font-bold text-[#1b3d18]">
-                    Flexible
-                  </span>
                 </div>
 
-                {/* Price Display */}
-                <div className="mt-4 sm:mt-5">
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="font-sans text-3xl sm:text-4xl font-bold text-[#1b3d18]">
-                      ₦3,500
-                    </span>
-                    <span className="text-xs sm:text-sm font-medium text-[#1b3d18]/60">
-                      / month
-                    </span>
-                  </div>
-                  <p className="text-[11px] sm:text-xs text-[#1b3d18]/60 mt-1 font-medium">
-                    Free for 30 days • ₦0 due today
+                {/* CTA Button & Risk Reversal */}
+                <div className="mt-8 pt-4">
+                  <Link
+                    href="/auth/signup"
+                    className="group flex items-center justify-center gap-2 w-full rounded-full bg-[#F5824A] hover:bg-[#e06d34] text-white font-bold text-sm sm:text-base py-3.5 px-6 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    <span>Start 30-Day Free Trial</span>
+                    <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                  <p className="text-center text-[11px] text-[#1b3d18]/50 mt-2.5">
+                    No credit card required upfront • 1-click cancellation anytime
                   </p>
                 </div>
+              </div>
 
-                {/* Features List */}
-                <div className="mt-5 sm:mt-6 space-y-2.5">
-                  <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#1b3d18]/60">
-                    What&apos;s Included:
-                  </p>
-                  {MONTHLY_FEATURES.map((feature) => (
-                    <div key={feature} className="flex items-start gap-2 text-xs text-[#1b3d18] font-medium">
-                      <div className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-[#1b3d18]/10 text-[#1b3d18] mt-0.5">
-                        <Check size={10} strokeWidth={2.5} />
+              {/* Right Column: Included Benefits (Unified list) */}
+              <div className="rounded-2xl bg-[#FBF9F5] border border-[#e5e2db] p-6 sm:p-7">
+                <p className="text-xs font-bold uppercase tracking-wider text-[#1b3d18] mb-4">
+                  Everything included in your free trial:
+                </p>
+
+                <div className="space-y-3">
+                  {ALL_FEATURES.map((feature) => (
+                    <div key={feature} className="flex items-start gap-2.5 text-xs sm:text-[13px] text-[#1b3d18] font-medium">
+                      <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#1b3d18] text-white mt-0.5">
+                        <Check size={11} strokeWidth={2.5} />
                       </div>
                       <span className="leading-snug text-[#1b3d18]/85">{feature}</span>
                     </div>
                   ))}
                 </div>
               </div>
-
-              {/* Action Button & Disclaimer */}
-              <div className="mt-6 sm:mt-8 pt-4 sm:pt-5 border-t border-[#f0eee6]">
-                <Link
-                  href="/auth/signup"
-                  className="flex items-center justify-center gap-2 w-full rounded-full bg-[#1b3d18] hover:bg-[#254F22] text-white font-semibold text-xs sm:text-sm py-3 px-5 transition-all shadow-sm active:scale-[0.99]"
-                >
-                  <span>Start 30-Day Free Trial</span>
-                  <ArrowRight size={14} />
-                </Link>
-                <p className="text-center text-[10.5px] text-[#1b3d18]/50 mt-2">
-                  No card required • Billed ₦3,500/mo after trial
-                </p>
-              </div>
-            </motion.div>
-
-            {/* ── CARD 2: YEARLY PLAN (Best Value) ── */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
-              className="relative flex flex-col justify-between rounded-3xl bg-white p-6 sm:p-7 lg:p-8 shadow-xl border-2 border-[#1b3d18] hover:shadow-2xl transition-all duration-300"
-            >
-              {/* Best Value Badge */}
-              <div className="absolute -top-3 right-6 sm:right-8">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F5824A] text-white px-3 py-0.5 text-[10px] font-bold tracking-wide shadow-sm uppercase">
-                  <Sparkles size={10} />
-                  Best Value · Save 20%
-                </span>
-              </div>
-
-              <div>
-                {/* Plan Header */}
-                <div className="flex justify-between items-start pb-4 border-b border-[#f0eee6]">
-                  <div>
-                    <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#1b3d18]">
-                      Yearly Plan
-                    </h3>
-                    <p className="text-xs text-[#1b3d18]/60 mt-0.5">
-                      Full year of peace of mind with 2 months free.
-                    </p>
-                  </div>
-                  <span className="rounded-full bg-[#F5824A]/10 text-[#F5824A] px-2.5 py-0.5 text-[10.5px] font-bold">
-                    Save ₦12,000/yr
-                  </span>
-                </div>
-
-                {/* Price Display */}
-                <div className="mt-4 sm:mt-5">
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="font-sans text-3xl sm:text-4xl font-bold text-[#1b3d18]">
-                      ₦30,000
-                    </span>
-                    <span className="text-xs sm:text-sm font-medium text-[#1b3d18]/60">
-                      / year
-                    </span>
-                  </div>
-                  <p className="text-[11px] sm:text-xs text-[#F5824A] mt-1 font-bold">
-                    Equivalent to ₦2,500/month (₦0 due today)
-                  </p>
-                </div>
-
-                {/* Features List */}
-                <div className="mt-5 sm:mt-6 space-y-2.5">
-                  <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#1b3d18]/60">
-                    Everything in Monthly, Plus:
-                  </p>
-                  {YEARLY_FEATURES.map((feature, idx) => (
-                    <div key={feature} className="flex items-start gap-2 text-xs text-[#1b3d18] font-medium">
-                      <div className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-[#1b3d18] text-white mt-0.5">
-                        <Check size={10} strokeWidth={2.5} />
-                      </div>
-                      <span className={cn("leading-snug", idx < 2 ? "font-bold text-[#1b3d18]" : "text-[#1b3d18]/85")}>
-                        {feature}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Action Button & Disclaimer */}
-              <div className="mt-6 sm:mt-8 pt-4 sm:pt-5 border-t border-[#f0eee6]">
-                <Link
-                  href="/auth/signup"
-                  className="flex items-center justify-center gap-2 w-full rounded-full bg-[#F5824A] hover:bg-[#d96a34] text-white font-bold text-xs sm:text-sm py-3 px-5 transition-all shadow-sm active:scale-[0.99]"
-                >
-                  <span>Start 30-Day Free Trial</span>
-                  <ArrowRight size={14} />
-                </Link>
-                <p className="text-center text-[10.5px] text-[#1b3d18]/50 mt-2">
-                  No card required • Billed ₦30,000/yr after 30-day trial
-                </p>
-              </div>
-            </motion.div>
-
-          </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
