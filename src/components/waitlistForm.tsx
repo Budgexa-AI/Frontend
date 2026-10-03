@@ -3,9 +3,7 @@
 import Link from "next/link";
 import { Sparkles, ArrowRight, CheckCircle2 } from "lucide-react";
 import RayoLogo from "@/components/icons/RayoLogo";
-
-const BREVO_FORM_URL =
-  "https://65f68ec3.sibforms.com/serve/MUIFAJUT2A8dV7RO-Il3PKtxfb6Tww4k6-r1LxbUfFVJACm6goBiEh-5Z18YGWlrB5Tf1PawegzRFo0K9-hPYscO3BOj_V5SxVOrOPGtBJOZg8IqRSf-Yaql0muAc17zB1q6trnhiQ8KttclDZq5WuFFHNOh2coNmp21Fvb9xtBwoHDSdTEQNMYp7z2aT2l52e4zjSFbYC1eUXOYxw==";
+import { WAITLIST_URL } from "@/lib/constants";
 
 export default function WaitlistPage() {
   return (
@@ -30,7 +28,7 @@ export default function WaitlistPage() {
         </p>
 
         <a
-          href={BREVO_FORM_URL}
+          href={WAITLIST_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="group inline-flex items-center justify-center gap-2 rounded-full bg-[#F5824A] hover:bg-[#e06d34] px-8 py-3.5 text-sm font-semibold text-white shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98]"

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Instagram, Linkedin } from "lucide-react";
 import RayoLogo from "@/components/icons/RayoLogo";
+import { WAITLIST_URL } from "@/lib/constants";
 
 function TwitterIcon({ size = 15, className = "" }: { size?: number; className?: string }) {
   return (
@@ -136,13 +137,15 @@ export default function Footer() {
                 </a>
               ))}
             </div>
-            <Link
-              href="/auth/signup"
+            <a
+              href={WAITLIST_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-[#1b3d18]/25 bg-white text-xs font-semibold text-[#1b3d18] transition-all hover:bg-[#1b3d18]/5 shadow-sm active:scale-[0.99]"
             >
-              <span>Get early access</span>
+              <span>Join waitlist</span>
               <span>→</span>
-            </Link>
+            </a>
           </div>
         </div>
 

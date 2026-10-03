@@ -2,6 +2,7 @@
 
 import { Star } from "lucide-react";
 import { motion } from "framer-motion";
+import { WAITLIST_URL } from "@/lib/constants";
 
 export default function TestimonialsSection() {
   return (
@@ -70,10 +71,12 @@ export default function TestimonialsSection() {
         </p>
         <div className="mt-6">
           <a
-            href="#top"
+            href={WAITLIST_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center justify-center rounded-full bg-[#F5824A] px-7 py-3 text-xs sm:text-sm font-bold text-white shadow-sm transition-all hover:bg-[#d96a34] active:scale-[0.99]"
           >
-            Get early access
+            Join the waitlist
           </a>
         </div>
       </motion.div>

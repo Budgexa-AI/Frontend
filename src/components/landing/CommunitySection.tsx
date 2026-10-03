@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles, Users } from "lucide-react";
+import { WAITLIST_URL } from "@/lib/constants";
 
 export default function CommunitySection() {
   return (
@@ -79,13 +80,15 @@ export default function CommunitySection() {
                 </div>
 
                 <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                  <Link
-                    href="/auth/signup"
+                  <a
+                    href={WAITLIST_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="group inline-flex items-center justify-center gap-2 rounded-full bg-[#F5824A] px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#e06d34] hover:shadow active:scale-[0.99] text-center"
                   >
-                    <span>Claim Early Spot</span>
+                    <span>Join Waitlist</span>
                     <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
-                  </Link>
+                  </a>
                   <Link
                     href="/pricing"
                     className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/20 active:scale-[0.99] text-center"

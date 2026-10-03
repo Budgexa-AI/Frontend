@@ -1,15 +1,16 @@
 import { ContactPageClient } from "./ContactPageClient";
 
 type ContactPageProps = {
-  searchParams?: {
+  searchParams?: Promise<{
     category?: string | string[];
-  };
+  }>;
 };
 
-export default function ContactPage({ searchParams }: ContactPageProps) {
-  const category = Array.isArray(searchParams?.category)
-    ? searchParams?.category[0]
-    : searchParams?.category;
+export default async function ContactPage({ searchParams }: ContactPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const category = Array.isArray(resolvedSearchParams?.category)
+    ? resolvedSearchParams?.category[0]
+    : resolvedSearchParams?.category;
 
   return <ContactPageClient defaultCategory={category ?? null} />;
 }

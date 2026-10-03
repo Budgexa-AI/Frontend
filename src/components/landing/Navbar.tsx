@@ -8,6 +8,7 @@ import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import RayoLogo from "@/components/icons/RayoLogo";
 import { isAuthenticated } from "@/lib/auth-client";
+import { WAITLIST_URL } from "@/lib/constants";
 
 const NAV_LINKS = [
   { label: "Features", href: "/#features" },
@@ -168,8 +169,9 @@ export default function Navbar() {
               </a>
             ) : (
               <a
-                href="#waitlist"
-                onClick={(e) => handleLinkClick(e, "#waitlist")}
+                href={WAITLIST_URL}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="rounded-full bg-[#1b3d18] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#254F22] transition-colors shadow-sm"
               >
                 Join Waitlist
@@ -253,7 +255,9 @@ export default function Navbar() {
               </a>
             ) : (
               <a
-                href="#waitlist"
+                href={WAITLIST_URL}
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => setMobileOpen(false)}
                 className="rounded-full bg-[#1b3d18] text-center py-2.5 text-sm font-semibold text-white"
               >

@@ -1,0 +1,2 @@
+export const WAITLIST_URL =
+  "https://65f68ec3.sibforms.com/serve/MUIFAJUT2A8dV7RO-Il3PKtxfb6Tww4k6-r1LxbUfFVJACm6goBiEh-5Z18YGWlrB5Tf1PawegzRFo0K9-hPYscO3BOj_V5SxVOrOPGtBJOZg8IqRSf-Yaql0muAc17zB1q6trnhiQ8KttclDZq5WuFFHNOh2coNmp21Fvb9xtBwoHDSdTEQNMYp7z2aT2l52e4zjSFbYC1eUXOYxw==";
