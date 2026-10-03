@@ -1,7 +1,8 @@
 // app/api/v1/[...path]/route.ts
 import { NextResponse } from "next/server";
 
-const BACKEND_BASE_URL = process.env.BACKEND_URL || "http://localhost:3001";
+const BACKEND_BASE_URL =
+  process.env.BACKEND_URL || "https://Budgexa-backend-yg0v.onrender.com";
 
 function extractErrorMessage(payload: unknown, fallback: string): string {
   if (!payload) return fallback;

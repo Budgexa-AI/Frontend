@@ -5,7 +5,7 @@ const API_URL = getApiBaseUrl();
 function getApiBaseUrl() {
   const configuredUrl =
     process.env.BACKEND_URL ||
-    "http://localhost:4000";
+    "https://Budgexa-backend-yg0v.onrender.com";
 
   if (/^https?:\/\//i.test(configuredUrl)) {
     return configuredUrl.replace(/\/$/, "");

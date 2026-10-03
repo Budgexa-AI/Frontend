@@ -36,7 +36,7 @@ const nextConfig = {
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.fontshare.com",
             "font-src 'self' https://fonts.gstatic.com https://api.fontshare.com",
             "img-src 'self' data: blob: https://*.supabase.co",
-            "connect-src 'self' http://localhost:3000 https://Budgexa-backend-yg0v.onrender.com https://o4511406333427712.ingest.de.sentry.io",
+            "connect-src 'self' https://Budgexa-backend-yg0v.onrender.com https://o4511406333427712.ingest.de.sentry.io",
           ].join("; "),
         },
       ],

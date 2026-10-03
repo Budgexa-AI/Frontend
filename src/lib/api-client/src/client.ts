@@ -90,7 +90,7 @@ function getAppBaseUrl(): string {
     return appUrl.replace(/\/$/, "");
   }
 
-  return "http://localhost:3001";
+  return "https://Budgexa-backend-yg0v.onrender.com";
 }
 
 function proxyPath(path: string): string {
@@ -553,7 +553,7 @@ export async function resendResetPassword(
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:3001";
+  "https://Budgexa-backend-yg0v.onrender.com";
 
 /**
  * Redirects the browser to the backend Google OAuth endpoint.

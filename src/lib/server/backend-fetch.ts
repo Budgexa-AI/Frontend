@@ -2,7 +2,9 @@ import { cookies } from "next/headers";
 
 /** Direct backend base URL — skips the Next.js self-proxy hop during SSR. */
 export function getBackendBaseUrl(): string {
-  return (process.env.BACKEND_URL ?? "http://localhost:3001").replace(/\/$/, "");
+  return (
+    process.env.BACKEND_URL ?? "https://Budgexa-backend-yg0v.onrender.com"
+  ).replace(/\/$/, "");
 }
 
 export async function getAuthTokenFromCookies(): Promise<string | null> {
