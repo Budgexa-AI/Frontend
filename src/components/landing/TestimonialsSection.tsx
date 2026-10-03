@@ -6,7 +6,7 @@ import { WAITLIST_URL } from "@/lib/constants";
 
 export default function TestimonialsSection() {
   return (
-    <section id="waitlist" className="scroll-mt-20 grid grid-cols-1 border-b border-[#e5e2db] bg-[#F7F5EE] lg:grid-cols-[36%_28%_36%] overflow-hidden">
+    <section id="testimonials" className="scroll-mt-20 grid grid-cols-1 border-b border-[#e5e2db] bg-[#F7F5EE] lg:grid-cols-[36%_28%_36%] overflow-hidden">
       {/* 1. Left: Testimonial */}
       <motion.div
         initial={{ opacity: 0, y: 24 }}

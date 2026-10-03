@@ -4,7 +4,6 @@ import { ArrowRight, Play } from "lucide-react";
 import { motion } from "framer-motion";
 import PhoneMockCard from "./MockCard";
 import RayoLogo from "@/components/icons/RayoLogo";
-import { WAITLIST_URL } from "@/lib/constants";
 
 export default function HeroSection() {
   return (
@@ -63,12 +62,10 @@ export default function HeroSection() {
               className="mt-8 flex flex-wrap items-center gap-3.5"
             >
               <a
-                href={WAITLIST_URL}
-                target="_blank"
-                rel="noopener noreferrer"
+                href="#waitlist"
                 className="group inline-flex items-center gap-2 rounded-full bg-[#1b3d18] px-7 py-3.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#254F22] hover:shadow active:scale-[0.99]"
               >
-                Join Waitlist
+                Get Early Access
                 <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
               </a>
               <a
