@@ -32,11 +32,6 @@ function BetaGateBody() {
 
     validateBetaToken(token)
       .then(() => {
-        // Not dashboard or onboarding directly — we don't know yet
-        // whether this person already has an account. Login handles
-        // both: existing testers sign in and land on their real
-        // dashboard, new testers click through to signup, which is
-        // where onboarding (currency selection, etc.) actually lives.
         router.push("/auth/login");
       })
       .catch(() => {
@@ -49,11 +44,11 @@ function BetaGateBody() {
       <div className="flex min-h-screen items-center justify-center bg-Budgexa-beige px-4">
         <div className="max-w-sm text-center">
           <h1 className="font-heading text-xl text-Budgexa-deep-green mb-2">
-            This link isn't working
+            This link isn&apos;t working
           </h1>
           <p className="text-sm text-Budgexa-deep-green/80">
             Your invite link may have expired or been used already. Reach out to us directly
-            and we'll sort you out.
+            and we&apos;ll sort you out.
           </p>
         </div>
       </div>
@@ -63,7 +58,6 @@ function BetaGateBody() {
   return (
     <main className="min-h-screen bg-Budgexa-beige">
       <div className="mx-auto w-full max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
-
         {/* HEADER skeleton */}
         <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="animate-pulse space-y-2">
@@ -79,7 +73,7 @@ function BetaGateBody() {
           <div className="mt-4 h-4 w-1/2 max-w-sm rounded bg-white/10" />
         </section>
 
-        {/* METRICS skeleton — same shape as the real dashboard's 4-up grid */}
+        {/* METRICS skeleton */}
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 pt-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <MetricSkeletonCard key={i} />
@@ -115,3 +109,4 @@ function BetaGateFallback() {
     </main>
   );
 }
+

@@ -65,9 +65,6 @@
     font-family: var(--font-body), sans-serif;
     font-size: 1rem;
     line-height: 1.6;
-  }
-
-  html, body {
     overflow-x: hidden;
   }
   h1, h2, h3, h4, h5, h6 {

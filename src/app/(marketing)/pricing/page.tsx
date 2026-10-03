@@ -1,417 +1,406 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  Check,
-  ShieldCheck,
   Sparkles,
-  Lock,
-  Rocket,
-  TrendingUp,
-  FileText,
-  Clock,
+  ArrowUpRight,
+  ArrowRight,
+  ShieldCheck,
+  CreditCard,
+  Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import PhoneMockCard from "@/components/landing/MockCard";
+import BillingToggle from "@/components/pricing/BillingToggle";
 
-type BillingPeriod = "monthly" | "yearly";
-
-const TRIAL_DAYS = 30;
-
-const TRUST_ITEMS = [
-  { icon: Lock, label: "Bank-level\nencryption" },
-  { icon: ShieldCheck, label: "Secure PayStack\npayments" },
-  { icon: ShieldCheck, label: "Your financial\ndata is never sold" },
-  { icon: Sparkles, label: "Trusted by\nstudents, graduates & young professionals" },
+const ALL_FEATURES = [
+  "Real-time AI Financial Copilot & Safe-to-Spend balance",
+  "Unlimited expense tracking & smart auto-categorization",
+  "Custom flexible budgets for irregular & variable incomes",
+  "Unlimited savings targets, milestone dates & stash allocations",
+  "AI spending pattern detection & overdraft predictions",
+  "Smart weekly & monthly financial health summaries",
+  "Full data export anytime (CSV, PDF, Tax/Audit reports)",
+  "Bank-grade 256-bit AES encryption & NDPR-aligned privacy",
+  "Priority support & continuous access to new AI models",
 ];
 
-const PLAN = {
-  name: "Budgexa",
-  monthlyPrice: 3500,
-  yearlyPrice: 30000,
-  description: "Your personal AI financial assistant with forecasting and smart insights.",
-  features: [
-    "Unlimited expense tracking",
-    "Unlimited savings goals",
-    "Unlimited connected bank accounts",
-    "AI spending pattern detection",
-    "Predict future cash shortages",
-    "AI savings recommendations",
-    "Automatic transaction categorization",
-    "Data export",
-    "Priority support",
-  ],
-};
-
-const TRIAL_STEPS = [
-  {
-    icon: Rocket,
-    title: "Start free",
-    description: "Sign up in less than a minute and get full access to all features.",
-  },
-  {
-    icon: TrendingUp,
-    title: "Explore & track",
-    description: "Connect your accounts, set goals, and let Budgexa do the rest.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Decide what's next",
-    description: "Continue with a plan that works for you. Cancel anytime.",
-  },
+const HIGHLIGHTS = [
+  { label: "01 · 30-DAY FREE TRIAL", detail: "Full Pro access immediately" },
+  { label: "02 · REAL-TIME AI COPILOT", detail: "Personalized naira insights" },
+  { label: "03 · UNLIMITED GOALS", detail: "Track every naira safely" },
+  { label: "04 · CANCEL IN ONE CLICK", detail: "Zero hassle or lock-in" },
 ];
 
-// Scroll-reveal wrapper. Fades and lifts content into place once it enters
-// the viewport, then leaves it alone.
-function Reveal({
-  children,
-  className,
-  delayMs = 0,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  delayMs?: number;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const node = ref.current;
-    if (!node) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.15 }
-    );
-
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <div
-      ref={ref}
-      style={{ transitionDelay: `${delayMs}ms` }}
-      className={cn(
-        "transition-all duration-700 ease-out motion-reduce:transition-none",
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6",
-        className
-      )}
-    >
-      {children}
-    </div>
-  );
-}
-
-function MountFade({
-  children,
-  isMounted,
-  delayMs = 0,
-  className,
-  from = "up",
-}: {
-  children: React.ReactNode;
-  isMounted: boolean;
-  delayMs?: number;
-  className?: string;
-  from?: "up" | "down";
-}) {
-  return (
-    <div
-      style={{ transitionDelay: `${delayMs}ms` }}
-      className={cn(
-        "transition-all duration-700 ease-out motion-reduce:transition-none",
-        isMounted
-          ? "opacity-100 translate-y-0"
-          : cn("opacity-0", from === "up" ? "translate-y-4" : "-translate-y-2"),
-        className
-      )}
-    >
-      {children}
-    </div>
-  );
-}
-
-// Small illustrative phone mockup — swap for a real product screenshot when ready.
-function PhoneMockup({ isMounted }: { isMounted: boolean }) {
-  return (
-    <div
-      className={cn(
-        "relative mx-auto w-64 sm:w-72 transition-all duration-1000 ease-out motion-reduce:transition-none",
-        isMounted ? "opacity-100 translate-y-0 rotate-2" : "opacity-0 translate-y-8 rotate-6"
-      )}
-    >
-      {/* soft blob behind phone */}
-      <div
-        className="absolute -top-10 -right-10 h-72 w-72 bg-Budgexa-orange/10 blur-2xl"
-        style={{ borderRadius: "62% 38% 55% 45% / 45% 55% 45% 55%" }}
-      />
-
-      {/* phone mockup */}
-      <div className="flex justify-center lg:justify-end pt-12 mt-6 lg:mt-2">
-        <PhoneMockCard />
-      </div>
-
-      {/* floating dot accent */}
-      <div
-        className={cn(
-          "absolute -bottom-4 -left-4 h-6 w-6 rounded-full bg-Budgexa-orange shadow-lg transition-all duration-1000 delay-500 motion-reduce:transition-none",
-          isMounted ? "opacity-100 scale-100" : "opacity-0 scale-0"
-        )}
-      />
-    </div>
-  );
-}
+const STEPS = [
+  {
+    number: "01",
+    title: "Create your account",
+    description:
+      "Sign up in less than 60 seconds. No credit card required upfront to begin your 30-day trial.",
+  },
+  {
+    number: "02",
+    title: "Experience AI financial guidance",
+    description:
+      "Log transactions, set flexible budgets, and let Budgexa calculate your real-time safe-to-spend balance.",
+  },
+  {
+    number: "03",
+    title: "Decide when you're ready",
+    description:
+      "We'll notify you 3 days before day 30. Choose monthly or yearly, or cancel with a single click.",
+  },
+];
 
 export default function PricingPage() {
-  const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("monthly");
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setTimeout(() => {
-        setIsMounted(true);
-      }, 0);
-  }, []);
-
-  const price = billingPeriod === "monthly" ? PLAN.monthlyPrice : PLAN.yearlyPrice;
+  const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
 
   return (
-    <div className="min-h-screen bg-Budgexa-beige overflow-hidden">
-
-      {/* HERO */}
-      <section className="relative px-5 md:px-10 pt-8 pb-16">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 items-center">
-          <div className="text-center md:text-left">
-            <MountFade isMounted={isMounted} from="down">
-              <span className="inline-flex items-center gap-2 rounded-full border border-Budgexa-orange/20 bg-Budgexa-orange/10 px-4 py-2 text-sm font-medium text-Budgexa-orange mb-6">
-                <Sparkles size={14} />
-                {TRIAL_DAYS} days free, full access. No card required
-              </span>
-            </MountFade>
-
-            <MountFade isMounted={isMounted} delayMs={100}>
-              <h1 className="font-display text-4xl sm:text-5xl font-black text-Budgexa-green leading-[1.1] mb-5">
-                Smarter money
-                <span className="text-Budgexa-orange block">starts with clarity.</span>
-              </h1>
-            </MountFade>
-
-            <MountFade isMounted={isMounted} delayMs={200}>
-              <p className="text-Budgexa-green/60 text-base sm:text-lg mb-8 max-w-md mx-auto md:mx-0">
-                Budgexa helps you understand spending habits, forecast future
-                expenses, and make smarter financial decisions automatically.
-              </p>
-            </MountFade>
-
-            <MountFade isMounted={isMounted} delayMs={300}>
-              <div className="grid grid-cols-2 gap-x-6 gap-y-4 max-w-md mx-auto md:mx-0">
-                {TRUST_ITEMS.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <div key={item.label} className="flex items-start gap-2 text-left">
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-Budgexa-orange/10">
-                        <Icon size={15} className="text-Budgexa-orange" />
-                      </span>
-                      <span className="text-xs text-Budgexa-green/60 whitespace-pre-line leading-snug pt-1">
-                        {item.label}
-                      </span>
-                    </div>
-                  );
-                })}
+    <main className="relative overflow-x-hidden bg-[#FBF9F5]">
+      {/* ── 1. HERO SECTION (Matches Reference Image) ── */}
+      <section className="border-b border-[#e5e2db] bg-white min-h-[calc(100dvh-4rem)] flex flex-col justify-center pt-20 pb-12 sm:pt-24 sm:pb-16 overflow-hidden">
+        <div className="mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
+            {/* Left Column: Copy & Feature Buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#d9d6cf] bg-[#F7F5EE] px-3.5 py-1 mb-5">
+                <Sparkles size={12} className="text-[#1b3d18]" />
+                <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#1b3d18]">
+                  Actionable Intelligence
+                </span>
               </div>
-            </MountFade>
-          </div>
 
-          <PhoneMockup isMounted={isMounted} />
+              {/* Heading */}
+              <h1 className="font-serif text-3xl sm:text-4xl lg:text-[42px] font-normal leading-[1.08] tracking-tight text-black">
+                Make an impact on your money,{" "}
+                <span className="text-[#1b3d18]">not just your dashboard.</span>
+              </h1>
+
+              {/* Subtitle */}
+              <p className="mt-5 max-w-lg text-sm sm:text-base leading-relaxed text-[#1b3d18]/75 font-normal">
+                Budgexa turns raw transactions into useful decisions. Track every naira, spot
+                patterns, and get personalized guidance using your own financial data.
+              </p>
+
+              {/* 4 Feature Buttons in 2x2 Grid (Exact Match to Image) */}
+              <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
+                {HIGHLIGHTS.map((item, idx) => (
+                  <motion.div
+                    key={item.label}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: 0.5,
+                      delay: 0.1 * idx,
+                      ease: "easeOut",
+                    }}
+                    className="group flex items-center justify-between rounded-xl border border-[#e5e2db] bg-[#FBF9F5] px-4 py-3 text-[11px] font-bold tracking-wider text-[#1b3d18] transition-all hover:bg-[#1b3d18]/5 hover:border-[#1b3d18]/25"
+                  >
+                    <span>{item.label}</span>
+                    <ArrowUpRight
+                      size={13}
+                      className="text-[#1b3d18]/40 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                    />
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Trust Indicators */}
+              <div className="mt-8 flex flex-wrap items-center gap-4 sm:gap-6 text-xs font-medium text-[#1b3d18]/75">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck size={16} className="text-[#1b3d18]" />
+                  <span>Bank-grade 256-bit encryption</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CreditCard size={16} className="text-[#1b3d18]" />
+                  <span>Secure Paystack payments</span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Right Column: Budgexa Today Card Mockup (Exact layout & hierarchy as Image) */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{
+                duration: 0.8,
+                delay: 0.1,
+                ease: [0.16, 1, 0.3, 1],
+              }}
+              className="flex justify-center lg:justify-end"
+            >
+              <div className="relative w-full max-w-[340px] sm:max-w-[380px]">
+                {/* Background Glow */}
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute -inset-4 rounded-3xl bg-gradient-to-br from-[#F5824A]/10 to-[#1b3d18]/10 blur-xl"
+                />
+
+                {/* Today Card */}
+                <div className="relative rounded-3xl bg-white p-6 sm:p-7 shadow-lg border border-[#e5e2db] transition-transform hover:-translate-y-1 duration-300">
+                  {/* Header Row */}
+                  <div className="flex justify-between items-center pb-2 border-b border-[#f0eee6]">
+                    <p className="text-[10px] font-bold tracking-wider uppercase text-[#1b3d18]/60">
+                      BUDGEXA · TODAY
+                    </p>
+                    <span className="text-[10px] text-[#1b3d18]/50">Real-time</span>
+                  </div>
+
+                  {/* Safe-to-spend balance */}
+                  <div className="mt-3">
+                    <p className="font-sans text-3xl font-bold text-[#1b3d18]">₦12,000</p>
+                    <p className="text-[10px] text-[#1b3d18]/60 mt-0.5">
+                      Safe-to-spend balance
+                    </p>
+                  </div>
+
+                  {/* Categorized spending breakdown */}
+                  <div className="mt-4 space-y-2 text-[11px]">
+                    <div className="flex justify-between items-center rounded-xl bg-[#F6F5F0] px-3.5 py-2.5">
+                      <span className="text-[#1b3d18]/75 font-medium">Groceries</span>
+                      <span className="font-bold text-[#1b3d18]">₦6,200</span>
+                    </div>
+                    <div className="flex justify-between items-center rounded-xl bg-[#F6F5F0] px-3.5 py-2.5">
+                      <span className="text-[#1b3d18]/75 font-medium">Transport</span>
+                      <span className="font-bold text-[#1b3d18]">₦1,500</span>
+                    </div>
+                    <div className="flex justify-between items-center rounded-xl bg-[#F5824A] text-white px-3.5 py-2.5 font-semibold shadow-xs">
+                      <span>Saving goal</span>
+                      <span>72%</span>
+                    </div>
+                  </div>
+
+                  {/* AI guidance banner */}
+                  <div className="mt-3.5 rounded-2xl bg-[#1b3d18] px-4 py-3 text-white text-xs leading-snug">
+                    <p className="font-bold text-[#F5824A] text-[11px] mb-0.5">
+                      AI Guidance
+                    </p>
+                    <p className="text-white/85 text-[11px]">
+                      You&apos;re still on track this week. Keep your dining under ₦3,000 to hit your target.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* BILLING + PLAN CARD */}
-      {isMounted && (
-        <section className="px-5 md:px-10 pb-16">
-          <div className="max-w-2xl mx-auto text-center">
-            <MountFade isMounted={isMounted} delayMs={100}>
-              <div className="inline-flex items-center gap-1 rounded-full bg-white border border-Budgexa-beige-dark p-1 mb-3">
-                <button
-                  onClick={() => setBillingPeriod("monthly")}
-                  className={cn(
-                    "rounded-full px-4 py-2 text-sm font-semibold transition-colors",
-                    billingPeriod === "monthly"
-                      ? "bg-Budgexa-green text-white"
-                      : "text-Budgexa-green/50 hover:text-Budgexa-green"
-                  )}
-                >
-                  Monthly
-                </button>
-                <button
-                  onClick={() => setBillingPeriod("yearly")}
-                  className={cn(
-                    "rounded-full px-4 py-2 text-sm font-semibold transition-colors flex items-center gap-2",
-                    billingPeriod === "yearly"
-                      ? "bg-Budgexa-green text-white"
-                      : "text-Budgexa-green/50 hover:text-Budgexa-green"
-                  )}
-                >
-                  Yearly
-                  <span
-                    className={cn(
-                      "text-xs font-bold",
-                      billingPeriod === "yearly" ? "text-Budgexa-orange" : "text-Budgexa-orange/60"
-                    )}
-                  >
-                    Save 20%
-                  </span>
-                </button>
-              </div>
+      {/* ── 2. UNIFIED PAYMENT PLAN SECTION WITH SMOOTH BILLING TOGGLE ── */}
+      <section id="plans" className="scroll-mt-16 border-b border-[#e5e2db] bg-[#F7F5EE] min-h-[calc(100dvh-4rem)] flex flex-col justify-center py-12 sm:py-16 lg:py-20">
+        <div className="mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#d9d6cf] bg-white px-3.5 py-1 mb-3 shadow-2xs">
+              <Sparkles size={11} className="text-[#F5824A]" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#1b3d18]">
+                Transparent Pricing
+              </span>
+            </div>
+            <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight text-black">
+              Everything you need. <span className="text-[#1b3d18]">One simple plan.</span>
+            </h2>
+            <p className="mt-3 text-xs sm:text-sm text-[#1b3d18]/70 leading-relaxed max-w-lg mx-auto">
+              Every subscription includes all features and begins with a 30-day free trial. No credit card required upfront. Cancel anytime with zero fees.
+            </p>
 
-              <p className="text-sm text-Budgexa-green/50 mb-8">
-                Prices shown apply after your {TRIAL_DAYS}-day free trial ends.
-              </p>
-            </MountFade>
+            {/* Smooth animated Pill Toggle Switch */}
+            <div className="mt-8 flex justify-center">
+              <BillingToggle billing={billing} onChange={setBilling} />
+            </div>
+          </div>
 
-            <Reveal>
-              <div className="relative rounded-3xl border border-Budgexa-beige-dark bg-white p-6 sm:p-8 shadow-xl transition-transform duration-300 hover:-translate-y-1 text-left">
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="rounded-full bg-Budgexa-orange px-4 py-1 text-xs font-bold text-white">
-                    {TRIAL_DAYS}-DAY FREE TRIAL
-                  </span>
-                </div>
+          {/* Unified Single Plan Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="relative rounded-3xl bg-white p-7 sm:p-9 lg:p-12 shadow-xl border border-[#e5e2db] max-w-4xl mx-auto overflow-hidden"
+          >
+            {/* Ambient accent background glow */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-[#F5824A]/10 blur-3xl"
+            />
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-[#1b3d18]/5 blur-3xl"
+            />
 
-                <div className="grid sm:grid-cols-2 gap-8">
-                  <div>
-                    <h3 className="font-display text-xl font-bold text-Budgexa-green mb-2">
-                      {PLAN.name}
-                    </h3>
-                    <p className="text-sm text-Budgexa-green/60 mb-6">{PLAN.description}</p>
-
-                    <div className="flex items-end gap-1 mb-2">
-                      <span className="text-4xl font-semibold text-Budgexa-green">
-                        ₦{price.toLocaleString()}
+            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[46%_54%] gap-8 lg:gap-12 items-center">
+              {/* Left Column: Plan Details, Dynamic Price, CTA */}
+              <div className="flex flex-col justify-between h-full">
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="rounded-full bg-[#1b3d18]/8 px-3 py-1 text-[10.5px] font-bold text-[#1b3d18] tracking-wider uppercase">
+                      Full Access Membership
+                    </span>
+                    {billing === "yearly" && (
+                      <span className="rounded-full bg-[#F5824A]/15 text-[#F5824A] px-2.5 py-0.5 text-[10.5px] font-bold tracking-wide animate-in fade-in">
+                        2 Months Free
                       </span>
-                      <span className="text-Budgexa-green/50 mb-1 text-sm">
-                        /{billingPeriod === "monthly" ? "mo" : "year"}
+                    )}
+                  </div>
+
+                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#1b3d18] tracking-tight">
+                    Budgexa All-Access
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[#1b3d18]/70 mt-1.5 leading-relaxed">
+                    Complete access to all intelligent budgeting tools, safe-to-spend forecasting, and personalized AI financial guidance.
+                  </p>
+
+                  {/* Dynamic Price Display */}
+                  <div className="mt-6 pt-5 border-t border-[#f0eee6]">
+                    <div className="flex items-baseline gap-2">
+                      <motion.span
+                        key={billing}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="font-sans text-4xl sm:text-5xl font-bold text-[#1b3d18] tracking-tight"
+                      >
+                        {billing === "monthly" ? "₦3,500" : "₦30,000"}
+                      </motion.span>
+                      <span className="text-xs sm:text-sm font-medium text-[#1b3d18]/60">
+                        {billing === "monthly" ? "/ month" : "/ year"}
                       </span>
                     </div>
 
-                    <p className="text-xs text-Budgexa-green/50 mb-6">
-                      Free for the first {TRIAL_DAYS} days. Cancel anytime before your trial ends and you won't be charged.
+                    <p className="text-xs text-[#1b3d18]/60 mt-1.5 font-medium">
+                      {billing === "monthly" ? (
+                        <>Free for 30 days • ₦0 due today • Billed monthly after trial</>
+                      ) : (
+                        <>Equivalent to <span className="font-bold text-[#F5824A]">₦2,500/mo</span> • Save ₦12,000/year (₦0 due today)</>
+                      )}
                     </p>
-
-                    <button className="w-full rounded-full py-3.5 font-semibold bg-Budgexa-orange text-white transition-all hover:bg-Budgexa-orange/90 hover:scale-[1.02] active:scale-[0.98]">
-                      Start Your Free Trial
-                    </button>
-                    <p className="flex items-center justify-center gap-1.5 text-xs text-Budgexa-green/40 mt-3">
-                      <Clock size={12} />
-                      No card required
-                    </p>
-                  </div>
-
-                  <div className="space-y-3">
-                    {PLAN.features.map((feature) => (
-                      <div key={feature} className="flex items-center gap-3">
-                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-Budgexa-orange">
-                          <Check size={12} className="text-white" strokeWidth={3} />
-                        </span>
-                        <span className="text-sm text-Budgexa-green">{feature}</span>
-                      </div>
-                    ))}
                   </div>
                 </div>
-              </div>
-            </Reveal>
 
-            <Reveal delayMs={150}>
-              <div className="flex items-center justify-center gap-3 mt-8">
-                <div className="flex -space-x-2">
-                  {["#254F22", "#A03A13", "#F5824A"].map((color, i) => (
-                    <span
-                      key={i}
-                      className="h-7 w-7 rounded-full border-2 border-Budgexa-beige"
-                      style={{ backgroundColor: color }}
-                    />
+                {/* CTA Button & Risk Reversal */}
+                <div className="mt-8 pt-4">
+                  <Link
+                    href="/auth/signup"
+                    className="group flex items-center justify-center gap-2 w-full rounded-full bg-[#F5824A] hover:bg-[#e06d34] text-white font-bold text-sm sm:text-base py-3.5 px-6 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    <span>Start 30-Day Free Trial</span>
+                    <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                  <p className="text-center text-[11px] text-[#1b3d18]/50 mt-2.5">
+                    No credit card required upfront • 1-click cancellation anytime
+                  </p>
+                </div>
+              </div>
+
+              {/* Right Column: Included Benefits (Unified list) */}
+              <div className="rounded-2xl bg-[#FBF9F5] border border-[#e5e2db] p-6 sm:p-7">
+                <p className="text-xs font-bold uppercase tracking-wider text-[#1b3d18] mb-4">
+                  Everything included in your free trial:
+                </p>
+
+                <div className="space-y-3">
+                  {ALL_FEATURES.map((feature) => (
+                    <div key={feature} className="flex items-start gap-2.5 text-xs sm:text-[13px] text-[#1b3d18] font-medium">
+                      <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#1b3d18] text-white mt-0.5">
+                        <Check size={11} strokeWidth={2.5} />
+                      </div>
+                      <span className="leading-snug text-[#1b3d18]/85">{feature}</span>
+                    </div>
                   ))}
                 </div>
-                <p className="text-sm text-Budgexa-green/50">
-                  Trusted by students and young professionals building smarter financial habits.
-                </p>
               </div>
-            </Reveal>
-          </div>
-        </section>
-      )}
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
-      {/* HOW THE TRIAL WORKS */}
-      <section className="px-5 md:px-10 pb-16">
-        <div className="max-w-4xl mx-auto">
-          <Reveal className="text-center mb-12">
-            <h2 className="font-display text-3xl sm:text-4xl font-bold text-Budgexa-green mb-2">
-              How your free trial works
+      {/* ── 3. HOW YOUR FREE TRIAL WORKS ── */}
+      <section className="border-b border-[#e5e2db] bg-white py-16 sm:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#d9d6cf] bg-[#F7F5EE] px-3.5 py-1 mb-4">
+              <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#1b3d18]">
+                Simple &amp; Predictable
+              </span>
+            </div>
+            <h2 className="font-serif text-3xl sm:text-4xl font-normal tracking-tight text-black">
+              How your <span className="text-[#1b3d18]">free trial</span> works.
             </h2>
-            <p className="text-Budgexa-green/60">Full access from day one. No surprises when it ends.</p>
-          </Reveal>
+            <p className="mt-3 text-sm text-[#1b3d18]/70 leading-relaxed">
+              Full access to every single feature from day one. No hidden barriers and no surprises.
+            </p>
+          </div>
 
-          <div className="relative grid gap-10 sm:grid-cols-3 text-center">
-            {/* connecting line, desktop only */}
-            <div className="hidden sm:block absolute top-8 left-[16.5%] right-[16.5%] border-t-2 border-dashed border-Budgexa-orange/30" />
-
-            {TRIAL_STEPS.map((step, idx) => {
-              const Icon = step.icon;
-              return (
-                <Reveal key={step.title} delayMs={idx * 150}>
-                  <div className="relative flex flex-col items-center">
-                    <div className="relative mb-4">
-                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-Budgexa-orange/10">
-                        <Icon size={26} className="text-Budgexa-orange" />
-                      </div>
-                      <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-Budgexa-orange text-xs font-bold text-white">
-                        {idx + 1}
-                      </span>
-                    </div>
-                    <h3 className="font-semibold text-Budgexa-green mb-1.5">{step.title}</h3>
-                    <p className="text-sm text-Budgexa-green/60 max-w-[220px]">{step.description}</p>
-                  </div>
-                </Reveal>
-              );
-            })}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            {STEPS.map((step, idx) => (
+              <motion.div
+                key={step.number}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.6, delay: 0.1 * idx, ease: "easeOut" }}
+                className="rounded-2xl border border-[#e5e2db] bg-[#FBF9F5] p-6 sm:p-8 shadow-xs flex flex-col justify-between"
+              >
+                <div>
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#1b3d18] text-white text-xs font-bold font-mono mb-5">
+                    {step.number}
+                  </span>
+                  <h3 className="font-serif text-lg font-bold text-[#1b3d18] mb-2">
+                    {step.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[#1b3d18]/70 leading-relaxed">
+                    {step.description}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* CTA BANNER */}
-      <section className="px-5 md:px-10 pb-16">
-        <Reveal className="max-w-5xl mx-auto">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 rounded-3xl bg-Budgexa-green px-6 sm:px-10 py-8">
-            <div className="flex items-center gap-4 text-center sm:text-left">
-              <span className="hidden sm:flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/10">
-                <FileText size={22} className="text-white" />
+      {/* ── 4. BOTTOM CTA BANNER ── */}
+      <section className="border-b border-[#e5e2db] bg-white py-16 sm:py-24 text-center overflow-hidden">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-black">
+              Take control of your money,{" "}
+              <span className="font-serif italic font-normal text-transparent [-webkit-text-stroke:1.2px_#1b3d18]">
+                starting today.
               </span>
-              <div>
-                <h3 className="font-display text-xl sm:text-2xl font-bold text-white leading-tight">
-                  Take control of your money.
-                </h3>
-                <p className="text-white/70 text-sm sm:text-base">
-                  Start your {TRIAL_DAYS}-day free trial today.
-                </p>
-              </div>
+            </h2>
+
+            <p className="mx-auto mt-4 max-w-lg text-sm sm:text-base text-[#1b3d18]/75">
+              Join thousands of young adults building clarity and confidence with Budgexa.
+            </p>
+
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+              <Link
+                href="/auth/signup"
+                className="inline-flex items-center gap-2 rounded-full bg-[#F5824A] hover:bg-[#d96a34] px-8 py-3.5 text-sm font-bold text-white shadow-sm transition-all active:scale-[0.99]"
+              >
+                <span>Start 30-Day Free Trial</span>
+                <ArrowRight size={15} />
+              </Link>
             </div>
 
-            <div className="text-center">
-              <a
-                href="/auth/signup"
-                className="inline-flex items-center justify-center rounded-full bg-Budgexa-orange px-7 py-3.5 font-semibold text-white transition-all hover:bg-Budgexa-orange/90 hover:scale-[1.02] active:scale-[0.98]"
-              >
-                Get Started Free
-              </a>
-              <p className="text-xs text-white/50 mt-2">No card required</p>
-            </div>
-          </div>
-        </Reveal>
+            <p className="mt-4 text-[11px] text-[#1b3d18]/50">
+              No credit card required • Instant access • Cancel anytime
+            </p>
+          </motion.div>
+        </div>
       </section>
-    </div>
+    </main>
   );
 }
+
