@@ -1,21 +1,36 @@
-import { defineConfig } from "eslint/config";
-import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+import { FlatCompat } from "@eslint/eslintrc";
 
-export default defineConfig([{
-    extends: [...nextCoreWebVitals],
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+});
+
+const eslintConfig = [
+  {
+    ignores: [
+      ".next/**",
+      "node_modules/**",
+      "dist/**",
+      "build/**",
+      ".turbo/**",
+      "coverage/**",
+    ],
+  },
+  ...compat.extends("next/core-web-vitals"),
+  {
     settings: {
-        next: {
-            rootDir: ".",
-        },
+      next: {
+        rootDir: ".",
+      },
     },
-
     rules: {
-        "react/no-unescaped-entities": "off",
-        // React Compiler rules — downgrade to warn until fully migrated
-        "react-hooks/set-state-in-effect": "warn",
-        "react-hooks/immutability": "warn",
-        "react-hooks/purity": "warn",
-        "react-hooks/static-components": "warn",
+      "react/no-unescaped-entities": "off",
     },
-}]);
+  },
+];
+
+export default eslintConfig;

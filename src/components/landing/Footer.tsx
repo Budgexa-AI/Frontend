@@ -22,7 +22,7 @@ function TwitterIcon({ size = 15, className = "" }: { size?: number; className?:
 }
 
 const SOCIALS = [
-  { label: "Instagram", href: "https://instagram.com/budgexa", Icon: Instagram },
+  { label: "Instagram", href: "https://www.instagram.com/budgexa_", Icon: Instagram },
   { label: "Twitter", href: "https://twitter.com/budgexa", Icon: TwitterIcon },
   { label: "LinkedIn", href: "https://linkedin.com/company/budgexa", Icon: Linkedin },
 ];

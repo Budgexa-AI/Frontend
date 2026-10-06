@@ -2,12 +2,43 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, Loader2, RefreshCw, Check } from "lucide-react";
+import {
+  ArrowLeft,
+  Loader2,
+  RefreshCw,
+  Mail,
+  CheckCircle2,
+  BarChart3,
+  ShieldCheck,
+  Zap,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { resendVerificationOtp, verifyEmailOtp } from "@/lib/api-client";
+import { motion } from "framer-motion";
 
 type FieldErrors = Partial<Record<string, string>>;
+
+/* ────────────────── Feature bullet items ────────────────── */
+
+const features = [
+  {
+    icon: BarChart3,
+    title: "Smart Insights",
+    desc: "AI analyzes your spending and uncovers opportunities to save more.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Secure & Private",
+    desc: "Your data is encrypted and protected with bank-level security.",
+  },
+  {
+    icon: Zap,
+    title: "Effortless Tracking",
+    desc: "Track budgets, expenses, and goals in one simple dashboard.",
+  },
+];
 
 function extractTokenFromVerifyResponse(response: unknown): string | null {
   if (!response || typeof response !== "object") {
@@ -31,6 +62,10 @@ function extractTokenFromVerifyResponse(response: unknown): string | null {
   return null;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   VERIFY EMAIL PAGE
+   ═══════════════════════════════════════════════════════════════ */
+
 export default function VerifyEmailPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -43,18 +78,20 @@ export default function VerifyEmailPage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
-
   const [timer, setTimer] = useState(60);
 
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   // Show success message on initial load
   useEffect(() => {
-    setTimeout(() => {
-        setSuccessMessage("Verification code sent to your email!");
-      }, 0);
+    const timerId = setTimeout(() => {
+      setSuccessMessage("Verification code sent to your email!");
+    }, 0);
     const timeout = setTimeout(() => setSuccessMessage(""), 5000);
-    return () => clearTimeout(timeout);
+    return () => {
+      clearTimeout(timerId);
+      clearTimeout(timeout);
+    };
   }, []);
 
   // Countdown timer
@@ -74,6 +111,14 @@ export default function VerifyEmailPage() {
     const next = [...otp];
     next[index] = value;
     setOtp(next);
+
+    if (errors.otp) {
+      setErrors((prev) => {
+        const copy = { ...prev };
+        delete copy.otp;
+        return copy;
+      });
+    }
 
     // Move forward
     if (value && index < 5) {
@@ -102,10 +147,17 @@ export default function VerifyEmailPage() {
     if (!pasted) return;
 
     const next = pasted.split("");
-
     while (next.length < 6) next.push("");
 
     setOtp(next);
+
+    if (errors.otp) {
+      setErrors((prev) => {
+        const copy = { ...prev };
+        delete copy.otp;
+        return copy;
+      });
+    }
 
     const lastIndex = Math.min(pasted.length - 1, 5);
     inputRefs.current[lastIndex]?.focus();
@@ -121,7 +173,7 @@ export default function VerifyEmailPage() {
 
     if (code.length !== 6) {
       setErrors({
-        otp: "Please enter the 6-digit verification code.",
+        otp: "Please enter the complete 6-digit verification code.",
       });
       return;
     }
@@ -129,11 +181,6 @@ export default function VerifyEmailPage() {
     setLoading(true);
 
     try {
-      console.log("[verify-email] verifying otp", {
-        email,
-        code,
-      });
-
       const response = await verifyEmailOtp({
         email,
         otp: code,
@@ -155,10 +202,7 @@ export default function VerifyEmailPage() {
       }
     } catch (err: any) {
       console.error("[verify-email] verification failed", err);
-
-      setServerError(
-        err.message || "Something went wrong. Please try again."
-      );
+      setServerError(err.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -172,8 +216,6 @@ export default function VerifyEmailPage() {
     setSuccessMessage("");
 
     try {
-      console.log("[verify-email] resending otp", { email });
-
       const response = await resendVerificationOtp(email);
 
       if (!response.success) {
@@ -182,133 +224,213 @@ export default function VerifyEmailPage() {
 
       setSuccessMessage("Verification code sent to your email!");
       setTimer(60);
-      
-      // Auto-hide success message after 5 seconds
+
       const timeout = setTimeout(() => setSuccessMessage(""), 5000);
       return () => clearTimeout(timeout);
     } catch (err: any) {
       console.error("[verify-email] resend failed", err);
-
-      setServerError(
-        err.message || "Could not resend verification code."
-      );
+      setServerError(err.message || "Could not resend verification code.");
     } finally {
       setResending(false);
     }
   }
 
   return (
-    <div className="w-full max-w-md">
-      <div className="rounded-3xl border border-Budgexa-beige-dark bg-white shadow-card-lg p-8">
-        {/* Back */}
-        <Link
-          href="/auth/signup"
-          className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-Budgexa-green/60 transition-colors hover:text-Budgexa-green"
+    <main className="min-h-[100dvh] pt-16 grid grid-cols-1 lg:grid-cols-2 bg-white">
+      {/* ══════════════════════════════════════════════════════════
+          LEFT PANEL — Botanical background + copy + features
+         ══════════════════════════════════════════════════════════ */}
+      <section className="relative hidden lg:flex flex-col justify-center lg:sticky lg:top-16 lg:h-[calc(100dvh-4rem)] lg:self-start overflow-hidden bg-[#FBF9F5]">
+        {/* Animated background image with smooth fade-in and subtle zoom reveal */}
+        <motion.div
+          initial={{ opacity: 0, scale: 1.06 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute inset-0"
         >
-          <ArrowLeft size={16} />
-          Back
-        </Link>
+          <Image
+            src="/images/signup-botanical-bg.webp"
+            alt="Budgexa botanical background"
+            fill
+            className="object-cover object-left"
+            priority
+            placeholder="blur"
+            blurDataURL="data:image/webp;base64,UklGRjYAAABXRUJQVlA4ICoAAACwAgCdASoUAAwAPzmEuVOvKKWisAgB4CcJaQAAeyAA/u39ZobeyUFAAAA="
+          />
+        </motion.div>
 
-        {/* Header */}
-        <div className="mb-8">
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-Budgexa-orange/10">
-            <div className="h-3 w-3 rounded-full bg-Budgexa-orange animate-pulse" />
-          </div>
-
-          <h1 className="font-display text-3xl font-bold text-Budgexa-green mb-2">
-            Verify your email
+        {/* Content overlay with smooth fade-in reveal */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+          className="relative z-10 pl-28 lg:pl-40 xl:pl-52 pr-8 xl:pr-14 py-8 flex flex-col justify-center h-full translate-x-[220px] -translate-y-[60px]"
+        >
+          {/* Heading */}
+          <h1 className="mb-4 max-w-md">
+            <span className="block font-serif text-[42px] xl:text-[46px] font-normal text-black leading-[1.08] tracking-tight">
+              Confirm your
+            </span>
+            <span className="block font-serif text-[42px] xl:text-[46px] font-normal text-black leading-[1.08] tracking-tight">
+              email <span className="text-[#1b3d18]">address.</span>
+            </span>
           </h1>
 
-          <p className="text-sm leading-relaxed text-Budgexa-green/60">
+          {/* Subtitle */}
+          <p className="text-[13px] text-[#1b3d18]/75 leading-relaxed max-w-[310px] mb-8 pr-3">
+            We just need to verify your email to secure your account and personalize your financial copilot.
+          </p>
+
+          {/* Feature bullets */}
+          <div className="space-y-4 max-w-[310px]">
+            {features.map((feat) => (
+              <div key={feat.title} className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-9 h-9 rounded-full bg-[#1b3d18]/8 border border-[#1b3d18]/10 flex items-center justify-center">
+                  <feat.icon size={16} className="text-[#1b3d18]" strokeWidth={1.8} />
+                </div>
+                <div className="flex-1 pr-3">
+                  <h3 className="text-[13px] font-bold text-[#1b3d18] mb-0.5">
+                    {feat.title}
+                  </h3>
+                  <p className="text-[11px] text-[#1b3d18]/65 leading-snug">
+                    {feat.desc}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════
+          RIGHT PANEL — Form card
+         ══════════════════════════════════════════════════════════ */}
+      <section className="bg-[#F2F0EB] flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 xl:px-12 py-6 lg:py-8 min-h-[calc(100dvh-4rem)]">
+        {/* Mobile-only heading */}
+        <div className="lg:hidden mb-4 text-center max-w-sm">
+          <h1 className="font-serif text-2xl font-normal text-black tracking-tight">
+            Verify your <span className="text-[#1b3d18]">email.</span>
+          </h1>
+          <p className="text-xs text-[#1b3d18]/70 mt-1">
             We sent a 6-digit verification code to{" "}
-            <span className="font-semibold text-Budgexa-green">
+            <span className="font-semibold text-[#1b3d18]">
               {email || "your email"}
-            </span>
+            </span>.
           </p>
         </div>
 
-        {/* Error */}
-        {serverError && (
-          <div className="mb-5 rounded-xl border border-Budgexa-alert/20 bg-Budgexa-alert/10 px-4 py-3 text-sm text-Budgexa-alert">
-            {serverError}
+        {/* White form card with smooth fade-in reveal */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-[420px] bg-white rounded-2xl sm:rounded-3xl border border-[#e5e2db] shadow-sm px-6 sm:px-8 py-7 sm:py-8"
+        >
+          {/* Back link */}
+          <div className="mb-4">
+            <Link
+              href="/auth/signup"
+              className="inline-flex items-center gap-1.5 text-[11.5px] font-medium text-[#1b3d18]/70 hover:text-[#1b3d18] transition-colors"
+            >
+              <ArrowLeft size={13} />
+              Back
+            </Link>
           </div>
-        )}
 
-        {/* Success */}
-        {successMessage && (
-          <div className="mb-5 rounded-xl border border-Budgexa-green/20 bg-Budgexa-green/5 px-4 py-3 text-sm text-Budgexa-green flex items-center gap-2">
-            <Check size={16} className="flex-shrink-0" />
-            {successMessage}
+          {/* Card heading */}
+          <div className="mb-6">
+            <div className="w-10 h-10 rounded-xl bg-[#1b3d18]/8 border border-[#1b3d18]/12 flex items-center justify-center mb-3">
+              <Mail size={18} className="text-[#1b3d18]" strokeWidth={2} />
+            </div>
+            <h2 className="font-serif text-[22px] sm:text-[24px] font-bold text-[#1b3d18] tracking-tight leading-tight">
+              Verify your email
+            </h2>
+            <p className="text-[12px] sm:text-[12.5px] text-[#1b3d18]/65 mt-1.5 leading-relaxed">
+              We sent a 6-digit verification code to{" "}
+              <span className="font-semibold text-[#1b3d18] break-all">
+                {email || "your email"}
+              </span>
+            </p>
           </div>
-        )}
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} noValidate>
-          {/* OTP Inputs */}
-          <div className="mb-3">
-            <label className="mb-3 block text-sm font-semibold text-Budgexa-green">
-              Verification code
-            </label>
+          {serverError && (
+            <div className="mb-4 rounded-xl bg-red-50 border border-red-200 px-3.5 py-2 text-[12px] text-red-600">
+              {serverError}
+            </div>
+          )}
 
-            <div className="flex items-center justify-between gap-1.5 w-full">
-              {otp.map((digit, index) => (
-                <input
-                  key={index}
-                  ref={(el) => {
-                    inputRefs.current[index] = el;
-                  }}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => updateOtp(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(e, index)}
-                  onPaste={handlePaste}
-                  className={cn(
-                    "h-12 w-full min-w-0 rounded-2xl border bg-white text-center text-lg font-semibold text-Budgexa-green outline-none transition-all",
-                    "focus:ring-2 focus:ring-Budgexa-green/20",
-                    errors.otp
-                      ? "border-Budgexa-alert"
-                      : "border-Budgexa-beige-dark focus:border-Budgexa-green"
-                  )}
-                />
-              ))}
+          {successMessage && (
+            <div className="mb-4 rounded-xl bg-emerald-50 border border-emerald-200 px-3.5 py-2.5 text-[12px] text-emerald-800 flex items-start gap-2">
+              <CheckCircle2 size={16} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+              <span>{successMessage}</span>
+            </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} noValidate>
+            <div className="mb-2">
+              <label className="block text-[10px] font-bold tracking-[0.1em] uppercase text-[#1b3d18] mb-2">
+                VERIFICATION CODE
+              </label>
+
+              <div className="flex items-center justify-between gap-1.5 sm:gap-2 w-full">
+                {otp.map((digit, index) => (
+                  <input
+                    key={index}
+                    ref={(el) => {
+                      inputRefs.current[index] = el;
+                    }}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => updateOtp(index, e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(e, index)}
+                    onPaste={handlePaste}
+                    aria-label={`Digit ${index + 1}`}
+                    className={cn(
+                      "h-12 w-full min-w-0 rounded-xl border bg-white text-center text-lg font-bold text-[#1b3d18] outline-none transition-all",
+                      errors.otp
+                        ? "border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-400"
+                        : "border-[#d9d6cf] focus:border-[#1b3d18] focus:ring-1 focus:ring-[#1b3d18] hover:border-[#1b3d18]/50"
+                    )}
+                  />
+                ))}
+              </div>
+
+              {errors.otp && (
+                <p className="mt-2 text-[10.5px] text-red-500">{errors.otp}</p>
+              )}
             </div>
 
-            {errors.otp && (
-              <p className="mt-2 text-xs text-Budgexa-alert">
-                {errors.otp}
-              </p>
-            )}
-          </div>
+            {/* Verify Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className={cn(
+                "w-full rounded-xl bg-[#1b3d18] hover:bg-[#254F22] text-white font-semibold py-3 px-4 text-[13px] transition-all hover:shadow-md active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2 mt-5",
+                "disabled:opacity-60 disabled:cursor-not-allowed"
+              )}
+            >
+              {loading ? (
+                <span className="inline-flex items-center justify-center gap-2 text-[12.5px]">
+                  <Loader2 size={15} className="animate-spin" /> Verifying code…
+                </span>
+              ) : (
+                "Verify Email"
+              )}
+            </button>
+          </form>
 
-          {/* Verify Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn-primary mt-6 w-full py-3.5 text-base disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {loading ? (
-              <>
-                <Loader2 size={16} className="animate-spin" />
-                Verifying…
-              </>
-            ) : (
-              "Verify email →"
-            )}
-          </button>
-        </form>
-
-        {/* Resend */}
-        <div className="mt-6 rounded-2xl border border-Budgexa-beige-dark bg-Budgexa-beige-light/40 p-4">
-          <div className="flex items-start justify-between gap-4">
+          {/* Resend Box */}
+          <div className="mt-5 rounded-xl border border-[#e5e2db] bg-[#FBF9F5] p-3.5 flex items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-medium text-Budgexa-green">
-                Didn’t receive the code?
+              <p className="text-[11.5px] font-semibold text-[#1b3d18]">
+                Didn&apos;t receive the code?
               </p>
-
-              <p className="mt-1 text-xs leading-relaxed text-Budgexa-green/60">
-                Check your spam folder or resend the verification code.
+              <p className="text-[10.5px] text-[#1b3d18]/60 mt-0.5">
+                Check spam or request a new code.
               </p>
             </div>
 
@@ -317,38 +439,40 @@ export default function VerifyEmailPage() {
               onClick={handleResendCode}
               disabled={timer > 0 || resending}
               className={cn(
-                "inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-all",
+                "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11.5px] font-semibold transition-all flex-shrink-0 cursor-pointer",
                 timer > 0 || resending
-                  ? "cursor-not-allowed bg-Budgexa-beige-dark/50 text-Budgexa-green/40"
-                  : "bg-Budgexa-green text-white hover:opacity-90"
+                  ? "bg-[#1b3d18]/8 text-[#1b3d18]/40 cursor-not-allowed"
+                  : "bg-[#1b3d18] text-white hover:bg-[#254F22] active:scale-[0.98]"
               )}
             >
               {resending ? (
                 <>
-                  <Loader2 size={14} className="animate-spin" />
-                  Sending
+                  <Loader2 size={12} className="animate-spin" /> Sending…
+                </>
+              ) : timer > 0 ? (
+                <>
+                  <RefreshCw size={12} className="opacity-60" /> {timer}s
                 </>
               ) : (
                 <>
-                  <RefreshCw size={14} />
-                  {timer > 0 ? `${timer}s` : "Resend"}
+                  <RefreshCw size={12} /> Resend
                 </>
               )}
             </button>
           </div>
-        </div>
 
-        {/* Footer */}
-        <p className="mt-6 text-center text-sm text-Budgexa-green/60">
-          Wrong email?{" "}
-          <Link
-            href="/auth/signup"
-            className="font-semibold text-Budgexa-green transition-colors hover:text-Budgexa-orange"
-          >
-            Go back
-          </Link>
-        </p>
-      </div>
-    </div>
+          {/* Footer */}
+          <p className="text-center text-[11.5px] text-[#1b3d18]/60 mt-5 pt-4 border-t border-[#1b3d18]/10">
+            Entered the wrong email?{" "}
+            <Link
+              href="/auth/signup"
+              className="font-bold text-[#1b3d18] hover:underline transition-colors"
+            >
+              Change email
+            </Link>
+          </p>
+        </motion.div>
+      </section>
+    </main>
   );
 }
