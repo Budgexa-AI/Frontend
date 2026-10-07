@@ -37,7 +37,7 @@ function ThreadsIcon({ size = 15, className = "" }: { size?: number; className?:
 
 const SOCIALS = [
   { label: "Instagram", href: "https://www.instagram.com/budgexa_", Icon: Instagram },
-  { label: "Threads", href: "https://www.threads.net/@budgexa_", Icon: ThreadsIcon },
+  { label: "Threads", href: "https://www.threads.com/@budgexa_", Icon: ThreadsIcon },
   { label: "Twitter", href: "https://twitter.com/budgexa", Icon: TwitterIcon },
   { label: "LinkedIn", href: "https://linkedin.com/company/budgexa", Icon: Linkedin },
 ];
