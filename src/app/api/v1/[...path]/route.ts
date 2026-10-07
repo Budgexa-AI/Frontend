@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 
 const BACKEND_BASE_URL =
-  process.env.BACKEND_URL || "https://Budgexa-backend-yg0v.onrender.com";
+  process.env.BACKEND_URL || "https://budgexa-staging.up.railway.app";
 
 function extractErrorMessage(payload: unknown, fallback: string): string {
   if (!payload) return fallback;

@@ -90,7 +90,7 @@ function getAppBaseUrl(): string {
     return appUrl.replace(/\/$/, "");
   }
 
-  return "https://Budgexa-backend-yg0v.onrender.com";
+  return "https://budgexa-staging.up.railway.app";
 }
 
 function proxyPath(path: string): string {
@@ -553,7 +553,7 @@ export async function resendResetPassword(
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
-  "https://Budgexa-backend-yg0v.onrender.com";
+  "https://budgexa-staging.up.railway.app";
 
 /**
  * Redirects the browser to the backend Google OAuth endpoint.
