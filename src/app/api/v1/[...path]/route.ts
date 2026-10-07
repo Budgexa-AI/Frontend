@@ -1,7 +1,11 @@
 // app/api/v1/[...path]/route.ts
 import { NextResponse } from "next/server";
 
-const BACKEND_BASE_URL = process.env.BACKEND_URL || "http://localhost:3001";
+const BACKEND_BASE_URL =
+  process.env.BACKEND_URL ||
+  process.env.NEXT_PUBLIC_BACKEND_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "";
 
 function extractErrorMessage(payload: unknown, fallback: string): string {
   if (!payload) return fallback;
@@ -42,6 +46,13 @@ async function proxyRequest(
   request: Request,
   pathSegments: string[]
 ): Promise<Response> {
+  if (!BACKEND_BASE_URL) {
+    return NextResponse.json(
+      { success: false, error: "BACKEND_URL is not configured" },
+      { status: 500 }
+    );
+  }
+
   const path = pathSegments.join("/");
   const base = BACKEND_BASE_URL.replace(/\/$/, "");
   const pathUrl = `/api/v1/${path}`;

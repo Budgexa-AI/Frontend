@@ -80,7 +80,10 @@ function getAppBaseUrl(): string {
   }
 
   // Server-side: talk to the backend directly and skip the self-proxy hop.
-  const backendUrl = process.env.BACKEND_URL;
+  const backendUrl =
+    process.env.BACKEND_URL ||
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    process.env.NEXT_PUBLIC_API_URL;
   if (backendUrl) {
     return backendUrl.replace(/\/$/, "");
   }
@@ -90,7 +93,7 @@ function getAppBaseUrl(): string {
     return appUrl.replace(/\/$/, "");
   }
 
-  return "http://localhost:3001";
+  return "";
 }
 
 function proxyPath(path: string): string {
@@ -550,7 +553,10 @@ export async function resendResetPassword(
 
 // The Railway backend URL used only for Google OAuth (direct browser redirect).
 // All other API calls go through the Next.js proxy at /api/v1/*.
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "";
 
 /**
  * Redirects the browser to the backend Google OAuth endpoint.
@@ -1237,14 +1243,24 @@ export interface LogoutResponse {
 }
 
 export async function logout(): Promise<LogoutResponse> {
-  const endpoint = proxyPath("/logout");
+  let endpoint = proxyPath("/logout");
   logApiEvent("logout request", { endpoint });
 
-  const res = await fetch(endpoint, {
+  let res = await fetch(endpoint, {
     method: "POST",
     headers: createHeaders(),
     credentials: "include",
   });
+
+  if (!res.ok && res.status === 404) {
+    endpoint = proxyPath("/auth/logout");
+    logApiEvent("trying fallback logout endpoint", { endpoint });
+    res = await fetch(endpoint, {
+      method: "POST",
+      headers: createHeaders(),
+      credentials: "include",
+    });
+  }
 
   if (!res.ok) {
     const contentType = res.headers.get("content-type") || "";

@@ -6,8 +6,8 @@ interface BadgeProps {
 }
 
 export const Badge: FC<BadgeProps> = ({ icon, label }) => (
-  <span className="inline-flex items-center gap-2 bg-white/[0.08] border border-white/[0.15] rounded-full px-[18px] py-2 text-[#e5e0d0]/90 text-[13px] font-medium">
-    <span className="text-[#e8673a]">{icon}</span>
-    {label}
+  <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs sm:text-sm font-medium text-white/90 backdrop-blur-sm">
+    <span className="text-[#F5824A]">{icon}</span>
+    <span>{label}</span>
   </span>
 );

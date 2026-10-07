@@ -5,7 +5,11 @@ const API_URL = getApiBaseUrl();
 function getApiBaseUrl() {
   const configuredUrl =
     process.env.BACKEND_URL ||
-    "http://localhost:4000";
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    process.env.NEXT_PUBLIC_API_URL;
+  if (!configuredUrl) {
+    return "";
+  }
 
   if (/^https?:\/\//i.test(configuredUrl)) {
     return configuredUrl.replace(/\/$/, "");

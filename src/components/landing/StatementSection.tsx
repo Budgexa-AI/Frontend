@@ -1,13 +1,26 @@
-// components/landing/StatementSection.tsx
+"use client";
+
+import { motion } from "framer-motion";
+
 export default function StatementSection() {
   return (
-    <section className="grid grid-cols-1 border-b border-Budgexa-beige-dark bg-Budgexa-beige-light sm:grid-cols-2">
-      <h2 className="px-6 py-10 font-display text-3xl font-bold leading-tight tracking-tight text-Budgexa-green sm:px-10 sm:text-4xl">
-        Nobody taught us{" "}
-        <span className="text-transparent [-webkit-text-stroke:1px_#254F22]">this.</span> So we
-        built the guide we wish we&apos;d had.
-      </h2>
-      <div className="hidden border-l border-Budgexa-beige-dark sm:block" />
+    <section className="grid grid-cols-1 border-b border-[#e5e2db] bg-[#F7F5EE] lg:grid-cols-[50%_50%] overflow-hidden">
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="px-6 py-10 sm:px-12 sm:py-14"
+      >
+        <h2 className="font-serif text-2xl sm:text-3xl lg:text-[34px] font-normal leading-tight tracking-tight text-black">
+          Nobody taught us{" "}
+          <span className="font-serif text-transparent [-webkit-text-stroke:1.2px_#F5824A]">
+            this.
+          </span>{" "}
+          So we built the guide we wish we&apos;d had.
+        </h2>
+      </motion.div>
+      <div className="hidden border-l border-[#e5e2db] lg:block" />
     </section>
   );
 }
