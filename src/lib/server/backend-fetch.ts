@@ -2,7 +2,10 @@ import { cookies } from "next/headers";
 
 /** Direct backend base URL — skips the Next.js self-proxy hop during SSR. */
 export function getBackendBaseUrl(): string {
-  const backendUrl = process.env.BACKEND_URL;
+  const backendUrl =
+    process.env.BACKEND_URL ||
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    process.env.NEXT_PUBLIC_API_URL;
   if (!backendUrl) {
     throw new Error("BACKEND_URL environment variable is not configured.");
   }

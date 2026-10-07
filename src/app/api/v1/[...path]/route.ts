@@ -1,7 +1,11 @@
 // app/api/v1/[...path]/route.ts
 import { NextResponse } from "next/server";
 
-const BACKEND_BASE_URL = process.env.BACKEND_URL || "";
+const BACKEND_BASE_URL =
+  process.env.BACKEND_URL ||
+  process.env.NEXT_PUBLIC_BACKEND_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "";
 
 function extractErrorMessage(payload: unknown, fallback: string): string {
   if (!payload) return fallback;

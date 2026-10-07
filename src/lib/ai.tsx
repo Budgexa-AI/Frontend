@@ -3,7 +3,10 @@ import { ChatResponse, Message } from "./types";
 const API_URL = getApiBaseUrl();
 
 function getApiBaseUrl() {
-  const configuredUrl = process.env.BACKEND_URL;
+  const configuredUrl =
+    process.env.BACKEND_URL ||
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    process.env.NEXT_PUBLIC_API_URL;
   if (!configuredUrl) {
     return "";
   }

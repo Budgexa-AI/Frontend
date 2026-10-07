@@ -80,7 +80,10 @@ function getAppBaseUrl(): string {
   }
 
   // Server-side: talk to the backend directly and skip the self-proxy hop.
-  const backendUrl = process.env.BACKEND_URL;
+  const backendUrl =
+    process.env.BACKEND_URL ||
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    process.env.NEXT_PUBLIC_API_URL;
   if (backendUrl) {
     return backendUrl.replace(/\/$/, "");
   }

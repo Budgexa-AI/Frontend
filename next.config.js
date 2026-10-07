@@ -30,14 +30,14 @@ const nextConfig = {
         { key: "Permissions-Policy",        value: "camera=(), microphone=(), geolocation=()" },
         {
           key: "Content-Security-Policy",
-            [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.fontshare.com",
-              "font-src 'self' https://fonts.gstatic.com https://api.fontshare.com",
-              "img-src 'self' data: blob: https://*.supabase.co",
-              `connect-src 'self' ${process.env.NEXT_PUBLIC_BACKEND_URL || process.env.BACKEND_URL || ""} https://o4511406333427712.ingest.de.sentry.io`.replace(/\s+/g, " ").trim(),
-            ].join("; "),
+          value: [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.fontshare.com",
+            "font-src 'self' https://fonts.gstatic.com https://api.fontshare.com",
+            "img-src 'self' data: blob: https://*.supabase.co",
+            `connect-src 'self' ${process.env.NEXT_PUBLIC_BACKEND_URL || process.env.BACKEND_URL || ""} https://o4511406333427712.ingest.de.sentry.io`.replace(/\s+/g, " ").trim(),
+          ].join("; "),
         },
       ],
     },
