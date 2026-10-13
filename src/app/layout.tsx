@@ -18,7 +18,7 @@ export function generateMetadata(): Metadata {
       description,
       type: "website",
       locale: "en_NG",
-      url: "https://Budgexafinance.com", // Replace with your actual production URL
+      url: "https://budgexa.app", 
     },
     themeColor: "#254F22",
     icons: {
