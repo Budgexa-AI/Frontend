@@ -568,8 +568,9 @@ const BACKEND_URL =
  * Only call this client-side.
  */
 export function signInWithGoogle(redirectUrl: string, errorUrl: string) {
+  const base = (BACKEND_URL || "").replace(/\/+$/, "");
   const googleOAuthUrl =
-    `${BACKEND_URL}/api/v1/auth/google` +
+    `${base}/api/v1/auth/google` +
     `?redirectUrl=${encodeURIComponent(redirectUrl)}` +
     `&errorUrl=${encodeURIComponent(errorUrl)}`;
 
