@@ -37,7 +37,7 @@ const nextConfig = {
             "font-src 'self' https://fonts.gstatic.com https://api.fontshare.com",
             "img-src 'self' data: blob: https://*.supabase.co",
             `connect-src 'self' ${(process.env.NEXT_PUBLIC_BACKEND_URL || process.env.BACKEND_URL || "").replace(/\/$/, "")} https://o4511406333427712.ingest.de.sentry.io`.replace(/\s+/g, " ").trim(),
-          ].join("; "),
+             ].join("; "),
         },
       ],
     },
