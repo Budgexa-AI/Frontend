@@ -16,7 +16,7 @@ import {
   TrendingUp,
   Wallet,
 } from "lucide-react";
-import { formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { getCategoryColor } from "@/lib/chart-colors";
 import type { DashboardState, AiInsight as DBAiInsight } from "@/lib/types/src";
 import { fetchDashboardData, seedCache } from "@/lib/data-service";
@@ -37,60 +37,190 @@ function deriveInsight(insights?: DBAiInsight[], index: number = 0) {
   };
 }
 
-const RADIUS = 40;
-const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+type PieSlice = {
+  label: string;
+  amount: number;
+  pct: number;
+  color: string;
+  startAngle: number;
+  endAngle: number;
+  midAngle: number;
+  path: string;
+  isFullCircle: boolean;
+};
 
-function buildDonutSegments(
-  spending: Array<{ label: string; amount: number; pct: number; color: string }>
-) {
-  let cumulative = 0;
+const PIE_CENTER = 110;
+const PIE_RADIUS = 90;
+const HOVER_OFFSET = 8;
+
+function calculatePieSlices(
+  spending: Array<{ label: string; amount: number; pct: number; color: string }>,
+  cx: number = PIE_CENTER,
+  cy: number = PIE_CENTER,
+  r: number = PIE_RADIUS
+): PieSlice[] {
+  const totalAmount = spending.reduce((sum, item) => sum + (item.amount > 0 ? item.amount : 0), 0);
+  const totalPct = spending.reduce((sum, item) => sum + (item.pct > 0 ? item.pct : 0), 0);
+
+  const validItems = spending.filter((item) => item.amount > 0 || item.pct > 0);
+  if (validItems.length === 1) {
+    const single = validItems[0];
+    return [
+      {
+        ...single,
+        startAngle: 0,
+        endAngle: 2 * Math.PI,
+        midAngle: 0,
+        path: "",
+        isFullCircle: true,
+      },
+    ];
+  }
+
+  let cumulativeAngle = -Math.PI / 2; // Start from 12 o'clock
+
   return spending.map((item) => {
-    const dash = (item.pct / 100) * CIRCUMFERENCE;
-    const gap = CIRCUMFERENCE - dash;
-    const offset = -(cumulative / 100) * CIRCUMFERENCE;
-    cumulative += item.pct;
-    return { ...item, dash, gap, offset };
+    let fraction = 0;
+    if (totalAmount > 0) {
+      fraction = Math.max(0, item.amount) / totalAmount;
+    } else if (totalPct > 0) {
+      fraction = Math.max(0, item.pct) / totalPct;
+    } else {
+      fraction = spending.length > 0 ? 1 / spending.length : 0;
+    }
+
+    const angle = fraction * 2 * Math.PI;
+    const startAngle = cumulativeAngle;
+    const endAngle = cumulativeAngle + angle;
+    const midAngle = startAngle + angle / 2;
+    cumulativeAngle = endAngle;
+
+    if (fraction >= 0.9999) {
+      return {
+        ...item,
+        startAngle,
+        endAngle,
+        midAngle,
+        path: "",
+        isFullCircle: true,
+      };
+    }
+
+    const x1 = cx + r * Math.cos(startAngle);
+    const y1 = cy + r * Math.sin(startAngle);
+    const x2 = cx + r * Math.cos(endAngle);
+    const y2 = cy + r * Math.sin(endAngle);
+
+    const largeArcFlag = angle > Math.PI ? 1 : 0;
+    const path = `M ${cx} ${cy} L ${x1.toFixed(3)} ${y1.toFixed(3)} A ${r} ${r} 0 ${largeArcFlag} 1 ${x2.toFixed(3)} ${y2.toFixed(3)} Z`;
+
+    return {
+      ...item,
+      startAngle,
+      endAngle,
+      midAngle,
+      path,
+      isFullCircle: false,
+    };
   });
 }
 
-function DonutChart({
+function PieChart({
   spending,
-  totalExpenses,
-  currency,
+  hoveredIndex,
+  onHoverIndex,
 }: {
   spending: Array<{ label: string; amount: number; pct: number; color: string }>;
-  totalExpenses: number;
-  currency: string;
+  hoveredIndex: number | null;
+  onHoverIndex: (index: number | null) => void;
 }) {
-  const segments = buildDonutSegments(spending);
+  const slices = useMemo(() => calculatePieSlices(spending), [spending]);
 
   return (
-    <div className="rounded-full bg-Budgexa-green p-5 shadow-inner">
-      <div className="relative h-36 w-36">
-        <svg viewBox="0 0 100 100" className="-rotate-90">
-          {segments.map((seg, i) => (
-            <circle
-              key={i}
-              cx="50"
-              cy="50"
-              r={RADIUS}
-              fill="none"
-              stroke={seg.color}
-              strokeWidth="12"
-              strokeDasharray={`${seg.dash} ${seg.gap}`}
-              strokeDashoffset={seg.offset}
-              strokeLinecap="round"
-            />
-          ))}
-        </svg>
+    <div className="relative flex items-center justify-center p-2">
+      <svg
+        viewBox="0 0 220 220"
+        className="h-48 w-48 select-none drop-shadow-sm transition-transform duration-300 sm:h-52 sm:w-52"
+        onMouseLeave={() => onHoverIndex(null)}
+      >
+        {slices.map((slice, i) => {
+          const isHovered = hoveredIndex === i;
+          const isOtherHovered = hoveredIndex !== null && !isHovered;
 
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <p className="text-xs text-Budgexa-beige/80">Expenses</p>
-          <h3 className="mt-1 text-2xl font-bold tracking-tight text-white">
-            {formatCurrency(Math.round(totalExpenses / 1000), currency)}k
-          </h3>
-        </div>
-      </div>
+          const offsetX = isHovered ? Math.cos(slice.midAngle) * HOVER_OFFSET : 0;
+          const offsetY = isHovered ? Math.sin(slice.midAngle) * HOVER_OFFSET : 0;
+
+          const textX = PIE_CENTER + PIE_RADIUS * 0.62 * Math.cos(slice.midAngle) + offsetX;
+          const textY = PIE_CENTER + PIE_RADIUS * 0.62 * Math.sin(slice.midAngle) + offsetY;
+          const showText = slice.pct >= 10;
+
+          if (slice.isFullCircle) {
+            return (
+              <g
+                key={slice.label}
+                onMouseEnter={() => onHoverIndex(i)}
+                className="cursor-pointer transition-all duration-200"
+              >
+                <circle
+                  cx={PIE_CENTER}
+                  cy={PIE_CENTER}
+                  r={PIE_RADIUS}
+                  fill={slice.color}
+                  stroke="#ffffff"
+                  strokeWidth="2.5"
+                />
+                <text
+                  x={PIE_CENTER}
+                  y={PIE_CENTER}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  fill="#ffffff"
+                  fontSize="13"
+                  fontWeight="700"
+                  className="pointer-events-none drop-shadow"
+                >
+                  {slice.pct}%
+                </text>
+              </g>
+            );
+          }
+
+          return (
+            <g
+              key={slice.label}
+              onMouseEnter={() => onHoverIndex(i)}
+              className="cursor-pointer transition-all duration-200"
+              style={{
+                transform: `translate(${offsetX.toFixed(2)}px, ${offsetY.toFixed(2)}px)`,
+                transition: "transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease",
+                opacity: isOtherHovered ? 0.6 : 1,
+              }}
+            >
+              <path
+                d={slice.path}
+                fill={slice.color}
+                stroke="#ffffff"
+                strokeWidth="2.5"
+                strokeLinejoin="round"
+              />
+              {showText && (
+                <text
+                  x={textX.toFixed(2)}
+                  y={textY.toFixed(2)}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  fill="#ffffff"
+                  fontSize="11"
+                  fontWeight="700"
+                  className="pointer-events-none select-none drop-shadow-sm"
+                >
+                  {slice.pct}%
+                </text>
+              )}
+            </g>
+          );
+        })}
+      </svg>
     </div>
   );
 }
@@ -114,6 +244,7 @@ export default function DashboardClient({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(initialError);
   const [currentInsightIndex, setCurrentInsightIndex] = useState(0);
+  const [hoveredSpendingIndex, setHoveredSpendingIndex] = useState<number | null>(null);
   const { profile } = useCurrentUser();
   const currency = profile?.currency ?? "NGN";
   const [data, setData] = useState<DashboardState>(initialData);
@@ -213,6 +344,7 @@ export default function DashboardClient({
   const currentInsight = useMemo(() => deriveInsight(data.insights, currentInsightIndex), [data.insights, currentInsightIndex]);
   const recentTxs = data.recentTransactions;
   const highestSpendingCategory = spending[0]?.label ?? "N/A";
+  const activeSpendingCategory = hoveredSpendingIndex !== null ? spending[hoveredSpendingIndex] : null;
 
   return (
     <main className="min-h-screen bg-Budgexa-beige">
@@ -373,10 +505,10 @@ export default function DashboardClient({
                   {loading ? (
                     <div className="h-48 w-48 animate-pulse rounded-full bg-Budgexa-beige" />
                   ) : spending.length > 0 ? (
-                    <DonutChart
+                    <PieChart
                       spending={spending}
-                      totalExpenses={data.monthlyExpenses}
-                      currency={currency}
+                      hoveredIndex={hoveredSpendingIndex}
+                      onHoverIndex={setHoveredSpendingIndex}
                     />
                   ) : (
                     <div className="flex h-48 w-48 items-center justify-center rounded-full bg-Budgexa-ash text-sm text-Budgexa-green/50">
@@ -385,30 +517,84 @@ export default function DashboardClient({
                   )}
 
                   {!loading && spending.length > 0 && (
-                    <div className="mt-5 rounded-2xl bg-Budgexa-ash px-4 py-3 text-center">
-                      <p className="text-sm font-medium text-Budgexa-green">
-                        Highest spending category: {highestSpendingCategory}
-                      </p>
+                    <div className="mt-4 flex min-h-[48px] w-full items-center justify-between rounded-2xl bg-Budgexa-ash px-4 py-2.5 transition-all">
+                      {activeSpendingCategory ? (
+                        <div className="flex w-full items-center justify-between gap-3">
+                          <div className="flex min-w-0 items-center gap-2.5">
+                            <div
+                              className="h-3 w-3 shrink-0 rounded-full"
+                              style={{ backgroundColor: activeSpendingCategory.color }}
+                            />
+                            <span className="truncate text-sm font-semibold text-Budgexa-green">
+                              {activeSpendingCategory.label}
+                            </span>
+                          </div>
+                          <div className="flex shrink-0 items-center gap-2">
+                            <span className="text-sm font-bold text-Budgexa-green">
+                              {formatCurrency(activeSpendingCategory.amount, currency)}
+                            </span>
+                            <span className="rounded-full bg-Budgexa-green/10 px-2 py-0.5 text-xs font-semibold text-Budgexa-green">
+                              {activeSpendingCategory.pct}%
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex w-full items-center justify-between gap-3">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs text-Budgexa-green/60">Total:</span>
+                            <span className="text-sm font-bold text-Budgexa-green">
+                              {formatCurrency(data.monthlyExpenses, currency)}
+                            </span>
+                          </div>
+                          <div className="text-xs text-Budgexa-green/70">
+                            Top:{" "}
+                            <span className="font-semibold text-Budgexa-green">
+                              {highestSpendingCategory}
+                            </span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 
-                  <div className="mt-7 w-full space-y-5">
-                    {spending.map((item) => (
-                      <div key={item.label} className="flex items-start justify-between gap-4">
-                        <div className="flex items-start gap-3">
-                          <div
-                            className="mt-1 h-3 w-3 shrink-0 rounded-full"
-                            style={{ backgroundColor: item.color }}
-                          />
-                          <div>
-                            <p className="text-sm font-semibold text-Budgexa-green">{item.label}</p>
-                            <p className="mt-1 text-xs text-Budgexa-green/55">
-                              {formatCurrency(item.amount, currency)} • {item.pct}%
-                            </p>
+                  <div className="mt-5 w-full space-y-2">
+                    {spending.map((item, index) => {
+                      const isHovered = hoveredSpendingIndex === index;
+                      return (
+                        <div
+                          key={item.label}
+                          onMouseEnter={() => setHoveredSpendingIndex(index)}
+                          onMouseLeave={() => setHoveredSpendingIndex(null)}
+                          className={cn(
+                            "flex items-center justify-between rounded-2xl p-2.5 transition-all cursor-pointer",
+                            isHovered
+                              ? "bg-Budgexa-ash shadow-sm"
+                              : "hover:bg-Budgexa-ash/60"
+                          )}
+                        >
+                          <div className="flex min-w-0 items-center gap-3">
+                            <div
+                              className="h-3 w-3 shrink-0 rounded-full transition-transform duration-200"
+                              style={{
+                                backgroundColor: item.color,
+                                transform: isHovered ? "scale(1.25)" : "scale(1)",
+                              }}
+                            />
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-semibold text-Budgexa-green">
+                                {item.label}
+                              </p>
+                              <p className="mt-0.5 text-xs text-Budgexa-green/55">
+                                {formatCurrency(item.amount, currency)}
+                              </p>
+                            </div>
                           </div>
+                          <span className="shrink-0 text-xs font-bold text-Budgexa-green/80">
+                            {item.pct}%
+                          </span>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
