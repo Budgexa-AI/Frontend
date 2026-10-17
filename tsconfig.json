@@ -43,8 +43,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "src/lib/category.ts",
-    ".next/dev/types/**/*.ts"
+    "src/lib/category.ts"
   ],
   "exclude": [
     "node_modules"
