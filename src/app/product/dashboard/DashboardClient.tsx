@@ -18,8 +18,9 @@ import {
 } from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
 import { getCategoryColor } from "@/lib/chart-colors";
-import type { DashboardState, AiInsight as DBAiInsight } from "@/lib/types/src";
-import { fetchDashboardData, seedCache } from "@/lib/data-service";
+import { CATEGORIES, toBudgetCategory } from "@/lib/category";
+import type { DashboardState, AiInsight as DBAiInsight, Category } from "@/lib/types/src";
+import { fetchDashboardData, fetchCategories, seedCache } from "@/lib/data-service";
 import { useCurrentUser } from "@/hooks/useUser";
 
 type DashboardClientProps = {
@@ -157,7 +158,7 @@ function PieChart({
           if (slice.isFullCircle) {
             return (
               <g
-                key={slice.label}
+                key={`${slice.label}-${i}`}
                 onMouseEnter={() => onHoverIndex(i)}
                 className="cursor-pointer transition-all duration-200"
               >
@@ -187,7 +188,7 @@ function PieChart({
 
           return (
             <g
-              key={slice.label}
+              key={`${slice.label}-${i}`}
               onMouseEnter={() => onHoverIndex(i)}
               className="cursor-pointer transition-all duration-200"
               style={{
@@ -236,6 +237,21 @@ function SkeletonCard() {
   );
 }
 
+const DEFAULT_EXPENSE_NAMES = [
+  "Food & Dining",
+  "Housing & Rent",
+  "Transportation",
+  "Bills & Utilities",
+  "Entertainment",
+  "Shopping",
+  "Healthcare",
+  "Education",
+  "Personal Care",
+  "Travel",
+  "Subscriptions",
+  "Miscellaneous",
+];
+
 export default function DashboardClient({
   initialData,
   initialError = null,
@@ -245,6 +261,19 @@ export default function DashboardClient({
   const [error, setError] = useState<string | null>(initialError);
   const [currentInsightIndex, setCurrentInsightIndex] = useState(0);
   const [hoveredSpendingIndex, setHoveredSpendingIndex] = useState<number | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    fetchCategories()
+      .then(setCategories)
+      .catch(() => setCategories([]));
+  }, []);
+
+  const categoryById = useMemo(() => {
+    const map = new Map<number, Category>();
+    categories.forEach((c) => map.set(c.id, c));
+    return map;
+  }, [categories]);
   const { profile } = useCurrentUser();
   const currency = profile?.currency ?? "NGN";
   const [data, setData] = useState<DashboardState>(initialData);
@@ -307,28 +336,89 @@ export default function DashboardClient({
     [data]
   );
 
-  const spending = useMemo(
-    () =>
-      data.spendingByCategory.map((item) => ({
-        label: item.parentSlug,
-        amount: item.amount,
-        pct: item.percentage,
-        color: getCategoryColor(item.parentSlug),
-      })),
-    [data.spendingByCategory]
-  );
-
   const budgets = useMemo(
     () =>
-      data.budgets.map((b) => ({
-        label: b.categoryName,
-        amount: b.totalSpent,
-        remaining: b.remaining,
-        pct: b.percentUsed,
-        color: getCategoryColor(b.categoryName ?? "Other"),
-      })),
-    [data.budgets]
+      data.budgets.map((b, i) => {
+        const catId = b.categoryId ?? (b as any).id;
+        const catObj = typeof catId === "number" ? categoryById.get(catId) : undefined;
+        const rawName =
+          b.categoryName ||
+          (b as any).category ||
+          (b as any).name ||
+          catObj?.name ||
+          ((b as any).parentSlug ? toBudgetCategory((b as any).parentSlug) : undefined) ||
+          DEFAULT_EXPENSE_NAMES[i % DEFAULT_EXPENSE_NAMES.length];
+
+        const label = toBudgetCategory(rawName) || rawName;
+        const color = getCategoryColor(label, i);
+
+        return {
+          label,
+          amount: b.totalSpent ?? (b as any).spent ?? 0,
+          remaining: b.remaining ?? 0,
+          pct: b.percentUsed ?? 0,
+          color,
+        };
+      }),
+    [data.budgets, categoryById]
   );
+
+  const spending = useMemo(() => {
+    const budgetColorMap = new Map<string, string>();
+    budgets.forEach((b) => {
+      budgetColorMap.set(b.label.toLowerCase().trim(), b.color);
+    });
+
+    return data.spendingByCategory.map((item, i) => {
+      const catId = (item as any).categoryId ?? (item as any).id;
+      const foundCategory = typeof catId === "number" ? categoryById.get(catId) : undefined;
+      const budgetCategoryMatch =
+        typeof catId === "number" ? data.budgets.find((b) => b.categoryId === catId) : undefined;
+      const txMatch =
+        typeof catId === "number"
+          ? data.recentTransactions.find((t) => t.categoryId === catId)
+          : undefined;
+
+      const raw =
+        (item as any).categoryName ||
+        (item as any).category ||
+        (item as any).name ||
+        (item as any).title ||
+        foundCategory?.name ||
+        budgetCategoryMatch?.categoryName ||
+        (budgetCategoryMatch as any)?.category ||
+        (budgetCategoryMatch as any)?.name ||
+        txMatch?.categoryName ||
+        item.parentSlug ||
+        (item as any).slug ||
+        foundCategory?.slug ||
+        "";
+
+      const matchedCategory = CATEGORIES.find(
+        (c) => c.value === raw || c.label.toLowerCase() === String(raw).toLowerCase()
+      );
+
+      const label =
+        matchedCategory?.label ||
+        toBudgetCategory(raw) ||
+        (raw
+          ? String(raw).replace(/[_-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+          : (budgets[i]?.label || DEFAULT_EXPENSE_NAMES[i % DEFAULT_EXPENSE_NAMES.length]));
+
+      const matchedColor =
+        budgetColorMap.get(label.toLowerCase().trim()) ||
+        budgetColorMap.get(toBudgetCategory(raw).toLowerCase().trim());
+
+      const color = matchedColor ?? getCategoryColor(label, i);
+
+      return {
+        label,
+        amount: item.amount,
+        pct: item.percentage,
+        color,
+      };
+    });
+  }, [data.spendingByCategory, data.budgets, data.recentTransactions, budgets, categoryById]);
 
   const goals = useMemo(
     () =>
@@ -562,7 +652,7 @@ export default function DashboardClient({
                       const isHovered = hoveredSpendingIndex === index;
                       return (
                         <div
-                          key={item.label}
+                          key={`${item.label}-${index}`}
                           onMouseEnter={() => setHoveredSpendingIndex(index)}
                           onMouseLeave={() => setHoveredSpendingIndex(null)}
                           className={cn(
@@ -637,12 +727,12 @@ export default function DashboardClient({
                   <p className="text-sm text-Budgexa-green/50">No budget data yet.</p>
                 ) : (
                   <div className="space-y-6">
-                    {budgets.map((item) => {
+                    {budgets.map((item, index) => {
                       const status =
                         item.pct >= 80 ? "Near limit" : item.pct >= 60 ? "Watch spending" : "Healthy";
 
                       return (
-                        <div key={item.label}>
+                        <div key={`${item.label}-${index}`}>
                           <div className="mb-3 flex items-start justify-between gap-4">
                             <div>
                               <div className="flex items-center gap-2">
