@@ -28,7 +28,8 @@ export interface VerifyOtpInput {
 
 export interface ResetPasswordInput {
   token: string;
-  password: string;
+  password?: string;
+  newPassword?: string;
   confirmPassword?: string;
 }
 

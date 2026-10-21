@@ -150,7 +150,12 @@ export default function ResetPasswordPage() {
     setLoading(true);
 
     try {
-      const response = await resetPassword({ token, password, confirmPassword });
+      const response = await resetPassword({
+        token,
+        password,
+        newPassword: password,
+        confirmPassword,
+      });
 
       if (!response.success) {
         setServerError(response.error || "Could not reset password.");
