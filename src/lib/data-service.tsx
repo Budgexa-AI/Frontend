@@ -3,6 +3,7 @@ import { getDashboardData, getCurrentUser, getAiInsights, askAi, scanReceipt } f
 import { AiConversation, AiMessage, Category, TransactionFilters, TransactionListResponse } from "./types/src";
 import {
   listTransactions,
+  getTransaction as apiGetTransaction,
   createTransaction as apiCreateTransaction,
   updateTransaction as apiUpdateTransaction,
   deleteTransaction as apiDeleteTransaction,
@@ -123,6 +124,21 @@ export async function fetchTransactions(
   filters?: TransactionFilters
 ): Promise<TransactionListResponse> {
   return listTransactions(filters);
+}
+
+export async function fetchTransaction(id: number) {
+  try {
+    return await apiGetTransaction(id);
+  } catch (primaryError) {
+    try {
+      const list = await listTransactions({ limit: 100 });
+      const found = list.transactions.find((t) => Number(t.id) === Number(id));
+      if (found) return found;
+    } catch {
+      // ignore
+    }
+    throw primaryError;
+  }
 }
 
 export async function createTransaction(...args: Parameters<typeof apiCreateTransaction>) {

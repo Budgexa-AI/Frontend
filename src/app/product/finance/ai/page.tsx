@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { AlertCircle, ArrowLeft, MoreHorizontal, Mic, TrendingUp, Lightbulb } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { AlertCircle, TrendingUp, Lightbulb, Mic } from "lucide-react";
 import { useChat } from "../../../../hooks/useChat";
 import { MessageList } from "@/components/ai/MessageList";
 import { ChatInput } from "@/components/ai/ChatInput";
@@ -17,50 +16,72 @@ export default function InsightsPage() {
     submitMessage,
   } = useChat();
 
-  const [showInfo, setShowInfo] = useState(false);
-  const router = useRouter();
+  const [showInfo] = useState(false);
+  const [insights, setInsights] = useState<AiInsight[]>([]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []); // Scroll to top on page load
-
-  const [insights, setInsights] = useState<AiInsight[]>([]);
+  }, []);
 
   useEffect(() => {
     getAiInsights().then(setInsights).catch(() => {});
   }, []);
 
-// Helper for insight card styling
-function insightMeta(type: AiInsight["type"]) {
-  switch (type) {
-    case "alert":       return { icon: AlertCircle,  bg: "bg-Budgexa-orange/8", border: "border-Budgexa-orange/20", text: "text-Budgexa-orange",   label: "Alert"       };
-    case "positive":    return { icon: TrendingUp, bg: "bg-Budgexa-green/5",  border: "border-Budgexa-green/10",  text: "text-Budgexa-green",    label: "Positive"    };
-    case "warning":     return { icon: AlertCircle,  bg: "bg-Budgexa-orange/5", border: "border-Budgexa-orange/15", text: "text-Budgexa-orange/80",label: "Warning"     };
-    case "observation":
-    case "suggestion":
-    default:            return { icon: Lightbulb,  bg: "bg-Budgexa-beige",    border: "border-Budgexa-green/10",  text: "text-Budgexa-green/70", label: "Suggestion"  };
+  // Helper for insight card styling
+  function insightMeta(type: AiInsight["type"]) {
+    switch (type) {
+      case "alert":
+        return {
+          icon: AlertCircle,
+          bg: "bg-Budgexa-orange/8",
+          border: "border-Budgexa-orange/20",
+          text: "text-Budgexa-orange",
+          label: "Alert",
+        };
+      case "positive":
+        return {
+          icon: TrendingUp,
+          bg: "bg-Budgexa-green/5",
+          border: "border-Budgexa-green/10",
+          text: "text-Budgexa-green",
+          label: "Positive",
+        };
+      case "warning":
+        return {
+          icon: AlertCircle,
+          bg: "bg-Budgexa-orange/5",
+          border: "border-Budgexa-orange/15",
+          text: "text-Budgexa-orange/80",
+          label: "Warning",
+        };
+      case "observation":
+      case "suggestion":
+      default:
+        return {
+          icon: Lightbulb,
+          bg: "bg-Budgexa-beige",
+          border: "border-Budgexa-green/10",
+          text: "text-Budgexa-green/70",
+          label: "Suggestion",
+        };
+    }
   }
-}
 
   return (
-    // h-[100dvh] uses dynamic viewport height — critical on mobile so the
-    // browser chrome doesn't eat into the chat area
-    <div className="flex flex-col h-[100dvh]">
-
-      {/* ── CHAT PANEL — fills remaining height ── */}
-      <main className="flex flex-col flex-1 min-h-0 bg-white border-x border-b border-[#E7ECE3] lg:rounded-3xl lg:border lg:mx-4 lg:my-4 overflow-hidden">
-
+    <div className="flex flex-col flex-1 h-full min-h-0 overflow-hidden">
+      {/* ── CHAT PANEL — cleanly fills the available container height without overflow ── */}
+      <section className="flex flex-col flex-1 h-full min-h-0 bg-white border border-[#E7ECE3] rounded-2xl lg:rounded-3xl overflow-hidden shadow-sm">
         {/* HEADER */}
-        <div className="lg:flex items-center justify-between px-10 py-5 border-b border-[#EEF2EB]">
+        <div className="flex items-center justify-between px-6 lg:px-8 py-4 border-b border-[#EEF2EB]">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-11 h-11 rounded-lg bg-Budgexa-green flex items-center justify-center">
-              <RayoLogo size={24} className="text-white" />
+            <div className="w-10 h-10 rounded-xl bg-Budgexa-green flex items-center justify-center shrink-0">
+              <RayoLogo size={22} className="text-white" />
             </div>
             <div className="min-w-0">
-              <h2 className="text-lg font-bold truncate text-Budgexa-green">
+              <h2 className="text-base lg:text-lg font-bold truncate text-Budgexa-green">
                 Your Financial Advisor
               </h2>
-              <p className="text-sm text-Budgexa-green/45 truncate">
+              <p className="text-xs text-Budgexa-green/45 truncate">
                 Ask. Understand. Improve your money decisions.
               </p>
             </div>
@@ -76,28 +97,27 @@ function insightMeta(type: AiInsight["type"]) {
           </div>
         )}
 
-        {/* CHAT AREA — flex-1 so it fills the space between header and input */}
-        <div className="flex-1 min-h-0 bg-[#FAFBF8] overflow-y-auto">
+        {/* CHAT AREA */}
+        <div className="flex-1 min-h-0 bg-[#FAFBF8] flex flex-col overflow-hidden">
           {messages.length === 0 ? (
-            <div className="h-full overflow-y-auto px-5 py-8 md:px-8">
+            <div className="flex-1 h-full min-h-0 overflow-y-auto px-5 py-6 md:px-8">
               <div className="max-w-xl mx-auto">
-
                 {/* Hero */}
-                <div className="text-center mb-8">
-                  <div className="w-20 h-20 rounded-3xl bg-Budgexa-green flex items-center justify-center mx-auto">
-                    <RayoLogo size={36} className="text-white" />
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 rounded-2xl bg-Budgexa-green flex items-center justify-center mx-auto shadow-sm">
+                    <RayoLogo size={30} className="text-white" />
                   </div>
-                  <h2 className="mt-5 text-2xl md:text-3xl font-bold text-Budgexa-green">
+                  <h2 className="mt-4 text-xl md:text-2xl font-bold text-Budgexa-green">
                     Your Financial Insights
                   </h2>
-                  <p className="mt-2 text-sm text-Budgexa-green/50">
+                  <p className="mt-1.5 text-xs md:text-sm text-Budgexa-green/50">
                     Tap an insight to ask a follow-up, or type your own question below.
                   </p>
                 </div>
 
                 {/* Insight cards */}
                 {insights.length > 0 && (
-                  <div className="space-y-3 mb-8">
+                  <div className="space-y-2.5 mb-6">
                     {insights.map((insight) => {
                       const meta = insightMeta(insight.type);
                       const Icon = meta.icon;
@@ -105,14 +125,14 @@ function insightMeta(type: AiInsight["type"]) {
                         <button
                           key={insight.id}
                           onClick={() => submitMessage(insight.message)}
-                          className={`w-full text-left rounded-2xl border p-4 transition-all hover:shadow-sm ${meta.bg} ${meta.border}`}
+                          className={`w-full text-left rounded-2xl border p-3.5 transition-all hover:shadow-sm ${meta.bg} ${meta.border}`}
                         >
                           <div className="flex items-start gap-3">
                             <div className={`mt-0.5 shrink-0 ${meta.text}`}>
                               <Icon size={16} />
                             </div>
                             <div className="min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
+                              <div className="flex items-center gap-2 mb-0.5">
                                 <span className={`text-[10px] font-semibold uppercase tracking-wide ${meta.text}`}>
                                   {meta.label}
                                 </span>
@@ -120,7 +140,7 @@ function insightMeta(type: AiInsight["type"]) {
                               <p className="text-sm font-semibold text-Budgexa-green leading-snug">
                                 {insight.message}
                               </p>
-                              <p className="mt-1 text-xs text-Budgexa-green/60 leading-relaxed line-clamp-2">
+                              <p className="mt-0.5 text-xs text-Budgexa-green/60 leading-relaxed line-clamp-2">
                                 {insight.detail}
                               </p>
                             </div>
@@ -132,8 +152,8 @@ function insightMeta(type: AiInsight["type"]) {
                 )}
 
                 {/* Suggested prompts */}
-                <div className="space-y-2">
-                  <p className="text-xs font-medium text-Budgexa-green/40 uppercase tracking-wide mb-3">
+                <div className="space-y-2 pb-4">
+                  <p className="text-xs font-medium text-Budgexa-green/40 uppercase tracking-wide mb-2">
                     Or ask something
                   </p>
                   {[
@@ -144,7 +164,7 @@ function insightMeta(type: AiInsight["type"]) {
                     <button
                       key={prompt}
                       onClick={() => submitMessage(prompt)}
-                      className="w-full text-left rounded-2xl border border-Budgexa-green/10 bg-white px-4 py-3 text-sm text-Budgexa-green/70 hover:bg-Budgexa-ash transition-all"
+                      className="w-full text-left rounded-xl border border-Budgexa-green/10 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-Budgexa-green/70 hover:bg-Budgexa-ash transition-all cursor-pointer"
                     >
                       {prompt}
                     </button>
@@ -158,25 +178,28 @@ function insightMeta(type: AiInsight["type"]) {
         </div>
 
         {/* DISCLAIMER */}
-        <div className="px-5 md:px-7 py-2 border-t border-[#EEF2EB] bg-[#FAFBF8] flex items-center gap-2">
-          <AlertCircle size={12} className="text-Budgexa-green/30" />
+        <div className="px-5 md:px-7 py-2 border-t border-[#EEF2EB] bg-[#FAFBF8] flex items-center gap-2 shrink-0">
+          <AlertCircle size={12} className="text-Budgexa-green/30 shrink-0" />
           <p className="text-[11px] text-Budgexa-green/35">
             Advice is based on your data and may not always be accurate.
           </p>
         </div>
 
         {/* INPUT */}
-        <div className="px-4 md:px-6 py-4 border-t border-[#EEF2EB] bg-white">
+        <div className="px-4 md:px-6 py-3.5 border-t border-[#EEF2EB] bg-white shrink-0">
           <div className="flex items-end gap-3">
             <div className="flex-1">
               <ChatInput loading={sending} onSend={submitMessage} />
             </div>
-            <button className="w-12 h-12 rounded-2xl border border-[#E4E9E0] flex items-center justify-center">
+            <button
+              type="button"
+              className="w-11 h-11 rounded-xl border border-[#E4E9E0] flex items-center justify-center text-Budgexa-green/60 hover:text-Budgexa-green transition-colors cursor-pointer"
+            >
               <Mic size={18} />
             </button>
           </div>
         </div>
-      </main>
+      </section>
     </div>
   );
 }
