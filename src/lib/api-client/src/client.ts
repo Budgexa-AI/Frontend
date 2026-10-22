@@ -239,7 +239,8 @@ export interface SignUpRequest {
 
 export interface ResetPasswordRequest {
   token: string;
-  password: string;
+  password?: string;
+  newPassword?: string;
   confirmPassword?: string;
 }
 
@@ -474,13 +475,16 @@ export async function resetPassword(
     payload: { token: "[redacted]", password: "[redacted]" },
   });
 
+  const nextPassword = data.newPassword ?? data.password;
+
   const res = await fetch(endpoint, {
     method: "PATCH",
     headers: createHeaders(),
     credentials: "include",
     body: JSON.stringify({
-      password: data.password,
-      confirmPassword: data.confirmPassword ?? data.password,
+      newPassword: nextPassword,
+      password: nextPassword,
+      confirmPassword: data.confirmPassword ?? nextPassword,
     }),
   });
 
@@ -886,6 +890,37 @@ export async function createTransaction(
   const data = await readJsonResponse<any>(res);
   console.log("[createTransaction] response:", data); // ← and this
   return data.transaction ?? data.data ?? data;
+}
+
+export async function getTransaction(id: number): Promise<Transaction> {
+  const [txRes, catRes] = await Promise.all([
+    fetch(proxyPath(`/transactions/${id}`), {
+      headers: createHeaders(),
+      credentials: "include",
+    }),
+    apiFetch("/categories"),
+  ]);
+
+  if (!txRes.ok) {
+    const body = await txRes.json().catch(() => null);
+    throw new Error(extractErrorMessage(body, "Failed to fetch transaction"));
+  }
+
+  const txJson = await readJsonResponse<any>(txRes);
+  const rawTx = txJson?.transaction ?? txJson?.data?.transaction ?? txJson?.data ?? txJson;
+
+  let categoryName = rawTx.categoryName ?? "Uncategorized";
+  if (catRes.ok && rawTx.categoryId) {
+    const catJson = await readJsonResponse<any>(catRes);
+    const cats: any[] = Array.isArray(catJson) ? catJson : (catJson.data ?? []);
+    const matched = cats.find((c: any) => c.id === rawTx.categoryId);
+    if (matched) categoryName = matched.name;
+  }
+
+  return {
+    ...rawTx,
+    categoryName,
+  };
 }
 
 export async function updateTransaction(
