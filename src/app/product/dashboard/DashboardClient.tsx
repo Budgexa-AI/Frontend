@@ -423,12 +423,20 @@ export default function DashboardClient({
 
   const goals = useMemo(
     () =>
-      data.savingsGoals.map((g) => ({
-        title: g.name,
-        current: g.currentAmount,
-        target: g.targetAmount,
-        pct: g.percentComplete,
-      })),
+      data.savingsGoals.map((g) => {
+        const rawPct =
+          typeof g.percentComplete === "number"
+            ? g.percentComplete
+            : g.targetAmount > 0
+              ? (g.currentAmount / g.targetAmount) * 100
+              : 0;
+        return {
+          title: g.name,
+          current: g.currentAmount,
+          target: g.targetAmount,
+          pct: Number.isFinite(rawPct) ? Number(rawPct.toFixed(2)) : 0,
+        };
+      }),
     [data.savingsGoals]
   );
 
